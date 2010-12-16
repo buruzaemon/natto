@@ -12,7 +12,7 @@ module Natto
       defaults = { :user_dic => nil, :output_fmt => nil }
       options = defaults.merge(options)
       option_str = ""
-      option_str += "-d
+      option_str += "-d"
       @ptr = Natto::Binding.mecab_new2("-Owakati")
       @dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       ObjectSpace.define_finalizer(@ptr, self.class.method(:finalize).to_proc)
