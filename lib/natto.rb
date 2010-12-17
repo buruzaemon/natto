@@ -5,23 +5,23 @@ module Natto
   require 'ffi'
 
   class MeCab
-    attr_reader :dict
+    attr_reader :ptr
 
-    def initialize(options)
+    def initialize(options={})
       options ||= {}
       defaults = { :user_dic => nil, :output_fmt => nil }
       options = defaults.merge(options)
       option_str = ""
       option_str += "-d"
       @ptr = Natto::Binding.mecab_new2("-Owakati")
-      @dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
-      ObjectSpace.define_finalizer(@ptr, self.class.method(:finalize).to_proc)
+      #@dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
+      ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
 
-    def self.finalize(id)
-      instance = ObjectSpace._id2ref(id)
-      Natto::Binding.mecab_destroy(instance)
-      puts "finalized!"
+    def self.create_free_proc(ptr)
+      Proc.new do 
+        Natto::Binding.mecab_destroy(ptr)
+      end
     end
 
     def parse(s)
@@ -80,13 +80,4 @@ module Natto
       end
     end
   end
-
 end
-
-begin
-m = Natto::MeCab.new(:output_fmt => 'wakati')
-puts m.dict[:filename]
-puts m.dict[:charset]
-end
-
-puts ".. so, what happened?"
