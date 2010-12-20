@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'natto'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.add_dependency('ffi', '>= 0.6.3')
   s.license = 'BSD'
   s.summary = 'natto combines the Ruby programming language with MeCab, the part-of-speech and morphological analyzer for the Japanese language.'
