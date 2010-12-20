@@ -5,28 +5,43 @@ module Natto
   require 'ffi'
 
   class MeCab
+    SUPPORTED_OPTS = [ :rcfile, :dicdir, :userdic, :output_format_type, :lattice_level, 
+                       :node_format, :unk_format, :bos_format, :eos_format, :eon_format,
+                       :unk_feature, :nbest, :theta, :cost_factor ]
+                       # :all_morphs, :partial, :allocate_sentence ]
     attr_reader :ptr
 
     def initialize(options={})
-      options ||= {}
-      defaults = { :user_dic => nil, :output_fmt => nil }
-      options = defaults.merge(options)
-      option_str = ""
-      option_str += "-d"
-      @ptr = Natto::Binding.mecab_new2("-Owakati")
+      opt_str = self.class.build_options_str(options)
+      #@ptr = FFI::MemoryPointer.new :pointer
+      @ptr = Natto::Binding.mecab_new2(opt_str)
+      puts @ptr.inspect
+      raise MeCabError.new("MeCab initialiation error with '#{opt_str}'") if @ptr.address == 0
       #@dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
-    end
-
-    def self.create_free_proc(ptr)
-      Proc.new do 
-        Natto::Binding.mecab_destroy(ptr)
-      end
     end
 
     def parse(s)
       Natto::Binding.mecab_sparse_tostr(@ptr, s) || 
         raise(MeCabError.new(Natto::Binding.mecab_strerror(@ptr)))
+    end
+    
+    def self.create_free_proc(ptr)
+      Proc.new do
+        #puts "mecab_destroy #{ptr}"
+        Natto::Binding.mecab_destroy(ptr)
+      end
+    end
+
+    def self.build_options_str(options={})
+      opt = []
+      SUPPORTED_OPTS.each do |k|
+        if options.has_key? k
+          key = k.to_s.gsub('_', '-')  
+          opt << "--#{key}=#{options[k]}"
+        end
+      end
+      opt.join(" ")
     end
   end
  
