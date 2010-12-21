@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s|
   s.name = 'natto'
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.add_dependency('ffi', '>= 0.6.3')
   s.license = 'BSD'
   s.summary = 'natto combines the Ruby programming language with MeCab, the part-of-speech and morphological analyzer for the Japanese language.'
@@ -21,7 +21,7 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.8.7'
   s.require_path = 'lib'
   s.requirements << 'MeCab, 0.98 or greater'
-  s.files = FileList['lib/**/*.rb', 'test/**/test_natto.rb', 'LICENSE']
+  s.files = FileList['lib/**/*.rb', 'test/**/test_natto.rb', 'LICENSE', 'README']
   s.test_file  = 'test/test_natto.rb'
 end
 
