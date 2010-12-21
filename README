@@ -49,11 +49,15 @@ Install natto with the following gem command:
 
 == Changelog
 
-- **December.20.10**: 0.0.2 release.
+- **2010/12/22**: 0.0.3 release.
+    - On-going refactoring
+    - Adding documentation via yard
+
+- **2010/12/20**: 0.0.2 release.
     - Continuing development on proper resource deallocation
     - Adding options hash in object initializer 
 
-- **December.13.10**: Released version 0.0.1. The objective is to provide
+- **2010/12/13**: Released version 0.0.1. The objective is to provide
   an easy-to-use, production-level Ruby binding to MeCab.
     - Initial release 
 
