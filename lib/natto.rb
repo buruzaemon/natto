@@ -9,6 +9,7 @@ require 'rubygems' if RUBY_VERSION.to_f < 1.9
 # natto requires the following:
 # * {http://sourceforge.net/projects/mecab/files/mecab/ MeCab 0.98}
 # * {http://rubygems.org/gems/ffi ffi 0.63 or greater}
+# * Ruby 1.8.7 or greater
 #
 # === Installation
 # Install natto with the following gem command:
@@ -58,7 +59,7 @@ module Natto
     # * :dicdir -- system dicdir
     # * :userdic -- user dictionary
     # * :lattice_level -- lattice information level (integer, default 0)
-    # * :output_format_type -- output format type (wakati, chasen, yomi, dump)
+    # * :output_format_type -- output format type (wakati, chasen, yomi, etc.)
     # * :node_format -- user-defined node format
     # * :unk_format -- user-defined unknown node format
     # * :bos_format -- user-defined beginning-of-sentence format
@@ -68,13 +69,18 @@ module Natto
     # * :nbest --  output N best results (integer, default 1)
     # * :theta -- temperature parameter theta (float, default 0.75)
     # * :cost_factor -- cost factor (integer, default 700)
+    # <br/>
+    # Use single-quotes to preserve format options that contain escape chars.
+    # <br/>
+    # e.g.
+    #   m = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #
     # @param [Hash]
     # @see {SUPPORTED_OPTS}
     def initialize(options={})
       opt_str = self.class.build_options_str(options)
       @ptr = Natto::Binding.mecab_new2(opt_str)
-      raise MeCabError.new("MeCab initialization error with '#{opt_str}'") if @ptr.address == 0
+      raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0
       #@dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
@@ -86,6 +92,7 @@ module Natto
       Natto::Binding.mecab_sparse_tostr(@ptr, s) || 
         raise(MeCabError.new(Natto::Binding.mecab_strerror(@ptr)))
     end
+
 
     # Returns a <tt>Proc</tt> that is registered to be invoked
     # after the object owning <tt>ptr</tt> has been destroyed.
@@ -106,7 +113,11 @@ module Natto
       SUPPORTED_OPTS.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
-          opt << "--#{key}=#{options[k]}"
+          if key.end_with? '_format_' or key.end_with? '_feature'
+            opt << "--#{key}="+options[k]
+          else
+            opt << "--#{key}=#{options[k]}"
+          end
         end
       end
       opt.join(" ")
@@ -131,7 +142,7 @@ module Natto
   # * :version
   # * :next
   # <br>
-  #
+  # Usage:
   #  dict = Natto::DictionaryInfo.new(mecab_ptr)
   #  puts dict[:filename]
   #  =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
