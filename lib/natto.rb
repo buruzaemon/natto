@@ -113,11 +113,13 @@ module Natto
       SUPPORTED_OPTS.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
-          if key.end_with? '_format_' or key.end_with? '_feature'
-            opt << "--#{key}="+options[k]
-          else
-            opt << "--#{key}=#{options[k]}"
-          end
+          opt << "--#{key}=#{options[k]}"
+
+          #if key.end_with? '_format_' or key.end_with? '_feature'
+          #  opt << "--#{key}="+options[k]
+          #else
+          #  opt << "--#{key}=#{options[k]}"
+          #end
         end
       end
       opt.join(" ")
