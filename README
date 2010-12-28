@@ -49,7 +49,10 @@ Install natto with the following gem command:
 
 == Changelog
 
-- **2010/12/28**: 0.0.5 release.
+- **2010/12/28**: 0.0.6 release.
+    - Correction to natto.gemspec to include lib/natto/binding.rb.
+
+- **2010/12/28**: 0.0.5 release. (yanked)
     - On-going refactoring
     - Project structure refactored for greater maintainability
 
