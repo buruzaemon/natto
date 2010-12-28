@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.requirements << 'FFI, 0.6.3 or greater'
   s.files = [
     'lib/natto.rb', 
+    'lib/natto/binding.rb', 
     'lib/natto/version.rb', 
     'test/test_natto.rb', 
     'LICENSE', 
