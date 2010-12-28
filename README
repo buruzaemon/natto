@@ -49,7 +49,14 @@ Install natto with the following gem command:
 
 == Changelog
 
-- **2010/12/22**: 0.0.3 release.
+- **2010/12/28**: 0.0.5 release.
+    - On-going refactoring
+    - Project structure refactored for greater maintainability
+
+- **2010/12/26**: 0.0.4 release.
+    - On-going refactoring
+
+- **2010/12/23**: 0.0.3 release.
     - On-going refactoring
     - Adding documentation via yard
 
