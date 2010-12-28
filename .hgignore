@@ -1,0 +1,13 @@
+syntax: glob
+
+# Temporary files used by the vim editor.
+.*.swp
+
+# yard doc: generated documentation
+doc
+
+# yard metadata
+.yardoc*
+
+# generated gems, archive files, etc.
+pkg
