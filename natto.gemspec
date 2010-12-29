@@ -28,11 +28,11 @@ Gem::Specification.new do |s|
     'lib/natto/version.rb', 
     'test/test_natto.rb', 
     'LICENSE', 
-    'README'
+    'README.md'
   ]
   s.extra_rdoc_files = [
     'LICENSE', 
-    'README'
+    'README.md'
   ]
   s.has_rdoc = "yard"
   s.test_file  = 'test/test_natto.rb'
