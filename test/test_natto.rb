@@ -34,13 +34,17 @@ class TestNatto < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:userdic=>"/yet/another/file")
     assert_equal('--userdic=/yet/another/file', res)
 
-    res = Natto::MeCab.build_options_str(:output_format_type=>"c")
-    assert_equal('--output-format-type=c', res)
+    res = Natto::MeCab.build_options_str(:lattice_level=>42)
+    assert_equal('--lattice-level=42', res)
 
-    res = Natto::MeCab.build_options_str(:output_format_type=>"c", 
-                                         :userdic=>"/some/file", 
-                                         :dicdir=>"/some/other/file")
-    assert_equal('--dicdir=/some/other/file --userdic=/some/file --output-format-type=c', res)
+    res = Natto::MeCab.build_options_str(:all_morphs=>true)
+    assert_equal('--all-morphs', res)
+
+    res = Natto::MeCab.build_options_str(:output_format_type=>"natto")
+    assert_equal('--output-format-type=natto', res)
+    
+    res = Natto::MeCab.build_options_str(:partial=>true)
+    assert_equal('--partial', res)
 
     res = Natto::MeCab.build_options_str(:node_format=>'%m\t%f[7]\n')
     assert_equal('--node-format=%m\t%f[7]\n', res)
@@ -60,9 +64,6 @@ class TestNatto < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:unk_feature=>'%m\t%f[7]\n')
     assert_equal('--unk-feature=%m\t%f[7]\n', res)
 
-    res = Natto::MeCab.build_options_str(:lattice_level=>42)
-    assert_equal('--lattice-level=42', res)
-
     res = Natto::MeCab.build_options_str(:nbest=>42)
     assert_equal('--nbest=42', res)
 
@@ -71,12 +72,51 @@ class TestNatto < Test::Unit::TestCase
 
     res = Natto::MeCab.build_options_str(:cost_factor=>42)
     assert_equal('--cost-factor=42', res)
+    
+    res = Natto::MeCab.build_options_str(:output_format_type=>"natto", 
+                                         :userdic=>"/some/file", 
+                                         :dicdir=>"/some/other/file",
+                                         :partial=>true,
+                                         :all_morphs=>true)
+    assert_equal('--dicdir=/some/other/file --userdic=/some/file --all-morphs --output-format-type=natto --partial', res)
+
   end
 
-  def test_initialize
+  def test_construction
+    m = nil
+    assert_nothing_raised do
+      m = Natto::MeCab.new
+    end
+    assert_equal({}, m.options)
+
+    opts = {:output_format_type=>'chasen'}
+    assert_nothing_raised do
+      m = Natto::MeCab.new(opts)
+    end
+    assert_equal(opts, m.options)
+    
+    opts = {:all_morphs=>true, :partial=>true}
+    assert_nothing_raised do
+      m = Natto::MeCab.new(opts)
+    end
+    assert_equal(opts, m.options)
+  end
+
+  def test_initialize_with_errors
     assert_raise Natto::MeCabError do
-      Natto::MeCab.new(:output_format_type=>'UNDEFINED')
+      Natto::MeCab.new(:output_format_type=>'not_defined_anywhere')
+    end
+    
+    assert_raise Natto::MeCabError do
+      Natto::MeCab.new(:rcfile=>'/rcfile/does/not/exist')
+    end
+
+    assert_raise Natto::MeCabError do
+      Natto::MeCab.new(:dicdir=>'/dicdir/does/not/exist')
+    end
+
+    assert_raise Natto::MeCabError do
+      Natto::MeCab.new(:userdic=>'/userdic/does/not/exist')
     end
   end
-
 end
