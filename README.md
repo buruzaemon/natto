@@ -2,7 +2,6 @@
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
-
 natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [MeCab](http://mecab.sourceforge.net/), the part-of-speech and morphological analyzer for the Japanese language.
 
 ## Requirements
@@ -31,6 +30,9 @@ e.g., for Cygwin
     require 'natto'
 
     m = Natto::MeCab.new
+    => #<Natto::MeCab:0x28d93dd4 @options={}, \
+                                 @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
+                                 @ptr=#<FFI::Pointer address=0x28af3e58>>
     puts m.parse("すもももももももものうち")
     すもも  名詞,一般,*,*,*,*,すもも,スモモ,スモモ
     も      助詞,係助詞,*,*,*,*,も,モ,モ
@@ -52,6 +54,10 @@ e.g., for Cygwin
 -  Please try not to mess with the Rakefile, version, or history. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Changelog
+
+- __2011/01/07__: 0.0.8 release.
+    - Adding support for accessing dictionaries 
+    - Further tweaking of documentation with markdown
 
 - __2010/12/30__: 0.0.7 release.
     - Adding support for all-morphs and partial options

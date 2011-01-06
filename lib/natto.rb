@@ -2,36 +2,6 @@
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
 
-# natto combines the Ruby programming language with MeCab, 
-# the part-of-speech and morphological analyzer for the
-# Japanese language.
-# 
-# ## Requirements
-# natto requires the following:
-#
-# -  [MeCab _0.98_](http://sourceforge.net/projects/mecab/files/mecab/0.98/)
-# -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
-# -  Ruby _1.8.7 or greater_
-#
-# ## Installation
-# Install natto with the following gem command:
-#     gem install natto
-#
-# ## Configuration
-# - natto will try to locate the <tt>mecab</tt> library based upon its runtime environment.
-# - In case of <tt>LoadError</tt>, please set the <tt>MECAB_PATH</tt> environment variable to the exact name/path to your <tt>mecab</tt> library.
-#
-#  e.g., for bash on UNIX/Linux
-#       export MECAB_PATH=mecab.so
-#  e.g., on Windows
-#       set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
-#  e.g., for Cygwin
-#       export MECAB_PATH=cygmecab-1
-#
-# ## Usage
-# hi すもも  名詞,一般,*,*,*,*,すもも,スモモ,スモモ
-#     &amp;#x65e5;
-#
 module Natto 
   require 'ffi'
 
@@ -40,23 +10,27 @@ module Natto
   # initialization.
   #
   # ## Usage
+  # _Here is how to use natto under Ruby 1.9:_
   #     require 'natto'
   #
   #     m = Natto::MeCab.new
+  #     => #<Natto::MeCab:0x28d93dd4 @options={}, \
+  #                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
+  #                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
   #     puts m.parse("すもももももももものうち")
-  #     => すもも  名詞,一般,*,*,*,*,すもも,スモモ,スモモ
-  #     => も      助詞,係助詞,*,*,*,*,も,モ,モ
-  #     => もも    名詞,一般,*,*,*,*,もも,モモ,モモ
-  #     => も      助詞,係助詞,*,*,*,*,も,モ,モ
-  #     => もも    名詞,一般,*,*,*,*,もも,モモ,モモ
-  #     => の      助詞,連体化,*,*,*,*,の,ノ,ノ
-  #     => うち    名詞,非自立,副詞可能,*,*,*,うち,ウチ,ウチ
-  #     => EOS
+  #     すもも  名詞,一般,*,*,*,*,すもも,スモモ,スモモ
+  #     も      助詞,係助詞,*,*,*,*,も,モ,モ
+  #     もも    名詞,一般,*,*,*,*,もも,モモ,モモ
+  #     も      助詞,係助詞,*,*,*,*,も,モ,モ
+  #     もも    名詞,一般,*,*,*,*,もも,モモ,モモ
+  #     の      助詞,連体化,*,*,*,*,の,ノ,ノ
+  #     うち    名詞,非自立,副詞可能,*,*,*,うち,ウチ,ウチ
+  #     EOS
   #     => nil
   # 
   class MeCab
 
-    attr_reader :options
+    attr_reader :options, :dicts
 
     # Supported options to the <tt>mecab</tt> parser.
     # See the <tt>mecab</tt> help for more details. 
@@ -64,10 +38,6 @@ module Natto
                         :output_format_type, :partial, :node_format, :unk_format, 
                         :bos_format, :eos_format, :eon_format, :unk_feature, 
                         :nbest, :theta, :cost_factor ].freeze
-                        # :allocate_sentence ]
-
-    #OPTION_DEFAULTS = { :lattice_level=>0, :all_morphs=>false, :nbest=>1, 
-    #                    :theta=>0.75, :cost_factor=>700 }.freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt> hash.
@@ -95,6 +65,9 @@ module Natto
     # 
     # e.g.
     #     m = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
+    #     => #<Natto::MeCab:0x28d8886c @options={:node_format=>"%m\\t%f[7]\\n"}, \
+    #                                     @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
+    #                                     @ptr=#<FFI::Pointer address=0x28e3b268>>
     #     puts m.parse("日本語は難しいです。")
     #     日本語  ニホンゴ
     #     は      ハ
@@ -109,10 +82,17 @@ module Natto
     # @see MeCab::SUPPORTED_OPTS
     def initialize(options={})
       @options = options
+      @dicts = []
+
       opt_str = self.class.build_options_str(@options)
       @ptr = Natto::Binding.mecab_new2(opt_str)
-      raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0
-      #@dict = Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
+      raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
+
+      @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
+      while @dicts.last[:next].address != 0x0
+        @dicts << Natto::DictionaryInfo.new(@dicts.last[:next])
+      end
+
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
 
@@ -153,12 +133,6 @@ module Natto
           else
             opt << "--#{key}=#{options[k]}"
           end
-
-          #if key.end_with? '_format_' or key.end_with? '_feature'
-          #  opt << "--#{key}="+options[k]
-          #else
-          #  opt << "--#{key}=#{options[k]}"
-          #end
         end
       end
       opt.join(" ")
@@ -185,11 +159,11 @@ module Natto
   # - :next
   # 
   # # Usage:
-  #
-  #     dict = Natto::DictionaryInfo.new(mecab_ptr)
-  #     puts dict[:filename]
+  #     m = Natto::MeCab.new
+  #     sysdic = m.dicts.first
+  #     puts sysdic[:filename]
   #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
-  #     puts dict[:charset]
+  #     puts sysdic[:charset]
   #     =>  utf8
   class DictionaryInfo < FFI::Struct
     layout  :filename, :string,

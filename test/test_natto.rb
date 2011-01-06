@@ -119,4 +119,14 @@ class TestNatto < Test::Unit::TestCase
       Natto::MeCab.new(:userdic=>'/userdic/does/not/exist')
     end
   end
+
+  def test_dictionary_accessor
+    m = Natto::MeCab.new
+    dicts = m.dicts
+    assert dicts.empty? == false
+    sysdic = dicts.first
+    assert_equal('/usr/local/lib/mecab/dic/ipadic/sys.dic', sysdic[:filename])
+    assert_equal('utf8', sysdic[:charset])
+    assert_equal(0x0, sysdic[:next].address)
+  end
 end

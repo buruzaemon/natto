@@ -1,4 +1,5 @@
 # coding: utf-8
+
 module Natto
 
   # Module <tt>Binding</tt> encapsulates methods and behavior 
