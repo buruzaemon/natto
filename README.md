@@ -53,7 +53,7 @@ e.g., for Cygwin
 
 ## Changelog
 
-- __2010/12/30: 0.0.7 release.
+- __2010/12/30__: 0.0.7 release.
     - Adding support for all-morphs and partial options
     - Further updating of documentation with markdown
 
