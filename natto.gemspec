@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
     'README.md'
   ]
   s.rdoc_options << '--title' << 'natto #{Natto::VERSION} -- Ruby-Mecab binding'
-  s.rdoc_options << '--main' << 'README'
+  s.rdoc_options << '--main' << 'README.md'
   s.rdoc_options << '-c UTF-8'
   s.has_rdoc = "yard"
   s.test_file  = 'test/test_natto.rb'

@@ -87,4 +87,4 @@ e.g., for Cygwin
 
 ## Copyright
 
-natto &copy; 2010-2013 by Brooke M. Fujita, licensed under the new BSD license. Please see the [LICENSE](file.LICENSE.html) document for further details.
+natto &copy; 2010-2013 by Brooke M. Fujita, licensed under the new BSD license. Please see the [LICENSE](file.LICENSE) document for further details.
