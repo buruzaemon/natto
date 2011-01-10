@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# coding: utf-8
 require 'bundler'
 Bundler::GemHelper.install_tasks
 
