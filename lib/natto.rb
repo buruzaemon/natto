@@ -110,7 +110,7 @@ module Natto
     # Returns a <tt>Proc</tt> that is registered to be invoked
     # after the object owning <tt>ptr</tt> has been destroyed.
     #
-    # @param [FFI::MemoryPointer] ptr
+    # @param [FFI::Pointer] ptr
     # @return [Proc] to release <tt>mecab</tt> resources properly
     def self.create_free_proc(ptr)
       Proc.new do

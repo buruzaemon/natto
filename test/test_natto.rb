@@ -1,9 +1,11 @@
-# -*- encoding: utf-8 -*-
+# coding: utf-8
 $:.unshift('lib')
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'test/unit'
 require 'natto'
 
+# TestNatto encapsulates tests for the basic
+# behavior of natto.
 class TestNatto < Test::Unit::TestCase
   def setup
     @klass = Class.new do
@@ -12,12 +14,15 @@ class TestNatto < Test::Unit::TestCase
   end
 
   def teardown
+    @klass = nil
   end
 
+  # Tests the class methods include callback.
   def test_classmethods_include
     assert_equal('0.98', @klass.mecab_version)
   end
 
+  # Tests the build_options_str function.
   def test_build_options_str
     res = Natto::MeCab.build_options_str
     assert_equal('', res)
@@ -82,6 +87,8 @@ class TestNatto < Test::Unit::TestCase
 
   end
 
+  # Tests the state of a Natto::MeCab instance
+  # after construction.
   def test_construction
     m = nil
     assert_nothing_raised do
@@ -102,6 +109,8 @@ class TestNatto < Test::Unit::TestCase
     assert_equal(opts, m.options)
   end
 
+  # Tests the initialize method for error cases for
+  # erroneous mecab options.
   def test_initialize_with_errors
     assert_raise Natto::MeCabError do
       Natto::MeCab.new(:output_format_type=>'not_defined_anywhere')
@@ -120,6 +129,10 @@ class TestNatto < Test::Unit::TestCase
     end
   end
 
+  # Tests the dictionary accessor method.
+  # Assumes that:
+  # a) system dictionary is /usr/local/lib/mecab/dic/ipadic/sys.dic
+  # b) system dictionary encoding is utf-8
   def test_dictionary_accessor
     m = Natto::MeCab.new
     dicts = m.dicts
