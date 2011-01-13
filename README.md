@@ -55,6 +55,10 @@ e.g., for Cygwin
 
 ## Changelog
 
+- __2011/01/13: 0.0.9 release.
+    - Further development and testing for mecab dictionary access/destruction
+    - Continuing update of documentation
+
 - __2011/01/07__: 0.0.8 release.
     - Adding support for accessing dictionaries 
     - Further tweaking of documentation with markdown
