@@ -27,12 +27,20 @@ e.g., for Cygwin
     export MECAB_PATH=cygmecab-1
 
 ## Usage
+    require 'rubygems'
     require 'natto'
 
     m = Natto::MeCab.new
     => #<Natto::MeCab:0x28d93dd4 @options={}, \
                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
+
+    puts m.dicts.first.filename
+    => /usr/local/lib/mecab/dic/ipadic/sys.dic
+
+    puts m.dicts.first.charset
+    => utf8
+
     puts m.parse('暑い日にはもってこいの一品ですね。')
     暑い日にはもってこいの一品ですね。
     暑い    形容詞,自立,*,*,形容詞・アウオ段,基本形,暑い,アツイ,アツイ
