@@ -142,4 +142,10 @@ class TestNatto < Test::Unit::TestCase
     assert_equal('utf8', sysdic[:charset])
     assert_equal(0x0, sysdic[:next].address)
   end
+
+  # Tests the mecab version string accessor method.
+  def test_version_accessor
+    m = Natto::MeCab.new
+    assert_equal('0.98', m.version)
+  end
 end

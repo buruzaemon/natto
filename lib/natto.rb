@@ -106,6 +106,11 @@ module Natto
         raise(MeCabError.new(Natto::Binding.mecab_strerror(@ptr)))
     end
 
+    # Returns the <tt>mecab</tt> version.
+    # @return the <tt>mecab</tt> version.
+    def version
+      Natto::Binding.mecab_version
+    end
 
     # Returns a <tt>Proc</tt> that is registered to be invoked
     # after the object owning <tt>ptr</tt> has been destroyed.
