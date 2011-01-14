@@ -150,15 +150,19 @@ class TestNatto < Test::Unit::TestCase
   end
 
   # Tests the accessors of Natto::DictionaryInfo
+  # Note: Object#type is deprecated in 1.9.n, but comes with a warning
+  #       in 1.8.n
   def test_dictionary_info_member_accessors
     m = Natto::MeCab.new
     sysdic = m.dicts.first
-    members = %w( filename charset size dictype lsize rsize version next )
+    members = %w( filename charset type size lsize rsize version next )
     members.each do |nomme|
       assert_not_nil(sysdic.send nomme.to_sym ) 
     end
     
-    # nil will be returned for anything else!
-    assert_nil(sysdic.send :foobar) 
+    # NoMethodError will be raised for anything else!
+    assert_raise NoMethodError do
+      sysdic.send :nomethoderror
+    end
   end
 end

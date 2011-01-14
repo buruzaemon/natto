@@ -9,25 +9,27 @@ module Natto
   # Options to the <tt>mecab</tt> parser are passed in as a hash at
   # initialization.
   #
-  # ## Usage
-  # _Here is how to use natto under Ruby 1.9:_
+  # <h2>Usage</h2>
+  # Here is how to use natto under Ruby 1.8.n:<br/>
+  #
+  #     require 'rubygems'
   #     require 'natto'
   #
   #     m = Natto::MeCab.new
   #     => #<Natto::MeCab:0x28d93dd4 @options={}, \
   #                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
   #                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
-  #     puts m.parse("すもももももももものうち")
-  #     すもも  名詞,一般,*,*,*,*,すもも,スモモ,スモモ
-  #     も      助詞,係助詞,*,*,*,*,も,モ,モ
-  #     もも    名詞,一般,*,*,*,*,もも,モモ,モモ
-  #     も      助詞,係助詞,*,*,*,*,も,モ,モ
-  #     もも    名詞,一般,*,*,*,*,もも,モモ,モモ
-  #     の      助詞,連体化,*,*,*,*,の,ノ,ノ
-  #     うち    名詞,非自立,副詞可能,*,*,*,うち,ウチ,ウチ
+  #     puts m.parse("ネバネバの組み合わせ美味しいです。")
+  #     ネバネバ      名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
+  #     の            助詞,連体化,*,*,*,*,の,ノ,ノ
+  #     組み合わせ    名詞,一般,*,*,*,*,組み合わせ,クミアワセ,クミアワセ
+  #     美味しいです  形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
+  #     です          助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
+  #     。            デス記号,句点,*,*,*,*,。,。,。
   #     EOS
   #     => nil
-  # 
+  #
+  # The <tt>require 'rubygems'</tt> can be omitted for Ruby 1.9.n.
   class MeCab
 
     attr_reader :options, :dicts
@@ -61,19 +63,22 @@ module Natto
     # - :theta --  temperature parameter theta (float, default 0.75)
     # - :cost_factor --  cost factor (integer, default 700)
     # 
-    # _Use single-quotes to preserve format options that contain escape chars._
-    # 
-    # e.g.
+    # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
+    # e.g.<br/>
+    #
     #     m = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #     => #<Natto::MeCab:0x28d8886c @options={:node_format=>"%m\\t%f[7]\\n"}, \
-    #                                     @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
-    #                                     @ptr=#<FFI::Pointer address=0x28e3b268>>
-    #     puts m.parse("日本語は難しいです。")
-    #     日本語  ニホンゴ
-    #     は      ハ
-    #     難しい  ムズカシイ
-    #     です    デス
-    #     。      。
+    #                                  @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
+    #                                  @ptr=#<FFI::Pointer address=0x28e3b268>>
+    #     puts m.parse('簡単で美味しくて良いですよね。')
+    #     簡単       カンタン
+    #     で         デ
+    #     美味しくて オイシクテ
+    #     良い       ヨイ
+    #     です       デス
+    #     よ         ヨ
+    #     ね         ネ
+    #     。
     #     EOS
     #     => nil
     #
@@ -107,7 +112,8 @@ module Natto
     end
 
     # Returns the <tt>mecab</tt> version.
-    # @return the <tt>mecab</tt> version.
+    #
+    # @return <tt>mecab</tt> version
     def version
       Natto::Binding.mecab_version
     end
@@ -151,8 +157,9 @@ module Natto
   # <tt>DictionaryInfo</tt> is a wrapper for a <tt>MeCab</tt>
   # instance's related dictionary information.
   # 
-  # Values may be obtained by using the following symbols 
-  # as keys to the hash of <tt>mecab</tt> dictionary information.
+  # Values for the <tt>mecab</tt> dictionary attributes may be 
+  # obtained by using the following <tt>Symbol</tt>s as keys 
+  # to the associative array of <tt>FFI::Struct</tt> members.
   #
   # - :filename
   # - :charset
@@ -163,13 +170,24 @@ module Natto
   # - :version
   # - :next
   # 
-  # # Usage:
+  # <h2>Usage</h2>
+  #
   #     m = Natto::MeCab.new
   #     sysdic = m.dicts.first
+  #     puts sysdic.filename
+  #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #     puts sysdic.charset
+  #     =>  utf8
+  #
+  # It is also possible to use the <tt>Symbol</tt> for the
+  # <tt>mecab</tt> dictionary member to index into the 
+  # <tt>FFI::Struct</tt> layout associative array like so:
+  #     
   #     puts sysdic[:filename]
   #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
   #     puts sysdic[:charset]
   #     =>  utf8
+  #
   class DictionaryInfo < FFI::Struct
 
     layout  :filename, :string,
@@ -180,21 +198,25 @@ module Natto
             :rsize,    :uint,
             :version,  :ushort,
             :next,     :pointer
+   
+    # Hack to avoid that deprecation message Object#type.
+    if RUBY_VERSION.to_f < 1.9
+      alias_method :deprecated_type, :type
+      # @private
+      def type
+        self[:type]
+      end
+    end
 
-    # Provide accessor methods for the members of the <tt>DictionaryInfo</tt>
-    # structure.
+    # Provides accessor methods for the members of the <tt>DictionaryInfo</tt> structure.
     #
-    # Note that since <tt>Object#type</tt> is deprecated, <tt>dictype</tt> is used
-    # instead. 
     # @param [String] methName
     # @return member values for the <tt>mecab</tt> dictionary
+    # @raise [NoMethodError] if <tt>methName</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
     def method_missing(methName)
       member_sym = methName.id2name.to_sym
-      if member_sym == :dictype
-        return self[:type]
-      else
-        return self[member_sym] if self.members.include?(member_sym)
-      end
+      return self[member_sym] if self.members.include?(member_sym)
+      raise(NoMethodError.new("undefined method '#{methName}' for #{self}"))
     end
   end
 end
