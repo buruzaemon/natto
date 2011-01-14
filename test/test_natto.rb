@@ -129,7 +129,13 @@ class TestNatto < Test::Unit::TestCase
     end
   end
 
-  # Tests the dictionary accessor method.
+  # Tests the mecab version string accessor class method of Natto::MeCab.
+  def test_version_accessor
+    m = Natto::MeCab.new
+    assert_equal('0.98', m.version)
+  end
+
+  # Tests the dictionary accessor method of Natto::MeCab
   # Assumes that:
   # a) system dictionary is /usr/local/lib/mecab/dic/ipadic/sys.dic
   # b) system dictionary encoding is utf-8
@@ -143,9 +149,16 @@ class TestNatto < Test::Unit::TestCase
     assert_equal(0x0, sysdic[:next].address)
   end
 
-  # Tests the mecab version string accessor method.
-  def test_version_accessor
+  # Tests the accessors of Natto::DictionaryInfo
+  def test_dictionary_info_member_accessors
     m = Natto::MeCab.new
-    assert_equal('0.98', m.version)
+    sysdic = m.dicts.first
+    members = %w( filename charset size dictype lsize rsize version next )
+    members.each do |nomme|
+      assert_not_nil(sysdic.send nomme.to_sym ) 
+    end
+    
+    # nil will be returned for anything else!
+    assert_nil(sysdic.send :foobar) 
   end
 end

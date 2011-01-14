@@ -171,6 +171,7 @@ module Natto
   #     puts sysdic[:charset]
   #     =>  utf8
   class DictionaryInfo < FFI::Struct
+
     layout  :filename, :string,
             :charset,  :string,
             :size,     :uint,
@@ -178,6 +179,22 @@ module Natto
             :lsize,    :uint,
             :rsize,    :uint,
             :version,  :ushort,
-            :next,     :pointer 
+            :next,     :pointer
+
+    # Provide accessor methods for the members of the <tt>DictionaryInfo</tt>
+    # structure.
+    #
+    # Note that since <tt>Object#type</tt> is deprecated, <tt>dictype</tt> is used
+    # instead. 
+    # @param [String] methName
+    # @return member values for the <tt>mecab</tt> dictionary
+    def method_missing(methName)
+      member_sym = methName.id2name.to_sym
+      if member_sym == :dictype
+        return self[:type]
+      else
+        return self[member_sym] if self.members.include?(member_sym)
+      end
+    end
   end
 end
