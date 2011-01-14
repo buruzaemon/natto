@@ -10,26 +10,25 @@ module Natto
   # initialization.
   #
   # <h2>Usage</h2>
-  # Here is how to use natto under Ruby 1.8.n:<br/>
   #
-  #     require 'rubygems'
+  #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     m = Natto::MeCab.new
+  #     mecab = Natto::MeCab.new
   #     => #<Natto::MeCab:0x28d93dd4 @options={}, \
   #                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
   #                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
-  #     puts m.parse("ネバネバの組み合わせ美味しいです。")
+  #
+  #     puts mecab.parse("ネバネバの組み合わせ美味しいです。")
   #     ネバネバ      名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
   #     の            助詞,連体化,*,*,*,*,の,ノ,ノ
   #     組み合わせ    名詞,一般,*,*,*,*,組み合わせ,クミアワセ,クミアワセ
-  #     美味しいです  形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
+  #     美味しい      形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
   #     です          助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
   #     。            デス記号,句点,*,*,*,*,。,。,。
   #     EOS
   #     => nil
   #
-  # The <tt>require 'rubygems'</tt> can be omitted for Ruby 1.9.n.
   class MeCab
 
     attr_reader :options, :dicts
@@ -66,11 +65,12 @@ module Natto
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
-    #     m = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
+    #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #     => #<Natto::MeCab:0x28d8886c @options={:node_format=>"%m\\t%f[7]\\n"}, \
     #                                  @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
     #                                  @ptr=#<FFI::Pointer address=0x28e3b268>>
-    #     puts m.parse('簡単で美味しくて良いですよね。')
+    #
+    #     puts mecab.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
     #     で         デ
     #     美味しくて オイシクテ
@@ -111,15 +111,18 @@ module Natto
         raise(MeCabError.new(Natto::Binding.mecab_strerror(@ptr)))
     end
 
-    # Returns the <tt>mecab</tt> version.
+    # Returns the <tt>mecab</tt> library version.
     #
-    # @return <tt>mecab</tt> version
+    # @return [String] <tt>mecab</tt> library version
     def version
       Natto::Binding.mecab_version
     end
 
-    # Returns a <tt>Proc</tt> that is registered to be invoked
-    # after the object owning <tt>ptr</tt> has been destroyed.
+    # Returns a <tt>Proc</tt> that will properly free resources
+    # when this <tt>MeCab</tt> instance is garbage collected.
+    # The <tt>Proc</tt> returned is registered to be invoked
+    # after the <tt>MeCab</tt> instance  owning <tt>ptr</tt> 
+    # has been destroyed.
     #
     # @param [FFI::Pointer] ptr
     # @return [Proc] to release <tt>mecab</tt> resources properly
@@ -139,6 +142,7 @@ module Natto
       SUPPORTED_OPTS.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
+          # all-morphs and partial are just flags
           if %w( all-morphs partial ).include? key
             opt << "--#{key}" if options[k]==true
           else
@@ -171,11 +175,15 @@ module Natto
   # - :next
   # 
   # <h2>Usage</h2>
+  # <tt>mecab</tt> dictionary attributes can be obtained by
+  # using the corresponding accessor.
   #
-  #     m = Natto::MeCab.new
+  #     mecab = Natto::MeCab.new
   #     sysdic = m.dicts.first
+  #
   #     puts sysdic.filename
   #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #
   #     puts sysdic.charset
   #     =>  utf8
   #
@@ -185,6 +193,7 @@ module Natto
   #     
   #     puts sysdic[:filename]
   #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #
   #     puts sysdic[:charset]
   #     =>  utf8
   #
@@ -202,7 +211,13 @@ module Natto
     # Hack to avoid that deprecation message Object#type.
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_type, :type
-      # @private
+      # <tt>Object#type</tt> override defined when <tt>RUBY_VERSION</tt> is
+      # less than 1.9. This is a hack to avoid the <tt>Object#type</tt>
+      # deprecation warning thrown up in Ruby 1.8.7.
+      #
+      # <i>This method override is not defined when the Ruby interpreter
+      # is 1.9 or greater.</i>
+      # @return [Fixnum] <tt>mecab</tt> dictionary type
       def type
         self[:type]
       end

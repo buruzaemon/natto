@@ -27,21 +27,25 @@ e.g., for Cygwin
     export MECAB_PATH=cygmecab-1
 
 ## Usage
-    require 'rubygems'
+    require 'rubygems' if RUBY_VERSION.to_f < 1.9
     require 'natto'
 
-    m = Natto::MeCab.new
+    mecab = Natto::MeCab.new
     => #<Natto::MeCab:0x28d93dd4 @options={}, \
                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
 
-    puts m.dicts.first.filename
+    puts mecab.version
+    => 0.98
+
+    sysdic = mecab.dicts.first
+    puts sysdic.filename
     => /usr/local/lib/mecab/dic/ipadic/sys.dic
 
-    puts m.dicts.first.charset
+    puts sysdic.charset
     => utf8
 
-    puts m.parse('暑い日にはもってこいの一品ですね。')
+    puts mecab.parse('暑い日にはもってこいの一品ですね。')
     暑い日にはもってこいの一品ですね。
     暑い    形容詞,自立,*,*,形容詞・アウオ段,基本形,暑い,アツイ,アツイ
     日      名詞,非自立,副詞可能,*,*,*,日,ヒ,ヒ
