@@ -34,6 +34,8 @@ Gem::Specification.new do |s|
     'LICENSE', 
     'README.md'
   ]
+  s.rdoc_options << "LICENSE"
+  s.rdoc_options << "README.md"
   s.rdoc_options << '--title' << "natto #{Natto::VERSION} -- Ruby-Mecab binding"
   s.rdoc_options << '--main' << 'README.md'
   s.rdoc_options << '-c UTF-8'

@@ -230,8 +230,11 @@ module Natto
     # @raise [NoMethodError] if <tt>methName</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
     def method_missing(methName)
       member_sym = methName.id2name.to_sym
-      return self[member_sym] if self.members.include?(member_sym)
-      raise(NoMethodError.new("undefined method '#{methName}' for #{self}"))
+      if self.members.include?(member_sym)
+        self[member_sym]
+      else
+        raise(NoMethodError.new("undefined method '#{methName}' for #{self}"))
+      end
     end
   end
 end
