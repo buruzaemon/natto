@@ -38,7 +38,7 @@ module Natto
     SUPPORTED_OPTS = [  :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
                         :output_format_type, :partial, :node_format, :unk_format, 
                         :bos_format, :eos_format, :eon_format, :unk_feature, 
-                        :nbest, :theta, :cost_factor ].freeze
+                        :allocate_sentence, :nbest, :theta, :cost_factor ].freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt> hash.
@@ -58,6 +58,7 @@ module Natto
     # - :eos_format --  user-defined end-of-sentence format
     # - :eon_format --  user-defined end-of-NBest format
     # - :unk_feature --  feature for unknown word
+    # - :allocate_sentence -- allocate new memory for input sentence 
     # - :nbest --  output N best results (integer, default 1)
     # - :theta --  temperature parameter theta (float, default 0.75)
     # - :cost_factor --  cost factor (integer, default 700)
@@ -142,8 +143,8 @@ module Natto
       SUPPORTED_OPTS.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
-          # all-morphs and partial are just flags
-          if %w( all-morphs partial ).include? key
+          # all-morphs, partial, and allocate-sentence are just flags
+          if %w( all-morphs partial allocate-sentence ).include? key
             opt << "--#{key}" if options[k]==true
           else
             opt << "--#{key}=#{options[k]}"
