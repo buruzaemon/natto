@@ -70,6 +70,14 @@ e.g., for Cygwin
 
 ## Changelog
 
+- __2011/01/19__: 0.2.0 release.
+    - Added support for mecab option allocate-sentence 
+    - Continuing update of documentation
+
+- __2011/01/15__: 0.1.1 release.
+    - Refactored Natto::DictionaryInfo#method_missing
+    - Continuing update of documentation
+
 - __2011/01/15__: 0.1.0 release.
     - Added accessors to Natto::DictionaryInfo
     - Added accessor for version in Natto::MeCab

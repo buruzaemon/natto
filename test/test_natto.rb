@@ -69,6 +69,9 @@ class TestNatto < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:unk_feature=>'%m\t%f[7]\n')
     assert_equal('--unk-feature=%m\t%f[7]\n', res)
 
+    res = Natto::MeCab.build_options_str(:allocate_sentence=>true)
+    assert_equal('--allocate-sentence', res)
+
     res = Natto::MeCab.build_options_str(:nbest=>42)
     assert_equal('--nbest=42', res)
 
@@ -102,7 +105,7 @@ class TestNatto < Test::Unit::TestCase
     end
     assert_equal(opts, m.options)
     
-    opts = {:all_morphs=>true, :partial=>true}
+    opts = {:all_morphs=>true, :partial=>true, :allocate_sentence=>true}
     assert_nothing_raised do
       m = Natto::MeCab.new(opts)
     end
