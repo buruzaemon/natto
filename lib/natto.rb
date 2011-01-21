@@ -159,12 +159,12 @@ module Natto
   # for the <tt>Natto</tt> module.
   class MeCabError < RuntimeError; end
 
-  # <tt>DictionaryInfo</tt> is a wrapper for a <tt>MeCab</tt>
-  # instance's related dictionary information.
+  # <tt>DictionaryInfo</tt> is a wrapper for the structure holding
+  # the <tt>MeCab</tt> instance's related dictionary information.
   # 
   # Values for the <tt>mecab</tt> dictionary attributes may be 
   # obtained by using the following <tt>Symbol</tt>s as keys 
-  # to the associative array of <tt>FFI::Struct</tt> members.
+  # to the layout associative array of <tt>FFI::Struct</tt> members.
   #
   # - :filename
   # - :charset
@@ -177,7 +177,7 @@ module Natto
   # 
   # <h2>Usage</h2>
   # <tt>mecab</tt> dictionary attributes can be obtained by
-  # using the corresponding accessor.
+  # using their corresponding accessor.
   #
   #     mecab = Natto::MeCab.new
   #     sysdic = m.dicts.first
@@ -213,7 +213,7 @@ module Natto
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_type, :type
       # <tt>Object#type</tt> override defined when <tt>RUBY_VERSION</tt> is
-      # less than 1.9. This is a hack to avoid the <tt>Object#type</tt>
+      # older than 1.9. This is a hack to avoid the <tt>Object#type</tt>
       # deprecation warning thrown up in Ruby 1.8.7.
       #
       # <i>This method override is not defined when the Ruby interpreter
