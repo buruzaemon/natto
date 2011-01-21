@@ -17,7 +17,8 @@ module Natto
   #     mecab = Natto::MeCab.new
   #     => #<Natto::MeCab:0x28d93dd4 @options={}, \
   #                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
-  #                                  @ptr=#<FFI::Pointer address=0x28af3e58>>
+  #                                  @ptr=#<FFI::Pointer address=0x28af3e58> \
+  #                                  @version="0.98">
   #
   #     puts mecab.parse("ネバネバの組み合わせ美味しいです。")
   #     ネバネバ      名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
@@ -69,7 +70,8 @@ module Natto
     #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #     => #<Natto::MeCab:0x28d8886c @options={:node_format=>"%m\\t%f[7]\\n"}, \
     #                                  @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
-    #                                  @ptr=#<FFI::Pointer address=0x28e3b268>>
+    #                                  @ptr=#<FFI::Pointer address=0x28e3b268> \
+    #                                  @version="0.98">
     #
     #     puts mecab.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
@@ -226,15 +228,15 @@ module Natto
 
     # Provides accessor methods for the members of the <tt>DictionaryInfo</tt> structure.
     #
-    # @param [String] methName
+    # @param [String] attr_name
     # @return member values for the <tt>mecab</tt> dictionary
-    # @raise [NoMethodError] if <tt>methName</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
-    def method_missing(methName)
-      member_sym = methName.id2name.to_sym
+    # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
+    def method_missing(attr_name)
+      member_sym = attr_name.id2name.to_sym
       if self.members.include?(member_sym)
         self[member_sym]
       else
-        raise(NoMethodError.new("undefined method '#{methName}' for #{self}"))
+        raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
       end
     end
   end
