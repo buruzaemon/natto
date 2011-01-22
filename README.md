@@ -31,14 +31,16 @@ e.g., for Cygwin
     require 'natto'
 
     mecab = Natto::MeCab.new
-    => #<Natto::MeCab:0x28d93dd4 @options={}, \
-                                 @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
-                                 @ptr=#<FFI::Pointer address=0x28af3e58>>
+    => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
+                                 @options={}, \
+                                 @version="0.98", \
+                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
 
     puts mecab.version
     => 0.98
 
     sysdic = mecab.dicts.first
+
     puts sysdic.filename
     => /usr/local/lib/mecab/dic/ipadic/sys.dic
 
@@ -69,6 +71,13 @@ e.g., for Cygwin
 -  Please try not to mess with the Rakefile, version, or history. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Changelog
+
+- __2011/01/22: 0.3.0 release.
+    - Refactoring of Natto::Binding to make mecab methods available as class methods
+    - Refactoring of Natto::DictionaryInfo to override to_s method to return filename
+    - Refactoring of Natto::MeCab to use class methods in Natto::Binding
+    - Refactoring and logical separation of test cases
+    - Continuing update of documentation
 
 - __2011/01/19__: 0.2.0 release.
     - Added support for mecab option allocate-sentence 

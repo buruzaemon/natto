@@ -62,6 +62,26 @@ module Natto
       def mecab_version
         Natto::Binding.mecab_version
       end
+
+      def mecab_new2(options_str)
+        Natto::Binding.mecab_new2(options_str)
+      end
+
+      def mecab_destroy(ptr)
+        Natto::Binding.mecab_destroy(ptr)
+      end
+
+      def mecab_sparse_tostr(ptr, str)
+        Natto::Binding.mecab_sparse_tostr(ptr, str)
+      end
+
+      def mecab_strerror(ptr)
+        Natto::Binding.mecab_strerror(ptr)
+      end
+
+      def mecab_dictionary_info(ptr)
+        Natto::Binding.mecab_dictionary_info(ptr)
+      end
     end
   end
 end

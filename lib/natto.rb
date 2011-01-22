@@ -15,10 +15,10 @@ module Natto
   #     require 'natto'
   #
   #     mecab = Natto::MeCab.new
-  #     => #<Natto::MeCab:0x28d93dd4 @options={}, \
-  #                                  @dicts=[#<Natto::DictionaryInfo:0x28d93d34>], \
-  #                                  @ptr=#<FFI::Pointer address=0x28af3e58> \
-  #                                  @version="0.98">
+  #     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
+  #                                  @options={}, \
+  #                                  @version="0.98", \
+  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
   #
   #     puts mecab.parse("ネバネバの組み合わせ美味しいです。")
   #     ネバネバ      名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
@@ -31,8 +31,9 @@ module Natto
   #     => nil
   #
   class MeCab
+    include Natto::Binding
 
-    attr_reader :options, :dicts
+    attr_reader :options, :dicts, :version
 
     # Supported options to the <tt>mecab</tt> parser.
     # See the <tt>mecab</tt> help for more details. 
@@ -68,10 +69,10 @@ module Natto
     # e.g.<br/>
     #
     #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
-    #     => #<Natto::MeCab:0x28d8886c @options={:node_format=>"%m\\t%f[7]\\n"}, \
-    #                                  @dicts=[#<Natto::DictionaryInfo:0x28d8863c>], \
-    #                                  @ptr=#<FFI::Pointer address=0x28e3b268> \
-    #                                  @version="0.98">
+    #     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
+    #                                  @options={:node_format=>"%m\\t%f[7]\\n"}, \
+    #                                  @version="0.98", \
+    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
     #
     #     puts mecab.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
@@ -93,7 +94,7 @@ module Natto
       @dicts = []
 
       opt_str = self.class.build_options_str(@options)
-      @ptr = Natto::Binding.mecab_new2(opt_str)
+      @ptr = self.mecab_new2(opt_str)
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
@@ -101,24 +102,18 @@ module Natto
         @dicts << Natto::DictionaryInfo.new(@dicts.last[:next])
       end
 
+      @version = self.mecab_version
+
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
 
-    # Parses the given string <tt>s</tt>.
+    # Parses the given string <tt>str</tt>.
     #
-    # @param [String] s
+    # @param [String] str
     # @return parsing result from <tt>mecab</tt>
-    # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>s</tt>
-    def parse(s)
-      Natto::Binding.mecab_sparse_tostr(@ptr, s) || 
-        raise(MeCabError.new(Natto::Binding.mecab_strerror(@ptr)))
-    end
-
-    # Returns the <tt>mecab</tt> library version.
-    #
-    # @return [String] <tt>mecab</tt> library version
-    def version
-      Natto::Binding.mecab_version
+    # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
+    def parse(str)
+      self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
     end
 
     # Returns a <tt>Proc</tt> that will properly free resources
@@ -131,7 +126,7 @@ module Natto
     # @return [Proc] to release <tt>mecab</tt> resources properly
     def self.create_free_proc(ptr)
       Proc.new do
-        Natto::Binding.mecab_destroy(ptr)
+        self.mecab_destroy(ptr)
       end
     end
 
@@ -182,23 +177,24 @@ module Natto
   # using their corresponding accessor.
   #
   #     mecab = Natto::MeCab.new
+  #
   #     sysdic = m.dicts.first
   #
   #     puts sysdic.filename
-  #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
   #
   #     puts sysdic.charset
-  #     =>  utf8
+  #     => utf8
   #
   # It is also possible to use the <tt>Symbol</tt> for the
   # <tt>mecab</tt> dictionary member to index into the 
   # <tt>FFI::Struct</tt> layout associative array like so:
   #     
   #     puts sysdic[:filename]
-  #     =>  /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
   #
   #     puts sysdic[:charset]
-  #     =>  utf8
+  #     => utf8
   #
   class DictionaryInfo < FFI::Struct
 
@@ -211,7 +207,7 @@ module Natto
             :version,  :ushort,
             :next,     :pointer
    
-    # Hack to avoid that deprecation message Object#type.
+    # Hack to avoid that deprecation message Object#type thrown in Ruby 1.8.7.
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_type, :type
       # <tt>Object#type</tt> override defined when <tt>RUBY_VERSION</tt> is
@@ -238,6 +234,10 @@ module Natto
       else
         raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
       end
+    end
+
+    def to_s
+      self[:filename]
     end
   end
 end
