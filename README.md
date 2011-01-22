@@ -72,7 +72,7 @@ e.g., for Cygwin
 
 ## Changelog
 
-- __2011/01/22: 0.3.0 release.
+- __2011/01/22__: 0.3.0 release.
     - Refactoring of Natto::Binding to make mecab methods available as class methods
     - Refactoring of Natto::DictionaryInfo to override to_s method to return filename
     - Refactoring of Natto::MeCab to use class methods in Natto::Binding
