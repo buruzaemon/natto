@@ -9,11 +9,13 @@ Gem::Specification.new do |s|
   s.add_dependency('ffi', '>= 0.6.3')
   s.license = 'BSD'
   s.summary = 'natto combines the Ruby programming language with MeCab, the part-of-speech and morphological analyzer for the Japanese language.'
-  s.description = <<-EOF
-    natto combines the Ruby programming language
-    with MeCab, the part-of-speech and morphological
-    analyzer for the Japanese language.
-  EOF
+  s.description = <<END_DESC
+natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). 
+No compilation is necessary, and natto works on any platform and on any OS. 
+
+Find out more about natto by visiting the
+project homepage at http://code.google.com/p/natto/
+END_DESC
   s.author = 'Brooke M. Fujita'
   s.email = 'buruzaemon@gmail.com'
   s.homepage = 'http://code.google.com/p/natto/'
@@ -27,18 +29,22 @@ Gem::Specification.new do |s|
     'lib/natto/binding.rb', 
     'lib/natto/version.rb', 
     'test/test_natto.rb', 
+    'test/natto/tc_binding.rb', 
+    'test/natto/tc_dictionaryinfo.rb', 
+    'test/natto/tc_mecab.rb', 
     'LICENSE', 
-    'README.md'
+    'README.md',
+    '.yardopts'
   ]
-  s.extra_rdoc_files = [
-    'LICENSE', 
-    'README.md'
-  ]
-  s.rdoc_options << 'LICENSE'
-  s.rdoc_options << 'README.md'
-  s.rdoc_options << '--title' << "natto #{Natto::VERSION}"
-  s.rdoc_options << '--main' << 'README.md'
-  s.rdoc_options << '-c UTF-8'
-  s.has_rdoc = 'yard'
-  s.test_file  = 'test/test_natto.rb'
+#  s.extra_rdoc_files = [
+#    'LICENSE', 
+#    'README.md'
+#  ]
+#  s.rdoc_options << 'LICENSE'
+#  s.rdoc_options << 'README.md'
+#  s.rdoc_options << '--title' << "natto #{Natto::VERSION}"
+#  s.rdoc_options << '--main' << 'README.md'
+#  s.rdoc_options << '-c UTF-8'
+#  s.has_rdoc = 'true'
+  s.test_file = 'test/test_natto.rb'
 end
