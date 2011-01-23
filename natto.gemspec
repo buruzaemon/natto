@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary = 'natto combines the Ruby programming language with MeCab, the part-of-speech and morphological analyzer for the Japanese language.'
   s.description = <<END_DESC
 natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). 
-No compilation is necessary, and natto works on any platform and on any OS. 
+No compilation is necessary, and natto works on any Ruby platform and on any OS. 
 
 Find out more about natto by visiting the
 project homepage at http://code.google.com/p/natto/
@@ -32,19 +32,10 @@ END_DESC
     'test/natto/tc_binding.rb', 
     'test/natto/tc_dictionaryinfo.rb', 
     'test/natto/tc_mecab.rb', 
-    'LICENSE', 
     'README.md',
+    'LICENSE', 
+    'CHANGELOG',
     '.yardopts'
   ]
-#  s.extra_rdoc_files = [
-#    'LICENSE', 
-#    'README.md'
-#  ]
-#  s.rdoc_options << 'LICENSE'
-#  s.rdoc_options << 'README.md'
-#  s.rdoc_options << '--title' << "natto #{Natto::VERSION}"
-#  s.rdoc_options << '--main' << 'README.md'
-#  s.rdoc_options << '-c UTF-8'
-#  s.has_rdoc = 'true'
   s.test_file = 'test/test_natto.rb'
 end
