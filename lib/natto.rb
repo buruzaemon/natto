@@ -236,6 +236,9 @@ module Natto
       end
     end
 
+    # Returns the full-path file name for this dictionary. Overrides <tt>Object#to_s</tt>.
+    #
+    # @return [String] full-path filename for this dictionary
     def to_s
       self[:filename]
     end
