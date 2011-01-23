@@ -14,22 +14,14 @@ module Natto
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     mecab = Natto::MeCab.new
-  #     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
-  #                                  @options={}, \
+  #     mecab = Natto::MeCab.new(:output_format_type=>'wakati')
+  #     => #<Natto::MeCab:0x28dd471c @ptr=#<FFI::Pointer address=0x28a027d8>, \
+  #                                  @options={:output_format_type=>"wakati"}, \
   #                                  @version="0.98", \
   #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
   #
-  #     puts mecab.parse("ネバネバの組み合わせ美味しいです。")
-  #     ネバネバ      名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
-  #     の            助詞,連体化,*,*,*,*,の,ノ,ノ
-  #     組み合わせ    名詞,一般,*,*,*,*,組み合わせ,クミアワセ,クミアワセ
-  #     美味しい      形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
-  #     です          助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
-  #     。            デス記号,句点,*,*,*,*,。,。,。
-  #     EOS
-  #     => nil
-  #
+  #     puts m.parse('ネバネバの組み合わせ美味しいです。')
+  #     => ネバネバ の 組み合わせ 美味しい です 。
   class MeCab
     include Natto::Binding
 
