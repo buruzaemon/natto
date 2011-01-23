@@ -75,7 +75,7 @@ e.g., for Cygwin
 -  Please try not to mess with the Rakefile, version, or history. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Changelog
-Please see the [CHANGELOG](CHANGELOG) for this gem's release history.
+Please see the {file:CHANGELOG} for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the [LICENSE](LICENSE) file for further details. 
+Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details. 
