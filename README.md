@@ -4,6 +4,10 @@ A Tasty Ruby Binding with MeCab
 ## What is natto?
 natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [MeCab](http://mecab.sourceforge.net/), the part-of-speech and morphological analyzer for the Japanese language.
 
+natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, and natto works on any Ruby platform and on any OS. 
+
+You can learn more about [natto at Google Code Projects](http://code.google.com/p/natto/).
+
 ## Requirements
 natto requires the following:
 
@@ -71,82 +75,7 @@ e.g., for Cygwin
 -  Please try not to mess with the Rakefile, version, or history. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Changelog
-
-- __2011/01/22__: 0.3.0 release.
-    - Refactoring of Natto::Binding to make mecab methods available as class methods
-    - Refactoring of Natto::DictionaryInfo to override to_s method to return filename
-    - Refactoring of Natto::MeCab to use class methods in Natto::Binding
-    - Refactoring and logical separation of test cases
-    - Continuing update of documentation
-
-- __2011/01/19__: 0.2.0 release.
-    - Added support for mecab option allocate-sentence 
-    - Continuing update of documentation
-
-- __2011/01/15__: 0.1.1 release.
-    - Refactored Natto::DictionaryInfo#method_missing
-    - Continuing update of documentation
-
-- __2011/01/15__: 0.1.0 release.
-    - Added accessors to Natto::DictionaryInfo
-    - Added accessor for version in Natto::MeCab
-    - Continuing update of documentation
-
-- __2011/01/13__: 0.0.9 release.
-    - Further development and testing for mecab dictionary access/destruction
-    - Continuing update of documentation
-
-- __2011/01/07__: 0.0.8 release.
-    - Adding support for accessing dictionaries 
-    - Further tweaking of documentation with markdown
-
-- __2010/12/30__: 0.0.7 release.
-    - Adding support for all-morphs and partial options
-    - Further updating of documentation with markdown
-
-- __2010/12/28__: 0.0.6 release.
-    - Correction to natto.gemspec to include lib/natto/binding.rb
-
-- __2010/12/28__: 0.0.5 release. (yanked)
-    - On-going refactoring
-    - Project structure refactored for greater maintainability
-
-- __2010/12/26__: 0.0.4 release.
-    - On-going refactoring
-
-- __2010/12/23__: 0.0.3 release.
-    - On-going refactoring
-    - Adding documentation via yard
-
-- __2010/12/20__: 0.0.2 release.
-    - Continuing development on proper resource deallocation
-    - Adding options hash in object initializer 
-
-- __2010/12/13__: Released version 0.0.1. The objective is to provide
-  an easy-to-use, production-level Ruby binding to MeCab.
-    - Initial release 
+Please see the [CHANGELOG](CHANGELOG) for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2010-2013, Brooke M. Fujita.
-All rights reserved.
- 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
- 
-  * Redistributions of source code must retain the above
-    copyright notice, this list of conditions and the
-    following disclaimer.
- 
-  * Redistributions in binary form must reproduce the above
-    copyright notice, this list of conditions and the
-    following disclaimer in the documentation and/or other
-    materials provided with the distribution.
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the [LICENSE](LICENSE) file for further details. 
