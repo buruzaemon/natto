@@ -42,7 +42,7 @@ class TestDictionaryInfo < Test::Unit::TestCase
     
     # NoMethodError will be raised for anything else!
     assert_raise NoMethodError do
-      sysdic.send :nomethoderror
+      sysdic.send :unknown_attr
     end
   end
 end
