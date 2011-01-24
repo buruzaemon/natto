@@ -1,0 +1,7 @@
+--no-private
+--readme README.md
+--markup markdown
+--markup-provider rdiscount
+-
+LICENSE
+CHANGELOG
