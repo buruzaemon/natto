@@ -20,8 +20,18 @@ module Natto
   #                                  @version="0.98", \
   #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
   #
-  #     puts m.parse('ネバネバの組み合わせ美味しいです。')
-  #     => ネバネバ の 組み合わせ 美味しい です 。
+  #     output = mecab.parse('ネバネバの組み合わせ美味しいです。').split
+  #
+  #     output.each do |token|
+  #       puts token
+  #     end
+  #     => ネバネバ
+  #        の
+  #        組み合わせ
+  #        美味しい
+  #        です
+  #        。
+  #
   class MeCab
     include Natto::Binding
 
@@ -32,7 +42,8 @@ module Natto
     SUPPORTED_OPTS = [  :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
                         :output_format_type, :partial, :node_format, :unk_format, 
                         :bos_format, :eos_format, :eon_format, :unk_feature, 
-                        :allocate_sentence, :nbest, :theta, :cost_factor ].freeze
+                        :input_buffer_size, :allocate_sentence, :nbest, :theta, 
+                        :cost_factor ].freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt> hash.
@@ -52,6 +63,7 @@ module Natto
     # - :eos_format --  user-defined end-of-sentence format
     # - :eon_format --  user-defined end-of-NBest format
     # - :unk_feature --  feature for unknown word
+    # - :input_buffer_size -- set input buffer size (default 8192) 
     # - :allocate_sentence -- allocate new memory for input sentence 
     # - :nbest --  output N best results (integer, default 1)
     # - :theta --  temperature parameter theta (float, default 0.75)
@@ -90,8 +102,8 @@ module Natto
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
-      while @dicts.last[:next].address != 0x0
-        @dicts << Natto::DictionaryInfo.new(@dicts.last[:next])
+      while @dicts.last.next.address != 0x0
+        @dicts << Natto::DictionaryInfo.new(@dicts.last.next)
       end
 
       @version = self.mecab_version
@@ -221,11 +233,8 @@ module Natto
     # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
     def method_missing(attr_name)
       member_sym = attr_name.id2name.to_sym
-      if self.members.include?(member_sym)
-        self[member_sym]
-      else
-        raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
-      end
+      return self[member_sym] if self.members.include?(member_sym)
+      raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
     end
 
     # Returns the full-path file name for this dictionary. Overrides <tt>Object#to_s</tt>.
