@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-- __2011/01/27__: 0.4.0 release.
+- __2011/01/26__: 0.4.0 release.
     - Added support for mecab option input-buffer-size 
     - Adding CHANGELOG file 
     - Continuing update of documentation
