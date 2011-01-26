@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+- __2011/01/27__: 0.4.0 release.
+    - Added support for mecab option input-buffer-size 
+    - Adding CHANGELOG file 
+    - Continuing update of documentation
+
 - __2011/01/22__: 0.3.0 release.
     - Refactoring of Natto::Binding to make mecab methods available as class methods
     - Refactoring of Natto::DictionaryInfo to override to_s method to return filename
