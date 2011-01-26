@@ -16,5 +16,5 @@
 # which are made available via <tt>FFI</tt> bindings to <tt>mecab</tt>.
 module Natto
   # Version string for this Rubygem.
-  VERSION = "0.4.0"
+  VERSION = "0.4.1"
 end
