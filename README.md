@@ -4,9 +4,11 @@ A Tasty Ruby Binding with MeCab
 ## What is natto?
 natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [MeCab](http://mecab.sourceforge.net/), the part-of-speech and morphological analyzer for the Japanese language.
 
-natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, and natto works on any Ruby platform and on any OS. 
+natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, and natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well, on any OS.
 
 You can learn more about [natto at Google Code Projects](http://code.google.com/p/natto/).
+
+Comments and questions are welcome at the [natto-users Group](http://groups.google.com/group/natto-users).
 
 ## Requirements
 natto requires the following:
@@ -24,7 +26,7 @@ Install natto with the following gem command:
 -  In case of <tt>LoadError</tt>, please set the <tt>MECAB_PATH</tt> environment variable to the exact name/path to your <tt>mecab</tt> library.
 
 e.g., for bash on UNIX/Linux
-    export MECAB_PATH=mecab.so
+    export MECAB_PATH=/usr/local/lib/libmecab.so
 e.g., on Windows
     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
 e.g., for Cygwin

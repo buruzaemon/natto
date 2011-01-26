@@ -23,6 +23,7 @@ class TestDictionaryInfo < Test::Unit::TestCase
     assert_equal('/usr/local/lib/mecab/dic/ipadic/sys.dic', sysdic[:filename])
     assert_equal('utf8', sysdic[:charset])
     assert_equal(0x0, sysdic[:next].address)
+    #assert_nil(sysdic.next)
   end
 
   # Tests the to_s method.
