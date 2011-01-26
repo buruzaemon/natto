@@ -58,6 +58,9 @@ class TestMeCab < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:unk_feature=>'%m\t%f[7]\n')
     assert_equal('--unk-feature=%m\t%f[7]\n', res)
 
+    res = Natto::MeCab.build_options_str(:input_buffer_size=>102400)
+    assert_equal('--input-buffer-size=102400', res)
+
     res = Natto::MeCab.build_options_str(:allocate_sentence=>true)
     assert_equal('--allocate-sentence', res)
 
