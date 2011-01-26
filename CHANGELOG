@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+- __2011/01/27__: 0.4.1 release.
+    - Tweaking the description in natto.gemspec a bit 
+
 - __2011/01/26__: 0.4.0 release.
     - Added support for mecab option input-buffer-size 
     - Adding CHANGELOG file 
