@@ -25,6 +25,7 @@ class TestNattoBinding < Test::Unit::TestCase
        :mecab_new2, 
        :mecab_destroy, 
        :mecab_sparse_tostr, 
+       :mecab_nbest_sparse_tostr, 
        :mecab_strerror,
        :mecab_dictionary_info ].each do |f|
        assert(@klass.respond_to? f)

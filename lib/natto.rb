@@ -117,7 +117,9 @@ module Natto
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
     def parse(str)
-      self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+      self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+      self.mecab_nbest_sparse_tostr(@ptr, 3, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+      #self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
     end
 
     # Returns a <tt>Proc</tt> that will properly free resources
