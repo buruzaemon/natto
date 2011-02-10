@@ -37,9 +37,6 @@ class TestMeCab < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:output_format_type=>"natto")
     assert_equal('--output-format-type=natto', res)
     
-    res = Natto::MeCab.build_options_str(:partial=>true)
-    assert_equal('--partial', res)
-
     res = Natto::MeCab.build_options_str(:node_format=>'%m\t%f[7]\n')
     assert_equal('--node-format=%m\t%f[7]\n', res)
     
@@ -73,13 +70,14 @@ class TestMeCab < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:cost_factor=>42)
     assert_equal('--cost-factor=42', res)
     
+    res = Natto::MeCab.build_options_str(:output=>"/some/output/file")
+    assert_equal('--output=/some/output/file', res)
+    
     res = Natto::MeCab.build_options_str(:output_format_type=>"natto", 
                                          :userdic=>"/some/file", 
                                          :dicdir=>"/some/other/file",
-                                         :partial=>true,
                                          :all_morphs=>true)
-    assert_equal('--dicdir=/some/other/file --userdic=/some/file --all-morphs --output-format-type=natto --partial', res)
-
+    assert_equal('--dicdir=/some/other/file --userdic=/some/file --all-morphs --output-format-type=natto', res)
   end
 
   # Tests the construction and initial state of a Natto::MeCab instance.
@@ -96,7 +94,13 @@ class TestMeCab < Test::Unit::TestCase
     end
     assert_equal(opts, m.options)
     
-    opts = {:all_morphs=>true, :partial=>true, :allocate_sentence=>true}
+    opts = {:all_morphs=>true, :allocate_sentence=>true}
+    assert_nothing_raised do
+      m = Natto::MeCab.new(opts)
+    end
+    assert_equal(opts, m.options)
+    
+    opts = {:lattice_level=>999}
     assert_nothing_raised do
       m = Natto::MeCab.new(opts)
     end
@@ -125,5 +129,14 @@ class TestMeCab < Test::Unit::TestCase
   # Tests the mecab version string accessor class method of Natto::MeCab.
   def test_version_accessor
     assert_equal('0.98', @m.version)
+  end
+
+  # Tests mecab parsing using the --all-morphs option.
+  def test_all_morphs
+    m = Natto::MeCab.new(:all_morphs=>true)
+    s = '天使'
+    expected = `echo #{s} | mecab -a`
+    actual   = m.parse(s).force_encoding('UTF-8')
+    assert_equal(expected, actual.to_s)
   end
 end 

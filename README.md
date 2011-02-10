@@ -4,7 +4,7 @@ A Tasty Ruby Binding with MeCab
 ## What is natto?
 natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [MeCab](http://mecab.sourceforge.net/), the part-of-speech and morphological analyzer for the Japanese language.
 
-natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, and natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well, on any OS.
+natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, as natto is _not_ a C extension. natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well. natto will also run on Windows, Unix/Linux, and Mac.
 
 You can learn more about [natto at Google Code Projects](http://code.google.com/p/natto/).
 
@@ -31,6 +31,8 @@ e.g., on Windows
     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
 e.g., for Cygwin
     export MECAB_PATH=cygmecab-1
+e.g., from within a Ruby program
+    ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
 
 ## Usage
     require 'rubygems' if RUBY_VERSION.to_f < 1.9
@@ -39,8 +41,8 @@ e.g., for Cygwin
     mecab = Natto::MeCab.new
     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
                                  @options={}, \
-                                 @version="0.98", \
-                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
+                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>, \
+                                 @version="0.98">
 
     puts mecab.version
     => 0.98

@@ -40,10 +40,10 @@ module Natto
     # Supported options to the <tt>mecab</tt> parser.
     # See the <tt>mecab</tt> help for more details. 
     SUPPORTED_OPTS = [  :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
-                        :output_format_type, :partial, :node_format, :unk_format, 
+                        :output_format_type, :node_format, :unk_format, 
                         :bos_format, :eos_format, :eon_format, :unk_feature, 
                         :input_buffer_size, :allocate_sentence, :nbest, :theta, 
-                        :cost_factor ].freeze
+                        :cost_factor, :output ].freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt> hash.
@@ -56,7 +56,6 @@ module Natto
     # - :lattice_level --  lattice information level (integer, default 0)
     # - :all_morphs --  output all morphs (default false)
     # - :output_format_type --  output format type (wakati, chasen, yomi, etc.)
-    # - :partial --  partial parsing mode
     # - :node_format --  user-defined node format
     # - :unk_format --  user-defined unknown node format
     # - :bos_format --  user-defined beginning-of-sentence format
@@ -65,9 +64,10 @@ module Natto
     # - :unk_feature --  feature for unknown word
     # - :input_buffer_size -- set input buffer size (default 8192) 
     # - :allocate_sentence -- allocate new memory for input sentence 
-    # - :nbest --  output N best results (integer, default 1)
+    # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
     # - :theta --  temperature parameter theta (float, default 0.75)
     # - :cost_factor --  cost factor (integer, default 700)
+    # - :output -- set the output file name
     # 
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
@@ -75,8 +75,8 @@ module Natto
     #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
     #                                  @options={:node_format=>"%m\\t%f[7]\\n"}, \
-    #                                  @version="0.98", \
-    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
+    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
+    #                                  @version="0.98">
     #
     #     puts mecab.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
@@ -100,6 +100,21 @@ module Natto
       opt_str = self.class.build_options_str(@options)
       @ptr = self.mecab_new2(opt_str)
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
+ 
+      self.mecab_set_theta(@ptr, @options[:theta].to_f) if @options[:theta]
+      self.mecab_set_lattice_level(@ptr, @options[:lattice_level].to_i) if @options[:lattice_level]
+      self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
+
+      if @options[:nbest] && @options[:nbest] > 1
+        self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
+        @parse_proc = lambda { |str| 
+          self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+          return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
+                raise(MeCabError.new(self.mecab_strerror(@ptr))) } 
+      else
+        @parse_proc = lambda { |str|
+          return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) }
+      end
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       while @dicts.last.next.address != 0x0
@@ -110,16 +125,18 @@ module Natto
 
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
-
+    
     # Parses the given string <tt>str</tt>.
     #
     # @param [String] str
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
     def parse(str)
-      self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
-      self.mecab_nbest_sparse_tostr(@ptr, 3, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
-      #self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+      @parse_proc.call(str)
+    end
+
+    def to_s
+      %(#{super.chop} @ptr=#{@ptr.to_s}, @options=#{@options.to_s}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
     end
 
     # Returns a <tt>Proc</tt> that will properly free resources
@@ -146,8 +163,8 @@ module Natto
       SUPPORTED_OPTS.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
-          # all-morphs, partial, and allocate-sentence are just flags
-          if %w( all-morphs partial allocate-sentence ).include? key
+          # all-morphs and allocate-sentence are just flags
+          if %w( all-morphs allocate-sentence ).include? key
             opt << "--#{key}" if options[k]==true
           else
             opt << "--#{key}=#{options[k]}"
