@@ -50,27 +50,50 @@ module Natto
 
     ffi_lib(ENV[MECAB_PATH] || find_library)
 
-    attach_function :mecab_version, [], :string
     attach_function :mecab_new2, [:string], :pointer
+    attach_function :mecab_version, [], :string
+    attach_function :mecab_strerror, [:pointer],:string
     attach_function :mecab_destroy, [:pointer], :void
+  
+    attach_function :mecab_set_theta, [:pointer, :float], :void
+    attach_function :mecab_set_lattice_level, [:pointer, :int], :void 
+    attach_function :mecab_set_all_morphs, [:pointer, :int], :void
+    
     attach_function :mecab_sparse_tostr, [:pointer, :string], :string
+    
     attach_function :mecab_nbest_init, [:pointer, :string], :int
     attach_function :mecab_nbest_sparse_tostr, [:pointer, :int, :string], :string
-    attach_function :mecab_strerror, [:pointer],:string
+    
     attach_function :mecab_dictionary_info, [:pointer], :pointer
 
     # @private
     module ClassMethods
+      def mecab_new2(options_str)
+        Natto::Binding.mecab_new2(options_str)
+      end
+      
       def mecab_version
         Natto::Binding.mecab_version
       end
 
-      def mecab_new2(options_str)
-        Natto::Binding.mecab_new2(options_str)
+      def mecab_strerror(ptr)
+        Natto::Binding.mecab_strerror(ptr)
       end
 
       def mecab_destroy(ptr)
         Natto::Binding.mecab_destroy(ptr)
+      end
+
+      def mecab_set_theta(ptr, t)
+        Natto::Binding.mecab_set_theta(ptr, t)
+      end
+
+      def mecab_set_lattice_level(ptr, ll)
+        Natto::Binding.mecab_set_lattice_level(ptr, ll)
+      end
+
+      def mecab_set_all_morphs(ptr, am)
+        Natto::Binding.mecab_set_all_morphs(ptr, am)
       end
 
       def mecab_sparse_tostr(ptr, str)
@@ -79,10 +102,6 @@ module Natto
 
       def mecab_nbest_sparse_tostr(ptr, n, str)
         Natto::Binding.mecab_nbest_sparse_tostr(ptr, n, str)
-      end
-
-      def mecab_strerror(ptr)
-        Natto::Binding.mecab_strerror(ptr)
       end
 
       def mecab_dictionary_info(ptr)
