@@ -54,6 +54,8 @@ module Natto
     attach_function :mecab_new2, [:string], :pointer
     attach_function :mecab_destroy, [:pointer], :void
     attach_function :mecab_sparse_tostr, [:pointer, :string], :string
+    attach_function :mecab_nbest_init, [:pointer, :string], :int
+    attach_function :mecab_nbest_sparse_tostr, [:pointer, :int, :string], :string
     attach_function :mecab_strerror, [:pointer],:string
     attach_function :mecab_dictionary_info, [:pointer], :pointer
 
@@ -73,6 +75,10 @@ module Natto
 
       def mecab_sparse_tostr(ptr, str)
         Natto::Binding.mecab_sparse_tostr(ptr, str)
+      end
+
+      def mecab_nbest_sparse_tostr(ptr, n, str)
+        Natto::Binding.mecab_nbest_sparse_tostr(ptr, n, str)
       end
 
       def mecab_strerror(ptr)
