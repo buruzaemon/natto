@@ -15,10 +15,10 @@ module Natto
   #     require 'natto'
   #
   #     mecab = Natto::MeCab.new(:output_format_type=>'wakati')
-  #     => #<Natto::MeCab:0x28dd471c @ptr=#<FFI::Pointer address=0x28a027d8>, \
+  #     => #<Natto::MeCab:0x28d896b8 @ptr=#<FFI::Pointer address=0x28e378b8>, \
   #                                  @options={:output_format_type=>"wakati"}, \
-  #                                  @version="0.98", \
-  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>
+  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \ 
+  #                                  @version="0.98">     
   #
   #     output = mecab.parse('ネバネバの組み合わせ美味しいです。').split
   #
@@ -73,7 +73,7 @@ module Natto
     # e.g.<br/>
     #
     #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
-    #     => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
+    #     => #<Natto::MeCab:0x28d82f20 @ptr=#<FFI::Pointer address=0x28e378a8>, \
     #                                  @options={:node_format=>"%m\\t%f[7]\\n"}, \
     #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
     #                                  @version="0.98">
@@ -106,15 +106,18 @@ module Natto
       self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
 
       if @options[:nbest] && @options[:nbest] > 1
+        # nbest, plain
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
         @parse_proc = lambda { |str| 
           self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
                 raise(MeCabError.new(self.mecab_strerror(@ptr))) } 
       else
+        # default parsing
         @parse_proc = lambda { |str|
           return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) }
       end
+      require 'natto/rb19_encoding'
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       while @dicts.last.next.address != 0x0
@@ -135,8 +138,25 @@ module Natto
       @parse_proc.call(str)
     end
 
+    # Returns human-readable details for the wrapped <tt>mecab</tt> parser.
+    # Overrides <tt>Object#to_s</tt>.
+    #
+    # - encoded object id
+    # - FFI pointer to <tt>mecab</tt> object
+    # - options hash
+    # - list of dictionaries
+    # - MeCab version
+    #
+    # @return [String] encoded object id, FFI pointer, options hash, list of dictionaries, and MeCab version
     def to_s
       %(#{super.chop} @ptr=#{@ptr.to_s}, @options=#{@options.to_s}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
+    end
+
+    # Overrides <tt>Object#inspect</tt> by returning the string representation of <tt>self</tt>.
+    #
+    # @return [String] <tt>self.to_s</tt>
+    def inspect
+      to_s
     end
 
     # Returns a <tt>Proc</tt> that will properly free resources

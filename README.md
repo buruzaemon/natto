@@ -39,9 +39,9 @@ e.g., from within a Ruby program
     require 'natto'
 
     mecab = Natto::MeCab.new
-    => #<Natto::MeCab:0x289b88e0 @ptr=#<FFI::Pointer address=0x288865c8>, \
+    => #<Natto::MeCab:0x28d93820 @ptr=#<FFI::Pointer address=0x28e378c8>, \
                                  @options={}, \
-                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic]>, \
+                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
                                  @version="0.98">
 
     puts mecab.version
