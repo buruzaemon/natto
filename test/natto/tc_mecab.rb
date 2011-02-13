@@ -136,7 +136,8 @@ class TestMeCab < Test::Unit::TestCase
     m = Natto::MeCab.new(:all_morphs=>true)
     s = '天使'
     expected = `echo #{s} | mecab -a`
-    actual   = m.parse(s).force_encoding('UTF-8')
-    assert_equal(expected, actual.to_s)
+    #actual   = m.parse(s).force_encoding('UTF-8')
+    actual   = m.parse(s)
+    assert_equal(expected, actual)
   end
 end 
