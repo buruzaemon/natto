@@ -60,6 +60,7 @@ module Natto
     attach_function :mecab_set_all_morphs, [:pointer, :int], :void
     
     attach_function :mecab_sparse_tostr, [:pointer, :string], :string
+    attach_function :mecab_sparse_tonode, [:pointer, :string], :pointer
     
     attach_function :mecab_nbest_init, [:pointer, :string], :int
     attach_function :mecab_nbest_sparse_tostr, [:pointer, :int, :string], :string

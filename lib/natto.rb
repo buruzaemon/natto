@@ -117,7 +117,7 @@ module Natto
         @parse_proc = lambda { |str|
           return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) }
       end
-      require 'natto/rb19_encoding'
+#      require 'natto/rb19_encoding'
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       while @dicts.last.next.address != 0x0
@@ -134,8 +134,14 @@ module Natto
     # @param [String] str
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
-    def parse(str)
-      @parse_proc.call(str)
+    def parse(str, &block)
+      if block_given?
+        m_node_ptr = self.mecab_sparse_tonode(@ptr, str)
+        node = Natto::MeCabNode.new(m_node_ptr)
+        yield node
+      else
+        @parse_proc.call(str)
+      end
     end
 
     # Returns human-readable details for the wrapped <tt>mecab</tt> parser.
@@ -282,5 +288,35 @@ module Natto
     def to_s
       self[:filename]
     end
+  end
+
+  class MeCabNode < FFI::Struct
+    layout  :prev,            :pointer,
+            :next,            :pointer,
+            :enext,           :pointer,
+            :bnext,           :pointer,
+            :rpath,           :pointer,
+            :lpath,           :pointer,
+            :begin_node_list, :pointer,
+            :end_node_list,   :pointer,
+            :surface,         :string,
+            :feature,         :string,
+            :id,              :uint,
+            :length,          :ushort,
+            :rlength,         :ushort,
+            :rcAttr,          :ushort,
+            :lcAttr,          :ushort,
+            :posid,           :ushort,
+            :char_type,       :uchar,
+            :stat,            :uchar,
+            :isbest,          :uchar,
+            :sentence_length, :uint,
+            :alpha,           :float,
+            :beta,            :float,
+            :prob,            :float,
+            :wcost,           :short,
+            :cost,            :long,
+            :token,           :pointer
+
   end
 end
