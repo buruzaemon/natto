@@ -138,7 +138,14 @@ module Natto
       if block_given?
         m_node_ptr = self.mecab_sparse_tonode(@ptr, str)
         node = Natto::MeCabNode.new(m_node_ptr)
-        yield node
+        while (node.nil? == false)
+          yield node
+          if node[:next].address != 0x0
+            node = Natto::MeCabNode.new(node[:next])
+          else
+            break
+          end
+        end
       else
         @parse_proc.call(str)
       end
@@ -317,6 +324,37 @@ module Natto
             :wcost,           :short,
             :cost,            :long,
             :token,           :pointer
+   
+    # Hack to avoid that deprecation message Object#id thrown in Ruby 1.8.7.
+    if RUBY_VERSION.to_f < 1.9
+      alias_method :id, :id
+      # <tt>Object#id</tt> override defined when <tt>RUBY_VERSION</tt> is
+      # older than 1.9. This is a hack to avoid the <tt>Object#id</tt>
+      # deprecation warning thrown up in Ruby 1.8.7.
+      #
+      # <i>This method override is not defined when the Ruby interpreter
+      # is 1.9 or greater.</i>
+      # @return [Fixnum] <tt>mecab</tt> node id
+      def id
+        self[:id]
+      end
+    end
 
+    # Provides accessor methods for the members of the <tt>MeCabNode</tt> structure.
+    #
+    # @param [String] attr_name
+    # @return member values for the <tt>mecab</tt> node
+    # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> node <tt>FFI::Struct</tt> 
+    def method_missing(attr_name)
+      member_sym = attr_name.id2name.to_sym
+      return self[member_sym] if self.members.include?(member_sym)
+      raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
+    end
+    
+    def to_s
+      a = []
+      a << self[:id]
+      a << "---" self[:surface] --- self[:begin_node_list] --- self[:end_node_list] --- self[:next] )
+    end
   end
 end
