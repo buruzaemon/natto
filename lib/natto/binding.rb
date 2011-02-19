@@ -100,6 +100,10 @@ module Natto
       def mecab_sparse_tostr(ptr, str)
         Natto::Binding.mecab_sparse_tostr(ptr, str)
       end
+      
+      def mecab_sparse_tonode(ptr, str)
+        Natto::Binding.mecab_sparse_tonode(ptr, str)
+      end
 
       def mecab_nbest_sparse_tostr(ptr, n, str)
         Natto::Binding.mecab_nbest_sparse_tostr(ptr, n, str)

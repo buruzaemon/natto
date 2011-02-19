@@ -106,15 +106,15 @@ module Natto
       self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
 
       if @options[:nbest] && @options[:nbest] > 1
-        # nbest, plain
+        # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
-        @parse_proc = lambda { |str| 
+        @parse_tostr = lambda { |str| 
           self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
                 raise(MeCabError.new(self.mecab_strerror(@ptr))) } 
       else
         # default parsing
-        @parse_proc = lambda { |str|
+        @parse_tostr = lambda { |str|
           return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) }
       end
 #      require 'natto/rb19_encoding'
@@ -137,7 +137,8 @@ module Natto
     def parse(str, &block)
       if block_given?
         m_node_ptr = self.mecab_sparse_tonode(@ptr, str)
-        node = Natto::MeCabNode.new(m_node_ptr)
+        head = Natto::MeCabNode.new(m_node_ptr)
+        node = Natto::MeCabNode.new(head[:next])
         while (node.nil? == false)
           yield node
           if node[:next].address != 0x0
@@ -147,7 +148,7 @@ module Natto
           end
         end
       else
-        @parse_proc.call(str)
+        @parse_tostr.call(str)
       end
     end
 
@@ -212,6 +213,19 @@ module Natto
   # for the <tt>Natto</tt> module.
   class MeCabError < RuntimeError; end
 
+  class MeCabStruct < FFI::Struct
+    # Provides accessor methods for the members of the <tt>mecab</tt> struct.
+    #
+    # @param [String] attr_name
+    # @return member values for the <tt>mecab</tt> struct
+    # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> struct 
+    def method_missing(attr_name)
+      member_sym = attr_name.id2name.to_sym
+      return self[member_sym] if self.members.include?(member_sym)
+      raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
+    end
+  end
+
   # <tt>DictionaryInfo</tt> is a wrapper for the structure holding
   # the <tt>MeCab</tt> instance's related dictionary information.
   # 
@@ -252,7 +266,7 @@ module Natto
   #     puts sysdic[:charset]
   #     => utf8
   #
-  class DictionaryInfo < FFI::Struct
+  class DictionaryInfo < MeCabStruct
 
     layout  :filename, :string,
             :charset,  :string,
@@ -263,7 +277,6 @@ module Natto
             :version,  :ushort,
             :next,     :pointer
    
-    # Hack to avoid that deprecation message Object#type thrown in Ruby 1.8.7.
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_type, :type
       # <tt>Object#type</tt> override defined when <tt>RUBY_VERSION</tt> is
@@ -278,17 +291,6 @@ module Natto
       end
     end
 
-    # Provides accessor methods for the members of the <tt>DictionaryInfo</tt> structure.
-    #
-    # @param [String] attr_name
-    # @return member values for the <tt>mecab</tt> dictionary
-    # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> dictionary <tt>FFI::Struct</tt> 
-    def method_missing(attr_name)
-      member_sym = attr_name.id2name.to_sym
-      return self[member_sym] if self.members.include?(member_sym)
-      raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
-    end
-
     # Returns the full-path file name for this dictionary. Overrides <tt>Object#to_s</tt>.
     #
     # @return [String] full-path filename for this dictionary
@@ -297,7 +299,8 @@ module Natto
     end
   end
 
-  class MeCabNode < FFI::Struct
+  class MeCabNode < MeCabStruct
+
     layout  :prev,            :pointer,
             :next,            :pointer,
             :enext,           :pointer,
@@ -325,7 +328,6 @@ module Natto
             :cost,            :long,
             :token,           :pointer
    
-    # Hack to avoid that deprecation message Object#id thrown in Ruby 1.8.7.
     if RUBY_VERSION.to_f < 1.9
       alias_method :id, :id
       # <tt>Object#id</tt> override defined when <tt>RUBY_VERSION</tt> is
@@ -340,21 +342,25 @@ module Natto
       end
     end
 
-    # Provides accessor methods for the members of the <tt>MeCabNode</tt> structure.
-    #
-    # @param [String] attr_name
-    # @return member values for the <tt>mecab</tt> node
-    # @raise [NoMethodError] if <tt>attr_name</tt> is not a member of this <tt>mecab</tt> node <tt>FFI::Struct</tt> 
-    def method_missing(attr_name)
-      member_sym = attr_name.id2name.to_sym
-      return self[member_sym] if self.members.include?(member_sym)
-      raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
+    def surface
+      if self[:surface] && self[:length]>0
+        self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
+      else 
+        ''
+      end
     end
     
+    # Returns human-readable details for the <tt>mecab</tt> node.
+    # Overrides <tt>Object#to_s</tt>.
+    #
+    # - encoded object id
+    # - stat 
+    # - surface 
+    # - feature
+    #
+    # @return [String] encoded object id, stat, surface, and feature 
     def to_s
-      a = []
-      a << self[:id]
-      a << "---" self[:surface] --- self[:begin_node_list] --- self[:end_node_list] --- self[:next] )
+      %(#{super.chop} stat=#{self[:stat]}, surface="#{self.surface}", feature="#{self.feature}">)
     end
   end
 end
