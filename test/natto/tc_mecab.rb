@@ -5,6 +5,7 @@
 class TestMeCab < Test::Unit::TestCase
   def setup
     @m = Natto::MeCab.new
+    @mecab = '/usr/local/bin/mecab'
   end
 
   def teardown
@@ -70,9 +71,6 @@ class TestMeCab < Test::Unit::TestCase
     res = Natto::MeCab.build_options_str(:cost_factor=>42)
     assert_equal('--cost-factor=42', res)
     
-    res = Natto::MeCab.build_options_str(:output=>"/some/output/file")
-    assert_equal('--output=/some/output/file', res)
-    
     res = Natto::MeCab.build_options_str(:output_format_type=>"natto", 
                                          :userdic=>"/some/file", 
                                          :dicdir=>"/some/other/file",
@@ -135,9 +133,34 @@ class TestMeCab < Test::Unit::TestCase
   def test_all_morphs
     m = Natto::MeCab.new(:all_morphs=>true)
     s = '天使'
-    expected = `echo #{s} | mecab -a`
-    #actual   = m.parse(s).force_encoding('UTF-8')
+    expected = `echo #{s} | #{@mecab} -a`
     actual   = m.parse(s)
+    assert_equal(expected, actual)
+    #assert_equal(expected.force_encoding('ASCII-8BIT'), actual)
+  end
+
+  def test_parse_tostr_default
+    s = 'これはペンです。'
+    expected = `echo #{s} | #{@mecab}`.lines.to_a
+    actual = @m.parse(s).lines.to_a
+    assert_equal(expected, actual)
+    #puts expected.force_encoding('ASCII-8BIT')
+    #puts actual
+    #assert_equal(expected.force_encoding('ASCII-8BIT'), actual)
+  end
+
+  def test_parse_tonode_default
+    s = '俺の名はハカイダーである。'
+    expected = `echo #{s} | #{@mecab}`.lines.to_a
+    #expected.collect! {|e| e = e.force_encoding('ASCII-8BIT')}
+
+    actual = []
+    @m.parse(s) do |node|
+      actual << "#{node.surface}\t#{node.feature}\n"
+    end
+    # do not include the EOS that gets added when using command line
+    expected.pop
+    actual.pop
     assert_equal(expected, actual)
   end
 end 
