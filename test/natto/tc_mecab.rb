@@ -136,7 +136,6 @@ class TestMeCab < Test::Unit::TestCase
     expected = `echo #{s} | #{@mecab} -a`
     actual   = m.parse(s)
     assert_equal(expected, actual)
-    #assert_equal(expected.force_encoding('ASCII-8BIT'), actual)
   end
 
   def test_parse_tostr_default
@@ -144,15 +143,11 @@ class TestMeCab < Test::Unit::TestCase
     expected = `echo #{s} | #{@mecab}`.lines.to_a
     actual = @m.parse(s).lines.to_a
     assert_equal(expected, actual)
-    #puts expected.force_encoding('ASCII-8BIT')
-    #puts actual
-    #assert_equal(expected.force_encoding('ASCII-8BIT'), actual)
   end
 
   def test_parse_tonode_default
     s = '俺の名はハカイダーである。'
     expected = `echo #{s} | #{@mecab}`.lines.to_a
-    #expected.collect! {|e| e = e.force_encoding('ASCII-8BIT')}
 
     actual = []
     @m.parse(s) do |node|

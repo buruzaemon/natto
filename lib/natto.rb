@@ -14,24 +14,19 @@ module Natto
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     mecab = Natto::MeCab.new(:output_format_type=>'wakati')
-  #     => #<Natto::MeCab:0x28d896b8 @ptr=#<FFI::Pointer address=0x28e378b8>, \
+  #     nm = Natto::MeCab.new(:output_format_type=>'wakati')
+  #     => #<Natto::MeCab:0x28c880fc @ptr=#<FFI::Pointer address=0x28afddc0>, \
   #                                  @options={:output_format_type=>"wakati"}, \
-  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \ 
-  #                                  @version="0.98">     
+  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
+  #                                  @version="0.98">
   #
-  #     output = mecab.parse('ネバネバの組み合わせ美味しいです。').split
-  #
-  #     output.each do |token|
-  #       puts token
-  #     end
-  #     => ネバネバ
-  #        の
-  #        組み合わせ
-  #        美味しい
-  #        です
-  #        。
-  #
+  #     nm.parse('ネバネバの組み合わせ美味しいです。') { |n| puts n.surface }
+  #     ネバネバ
+  #     の
+  #     組み合わせ
+  #     美味しい
+  #     です
+  #     。
   class MeCab
     include Natto::Binding
 
@@ -72,13 +67,13 @@ module Natto
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
-    #     mecab = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
+    #     nm = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
     #     => #<Natto::MeCab:0x28d82f20 @ptr=#<FFI::Pointer address=0x28e378a8>, \
     #                                  @options={:node_format=>"%m\\t%f[7]\\n"}, \
     #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
     #                                  @version="0.98">
     #
-    #     puts mecab.parse('簡単で美味しくて良いですよね。')
+    #     puts nm.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
     #     で         デ
     #     美味しくて オイシクテ
@@ -109,15 +104,23 @@ module Natto
         # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
         @parse_tostr = lambda { |str| 
-          self.mecab_nbest_init(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr)))
+          self.mecab_nbest_init(@ptr, str) 
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
-                raise(MeCabError.new(self.mecab_strerror(@ptr))) } 
+                raise(MeCabError.new(self.mecab_strerror(@ptr))) 
+        } 
+        @parse_tonode = lambda { |str|
+          self.mecab_nbest_init(@ptr, str) 
+          return self.mecab_nbest_next_tonode(@ptr)
+        }
       else
-        # default parsing
+        # default parsing implementations
         @parse_tostr = lambda { |str|
-          return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) }
+          return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) 
+        }
+        @parse_tonode = lambda { |str|
+          return self.mecab_sparse_tonode(@ptr, str)
+        }
       end
-#      require 'natto/rb19_encoding'
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       while @dicts.last.next.address != 0x0
@@ -136,10 +139,12 @@ module Natto
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
     def parse(str, &block)
       if block_given?
-        m_node_ptr = self.mecab_sparse_tonode(@ptr, str)
+        m_node_ptr = @parse_tonode.call(str)
         head = Natto::MeCabNode.new(m_node_ptr)
         node = Natto::MeCabNode.new(head[:next])
         while (node.nil? == false)
+          node.surface = node.surface.force_encoding(__ENCODING__) if node.surface.respond_to? :force_encoding
+          node.feature = node.feature.force_encoding(__ENCODING__) if node.feature.respond_to? :force_encoding
           yield node
           if node[:next].address != 0x0
             node = Natto::MeCabNode.new(node[:next])
@@ -148,7 +153,9 @@ module Natto
           end
         end
       else
-        @parse_tostr.call(str)
+        result = @parse_tostr.call(str)
+        result.force_encoding(__ENCODING__) if result.respond_to? :force_encoding
+        result
       end
     end
 
@@ -213,6 +220,8 @@ module Natto
   # for the <tt>Natto</tt> module.
   class MeCabError < RuntimeError; end
 
+  # <tt>MeCabStruct</tt> is a general base class 
+  # for <tt>FFI::Struct</tt> objects in the <tt>Natto</tt> module.
   class MeCabStruct < FFI::Struct
     # Provides accessor methods for the members of the <tt>mecab</tt> struct.
     #
@@ -244,11 +253,11 @@ module Natto
   # 
   # <h2>Usage</h2>
   # <tt>mecab</tt> dictionary attributes can be obtained by
-  # using their corresponding accessor.
+  # iusing their corresponding accessor.
   #
-  #     mecab = Natto::MeCab.new
+  #     nm = Natto::MeCab.new
   #
-  #     sysdic = m.dicts.first
+  #     sysdic = nm.dicts.first
   #
   #     puts sysdic.filename
   #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
@@ -299,7 +308,96 @@ module Natto
     end
   end
 
+  # <tt>MeCabNode</tt> is a wrapper for the structure holding
+  # the parsed <tt>node</tt>.
+  # 
+  # Values for the <tt>mecab</tt> node attributes may be 
+  # obtained by using the following <tt>Symbol</tt>s as keys 
+  # to the layout associative array of <tt>FFI::Struct</tt> members.
+  #
+  # - :prev
+  # - :next
+  # - :enext
+  # - :bnext
+  # - :rpath
+  # - :lpath
+  # - :begin_node_list
+  # - :end_node_list
+  # - :surface
+  # - :feature
+  # - :id
+  # - :length
+  # - :rlength
+  # - :rcAttr
+  # - :lcAttr
+  # - :posid
+  # - :char_type
+  # - :stat
+  # - :isbest
+  # - :sentence_length
+  # - :alpha
+  # - :beta
+  # - :beta
+  # - :prob
+  # - :wcost
+  # - :cost
+  # - :token
+  #
+  # <h2>Usage</h2>
+  # An instance of <tt>MeCabNode</tt> is yielded to a block
+  # used with <tt>MeCab#parse</tt>. Each resulting node is
+  # yielded to the block passed in, where the above-mentioned
+  # node attributes may be accessed.
+  #
+  #     nm = Natto::MeCab.new
+  #
+  #     nm.parse('めかぶの使い方がわからなくて困ってました。') do |n| 
+  #       puts "#{n.surface}\t#{n.cost}" 
+  #     end
+  #     め      7961
+  #     かぶ    19303
+  #     の      25995
+  #     使い方  29182
+  #     が      28327
+  #     わから  33625
+  #     なく    34256
+  #     て      36454
+  #     困っ    43797
+  #     て      42178
+  #     まし    46708
+  #     た      46111
+  #     。      42677
+  #             41141
+  #     => nil
+  #
+  # It is also possible to use the <tt>Symbol</tt> for the
+  # <tt>mecab</tt> node member to index into the 
+  # <tt>FFI::Struct</tt> layout associative array like so:
+  #     
+  #     nm.parse('納豆に乗っけて頂きます！') {|n| puts n.feature }
+  #     名詞,一般,*,*,*,*,納豆,ナットウ,ナットー
+  #     助詞,格助詞,一般,*,*,*,に,ニ,ニ
+  #     動詞,自立,*,*,一段,連用形,乗っける,ノッケ,ノッケ
+  #     助詞,接続助詞,*,*,*,*,て,テ,テ
+  #     動詞,非自立,*,*,五段・カ行イ音便,連用形,頂く,イタダキ,イタダキ
+  #     助動詞,*,*,*,特殊・マス,基本形,ます,マス,マス
+  #     記号,一般,*,*,*,*,！,！,！
+  #     BOS/EOS,*,*,*,*,*,*,*,*
+  #     => nil
+  #
   class MeCabNode < MeCabStruct
+    attr_writer :surface, :feature
+
+    # Normal <tt>mecab</tt> node.
+    NOR_NODE = 0
+    # Unknown <tt>mecab</tt> node.
+    UNK_NODE = 1
+    # Beginning-of-string <tt>mecab</tt> node.
+    BOS_NODE = 2
+    # End-of-string <tt>mecab</tt> node.
+    EOS_NODE = 3
+    # End-of-NBest <tt>mecab</tt> node list.
+    EON_NODE = 4
 
     layout  :prev,            :pointer,
             :next,            :pointer,
@@ -342,6 +440,10 @@ module Natto
       end
     end
 
+    # Returns the surface value for this node, or a blank string
+    # if there is none.
+    #
+    # @return [String] representing this node's surface value
     def surface
       if self[:surface] && self[:length]>0
         self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
