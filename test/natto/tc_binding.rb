@@ -30,6 +30,9 @@ class TestNattoBinding < Test::Unit::TestCase
        :mecab_set_all_morphs,
        :mecab_sparse_tostr, 
        :mecab_nbest_sparse_tostr, 
+       :mecab_nbest_init,
+       :mecab_nbest_sparse_tostr,
+       :mecab_nbest_next_tonode,
        :mecab_dictionary_info ].each do |f|
        assert(@klass.respond_to? f)
     end

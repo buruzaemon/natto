@@ -6,11 +6,17 @@
 # <tt>Natto::MeCab</tt> is a wrapper class for the <tt>mecab</tt> 
 # parser.
 #
+# <tt>Natto::MeCabNode</tt> is a wrapper for <tt>mecab</tt>-parsed 
+# node.
+#
 # <tt>Natto::DictionaryInfo</tt> is a wrapper for a <tt>Natto::MeCab</tt>
 # instance's related dictionary information.
 #
 # <tt>Natto::MeCabError</tt> is a general error class for the 
 # <tt>Natto</tt> module.
+#
+# <tt>Natto::MeCabStruct</tt> is a base class for a <tt>mecab</tt>
+# struct.
 #
 # Module <tt>Natto::Binding</tt> encapsulates methods and behavior 
 # which are made available via <tt>FFI</tt> bindings to <tt>mecab</tt>.

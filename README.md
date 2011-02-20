@@ -38,16 +38,16 @@ e.g., from within a Ruby program
     require 'rubygems' if RUBY_VERSION.to_f < 1.9
     require 'natto'
 
-    mecab = Natto::MeCab.new
-    => #<Natto::MeCab:0x28d93820 @ptr=#<FFI::Pointer address=0x28e378c8>, \
+    nm = Natto::MeCab.new
+    => #<Natto::MeCab:0x28d4a6fc @ptr=#<FFI::Pointer address=0x28e51518>, \
                                  @options={}, \
                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
                                  @version="0.98">
 
-    puts mecab.version
+    puts nm.version
     => 0.98
 
-    sysdic = mecab.dicts.first
+    sysdic = nm.dicts.first
 
     puts sysdic.filename
     => /usr/local/lib/mecab/dic/ipadic/sys.dic
@@ -55,7 +55,9 @@ e.g., from within a Ruby program
     puts sysdic.charset
     => utf8
 
-    puts mecab.parse('暑い日にはもってこいの一品ですね。')
+    nm.parse('暑い日にはもってこいの一品ですね。') do |n|
+      puts "#{n.surface}\t#{n.feature}"
+    end
     暑い    形容詞,自立,*,*,形容詞・アウオ段,基本形,暑い,アツイ,アツイ
     日      名詞,非自立,副詞可能,*,*,*,日,ヒ,ヒ
     に      助詞,格助詞,一般,*,*,*,に,ニ,ニ
@@ -66,7 +68,7 @@ e.g., from within a Ruby program
     です    助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
     ね      助詞,終助詞,*,*,*,*,ね,ネ,ネ
     。      終助詞記号,句点,*,*,*,*,。,。,。
-    EOS
+            BOS/EOS,*,*,*,*,*,*,*,*
     => nil
 
 ## Contributing to natto

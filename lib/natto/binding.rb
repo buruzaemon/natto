@@ -36,6 +36,8 @@ module Natto
     #     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
     # e.g., for Cygwin
     #     export MECAB_PATH=cygmecab-1
+    # e.g., from within a Ruby program
+    #     ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
     def self.find_library
       host_os = RbConfig::CONFIG['host_os']
 
@@ -64,6 +66,7 @@ module Natto
     
     attach_function :mecab_nbest_init, [:pointer, :string], :int
     attach_function :mecab_nbest_sparse_tostr, [:pointer, :int, :string], :string
+    attach_function :mecab_nbest_next_tonode, [:pointer], :pointer
     
     attach_function :mecab_dictionary_info, [:pointer], :pointer
 
@@ -103,6 +106,14 @@ module Natto
       
       def mecab_sparse_tonode(ptr, str)
         Natto::Binding.mecab_sparse_tonode(ptr, str)
+      end
+
+      def mecab_nbest_next_tonode(ptr)
+        Natto::Binding.mecab_nbest_next_tonode(ptr)
+      end
+
+      def mecab_nbest_init(ptr, str)
+        Natto::Binding.mecab_nbest_init(ptr, str)
       end
 
       def mecab_nbest_sparse_tostr(ptr, n, str)
