@@ -29,6 +29,7 @@ END_DESC
     'test/natto/tc_binding.rb', 
     'test/natto/tc_dictionaryinfo.rb', 
     'test/natto/tc_mecab.rb', 
+    'test/natto/tc_mecabnode.rb', 
     'README.md',
     'LICENSE', 
     'CHANGELOG',
