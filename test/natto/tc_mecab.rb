@@ -5,7 +5,6 @@
 class TestMeCab < Test::Unit::TestCase
   def setup
     @m = Natto::MeCab.new
-    @mecab = '/usr/local/bin/mecab'
   end
 
   def teardown
@@ -133,21 +132,21 @@ class TestMeCab < Test::Unit::TestCase
   def test_all_morphs
     m = Natto::MeCab.new(:all_morphs=>true)
     s = '天使'
-    expected = `echo #{s} | #{@mecab} -a`
+    expected = `echo #{s} | mecab -a`
     actual   = m.parse(s)
     assert_equal(expected, actual)
   end
 
   def test_parse_tostr_default
     s = 'これはペンです。'
-    expected = `echo #{s} | #{@mecab}`.lines.to_a
+    expected = `echo #{s} | mecab`.lines.to_a
     actual = @m.parse(s).lines.to_a
     assert_equal(expected, actual)
   end
 
   def test_parse_tonode_default
     s = '俺の名はハカイダーである。'
-    expected = `echo #{s} | #{@mecab}`.lines.to_a
+    expected = `echo #{s} | mecab`.lines.to_a
 
     actual = []
     @m.parse(s) do |node|

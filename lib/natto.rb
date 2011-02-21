@@ -1,4 +1,5 @@
 # coding: utf-8
+
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
 
@@ -27,6 +28,7 @@ module Natto
   #     美味しい
   #     です
   #     。
+  #
   class MeCab
     include Natto::Binding
 
@@ -143,8 +145,6 @@ module Natto
         head = Natto::MeCabNode.new(m_node_ptr)
         node = Natto::MeCabNode.new(head[:next])
         while (node.nil? == false)
-          node.surface = node.surface.force_encoding(__ENCODING__) if node.surface.respond_to? :force_encoding
-          node.feature = node.feature.force_encoding(__ENCODING__) if node.feature.respond_to? :force_encoding
           yield node
           if node[:next].address != 0x0
             node = Natto::MeCabNode.new(node[:next])
@@ -253,7 +253,7 @@ module Natto
   # 
   # <h2>Usage</h2>
   # <tt>mecab</tt> dictionary attributes can be obtained by
-  # iusing their corresponding accessor.
+  # using their corresponding accessor.
   #
   #     nm = Natto::MeCab.new
   #
@@ -300,7 +300,8 @@ module Natto
       end
     end
 
-    # Returns the full-path file name for this dictionary. Overrides <tt>Object#to_s</tt>.
+    # Returns the full-path file name for this dictionary. 
+    # Overrides <tt>Object#to_s</tt>.
     #
     # @return [String] full-path filename for this dictionary
     def to_s
@@ -354,6 +355,7 @@ module Natto
   #     nm.parse('めかぶの使い方がわからなくて困ってました。') do |n| 
   #       puts "#{n.surface}\t#{n.cost}" 
   #     end
+  #
   #     め      7961
   #     かぶ    19303
   #     の      25995
@@ -374,7 +376,8 @@ module Natto
   # <tt>mecab</tt> node member to index into the 
   # <tt>FFI::Struct</tt> layout associative array like so:
   #     
-  #     nm.parse('納豆に乗っけて頂きます！') {|n| puts n.feature }
+  #     nm.parse('納豆に乗っけて頂きます！') {|n| puts n[:feature] }
+  #
   #     名詞,一般,*,*,*,*,納豆,ナットウ,ナットー
   #     助詞,格助詞,一般,*,*,*,に,ニ,ニ
   #     動詞,自立,*,*,一段,連用形,乗っける,ノッケ,ノッケ
@@ -386,7 +389,7 @@ module Natto
   #     => nil
   #
   class MeCabNode < MeCabStruct
-    attr_writer :surface, :feature
+    attr_reader :surface
 
     # Normal <tt>mecab</tt> node.
     NOR_NODE = 0
@@ -427,7 +430,7 @@ module Natto
             :token,           :pointer
    
     if RUBY_VERSION.to_f < 1.9
-      alias_method :id, :id
+      alias_method :deprecated_id, :id
       # <tt>Object#id</tt> override defined when <tt>RUBY_VERSION</tt> is
       # older than 1.9. This is a hack to avoid the <tt>Object#id</tt>
       # deprecation warning thrown up in Ruby 1.8.7.
@@ -440,18 +443,18 @@ module Natto
       end
     end
 
-    # Returns the surface value for this node, or a blank string
-    # if there is none.
-    #
-    # @return [String] representing this node's surface value
-    def surface
-      if self[:surface] && self[:length]>0
-        self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
-      else 
-        ''
-      end
+    def initialize(ptr)
+      super(ptr)
     end
-    
+
+    def surface
+      if self[:surface] && self[:length] > 0
+        @surface ||= self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
+      end
+
+      @surface
+    end
+
     # Returns human-readable details for the <tt>mecab</tt> node.
     # Overrides <tt>Object#to_s</tt>.
     #
