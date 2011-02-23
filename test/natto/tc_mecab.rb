@@ -1,8 +1,19 @@
 # coding: utf-8
+require 'rbconfig'
+require 'nkf'
 
 # TestMeCab encapsulates tests for the basic
 # behavior of Natto::MeCab.
 class TestMeCab < Test::Unit::TestCase
+
+  host_os = RbConfig::CONFIG['host_os']
+  # we need to transfrom from UTF-8 ot SJIS if we are on Windows!
+  if host_os =~ /mswin|mingw/i
+    TEST_STR = NKF.nkf("-Ws", '試験ですよ、これが。')
+  else
+    TEST_STR = '試験ですよ、これが。'
+  end
+
   def setup
     @m = Natto::MeCab.new
   end
@@ -131,30 +142,35 @@ class TestMeCab < Test::Unit::TestCase
   # Tests mecab parsing using the --all-morphs option.
   def test_all_morphs
     m = Natto::MeCab.new(:all_morphs=>true)
-    s = '天使'
-    expected = `echo #{s} | mecab -a`
-    actual   = m.parse(s)
+    expected = `echo #{TEST_STR} | mecab -a`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
+    
+    actual   = m.parse(TEST_STR).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    
     assert_equal(expected, actual)
   end
 
   def test_parse_tostr_default
-    s = 'これはペンです。'
-    expected = `echo #{s} | mecab`.lines.to_a
-    actual = @m.parse(s).lines.to_a
+    expected = `echo #{TEST_STR} | mecab`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
+    actual = @m.parse(TEST_STR).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
     assert_equal(expected, actual)
   end
 
   def test_parse_tonode_default
-    s = '俺の名はハカイダーである。'
-    expected = `echo #{s} | mecab`.lines.to_a
+    expected = `echo #{TEST_STR} | mecab`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
     actual = []
-    @m.parse(s) do |node|
+    @m.parse(TEST_STR) do |node|
       actual << "#{node.surface}\t#{node.feature}\n"
     end
-    # do not include the EOS that gets added when using command line
-    expected.pop
-    actual.pop
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
     assert_equal(expected, actual)
   end
 end 

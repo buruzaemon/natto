@@ -6,10 +6,12 @@ require 'nkf'
 # behavior of Natto::MeCabNode
 class TestMeCabNode < Test::Unit::TestCase
   
-  TEST_STR = '試験ですよ、これが。'
-  @host_os = RbConfig::CONFIG['host_os']
-  if @host_os =~ /mswin|mingw/i and TEST_STR.respond_to?(:encoding)
-    TEST_STR = NKF.nkf("-Ws", TEST_STR)
+  host_os = RbConfig::CONFIG['host_os']
+  # we need to transfrom from UTF-8 ot SJIS if we are on Windows!
+  if host_os =~ /mswin|mingw/i
+    TEST_STR = NKF.nkf("-Ws", '試験ですよ、これが。')
+  else
+    TEST_STR = '試験ですよ、これが。'
   end
 
   def setup
@@ -25,7 +27,7 @@ class TestMeCabNode < Test::Unit::TestCase
   # Tests the surface and feature accessors methods.
   def test_surface_and_feature_accessors
     raw = `echo #{TEST_STR} | mecab`.lines.to_a
-    raw.pop
+    raw.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected = {}
     raw.each do |l|
       tokens = l.split("\t")
@@ -33,14 +35,12 @@ class TestMeCabNode < Test::Unit::TestCase
     end
 
     actual = {}
-    @nodes.pop
+   # @nodes.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     @nodes.each do |n|
-      k = n.surface
-      v = n.feature
-      puts "---> #{k} = #{v}"
-      actual[k]=v
+      actual[n.surface]=n.feature if (n.stat==Natto::MeCabNode::NOR_NODE || 
+                                      n.stat==Natto::MeCabNode::UNK_NODE)
     end
-   puts actual 
+    
     assert_equal(expected, actual)
   end
 
