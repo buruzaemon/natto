@@ -1,4 +1,4 @@
-# coding: utf-8
+# coding: sjis
 
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
@@ -21,13 +21,13 @@ module Natto
   #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
   #                                  @version="0.98">
   #
-  #     nm.parse('ãƒãƒãƒãƒã®çµ„ã¿åˆã‚ã›ç¾Žå‘³ã—ã„ã§ã™ã€‚') { |n| puts n.surface }
-  #     ãƒãƒãƒãƒ
-  #     ã®
-  #     çµ„ã¿åˆã‚ã›
-  #     ç¾Žå‘³ã—ã„
-  #     ã§ã™
-  #     ã€‚
+  #     nm.parse('ƒlƒoƒlƒo‚Ì‘g‚Ý‡‚í‚¹”ü–¡‚µ‚¢‚Å‚·B') { |n| puts n.surface }
+  #     ƒlƒoƒlƒo
+  #     ‚Ì
+  #     ‘g‚Ý‡‚í‚¹
+  #     ”ü–¡‚µ‚¢
+  #     ‚Å‚·
+  #     B
   #
   class MeCab
     include Natto::Binding
@@ -75,15 +75,15 @@ module Natto
     #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
     #                                  @version="0.98">
     #
-    #     puts nm.parse('ç°¡å˜ã§ç¾Žå‘³ã—ãã¦è‰¯ã„ã§ã™ã‚ˆã­ã€‚')
-    #     ç°¡å˜       ã‚«ãƒ³ã‚¿ãƒ³
-    #     ã§         ãƒ‡
-    #     ç¾Žå‘³ã—ãã¦ ã‚ªã‚¤ã‚·ã‚¯ãƒ†
-    #     è‰¯ã„       ãƒ¨ã‚¤
-    #     ã§ã™       ãƒ‡ã‚¹
-    #     ã‚ˆ         ãƒ¨
-    #     ã­         ãƒ
-    #     ã€‚
+    #     puts nm.parse('ŠÈ’P‚Å”ü–¡‚µ‚­‚Ä—Ç‚¢‚Å‚·‚æ‚ËB')
+    #     ŠÈ’P       ƒJƒ“ƒ^ƒ“
+    #     ‚Å         ƒf
+    #     ”ü–¡‚µ‚­‚Ä ƒIƒCƒVƒNƒe
+    #     —Ç‚¢       ƒˆƒC
+    #     ‚Å‚·       ƒfƒX
+    #     ‚æ         ƒˆ
+    #     ‚Ë         ƒl
+    #     B
     #     EOS
     #     => nil
     #
@@ -154,8 +154,6 @@ module Natto
         end
       else
         result = @parse_tostr.call(str)
-        result.force_encoding(__ENCODING__) if result.respond_to? :force_encoding
-        result
       end
     end
 
@@ -352,23 +350,23 @@ module Natto
   #
   #     nm = Natto::MeCab.new
   #
-  #     nm.parse('ã‚ã‹ã¶ã®ä½¿ã„æ–¹ãŒã‚ã‹ã‚‰ãªãã¦å›°ã£ã¦ã¾ã—ãŸã€‚') do |n| 
+  #     nm.parse('‚ß‚©‚Ô‚ÌŽg‚¢•û‚ª‚í‚©‚ç‚È‚­‚Ä¢‚Á‚Ä‚Ü‚µ‚½B') do |n| 
   #       puts "#{n.surface}\t#{n.cost}" 
   #     end
   #
-  #     ã‚      7961
-  #     ã‹ã¶    19303
-  #     ã®      25995
-  #     ä½¿ã„æ–¹  29182
-  #     ãŒ      28327
-  #     ã‚ã‹ã‚‰  33625
-  #     ãªã    34256
-  #     ã¦      36454
-  #     å›°ã£    43797
-  #     ã¦      42178
-  #     ã¾ã—    46708
-  #     ãŸ      46111
-  #     ã€‚      42677
+  #     ‚ß      7961
+  #     ‚©‚Ô    19303
+  #     ‚Ì      25995
+  #     Žg‚¢•û  29182
+  #     ‚ª      28327
+  #     ‚í‚©‚ç  33625
+  #     ‚È‚­    34256
+  #     ‚Ä      36454
+  #     ¢‚Á    43797
+  #     ‚Ä      42178
+  #     ‚Ü‚µ    46708
+  #     ‚½      46111
+  #     B      42677
   #             41141
   #     => nil
   #
@@ -376,20 +374,20 @@ module Natto
   # <tt>mecab</tt> node member to index into the 
   # <tt>FFI::Struct</tt> layout associative array like so:
   #     
-  #     nm.parse('ç´è±†ã«ä¹—ã£ã‘ã¦é ‚ãã¾ã™ï¼') {|n| puts n[:feature] }
+  #     nm.parse('”[“¤‚Éæ‚Á‚¯‚Ä’¸‚«‚Ü‚·I') {|n| puts n[:feature] }
   #
-  #     åè©ž,ä¸€èˆ¬,*,*,*,*,ç´è±†,ãƒŠãƒƒãƒˆã‚¦,ãƒŠãƒƒãƒˆãƒ¼
-  #     åŠ©è©ž,æ ¼åŠ©è©ž,ä¸€èˆ¬,*,*,*,ã«,ãƒ‹,ãƒ‹
-  #     å‹•è©ž,è‡ªç«‹,*,*,ä¸€æ®µ,é€£ç”¨å½¢,ä¹—ã£ã‘ã‚‹,ãƒŽãƒƒã‚±,ãƒŽãƒƒã‚±
-  #     åŠ©è©ž,æŽ¥ç¶šåŠ©è©ž,*,*,*,*,ã¦,ãƒ†,ãƒ†
-  #     å‹•è©ž,éžè‡ªç«‹,*,*,äº”æ®µãƒ»ã‚«è¡Œã‚¤éŸ³ä¾¿,é€£ç”¨å½¢,é ‚ã,ã‚¤ã‚¿ãƒ€ã‚­,ã‚¤ã‚¿ãƒ€ã‚­
-  #     åŠ©å‹•è©ž,*,*,*,ç‰¹æ®Šãƒ»ãƒžã‚¹,åŸºæœ¬å½¢,ã¾ã™,ãƒžã‚¹,ãƒžã‚¹
-  #     è¨˜å·,ä¸€èˆ¬,*,*,*,*,ï¼,ï¼,ï¼
+  #     –¼ŽŒ,ˆê”Ê,*,*,*,*,”[“¤,ƒiƒbƒgƒE,ƒiƒbƒg[
+  #     •ŽŒ,Ši•ŽŒ,ˆê”Ê,*,*,*,‚É,ƒj,ƒj
+  #     “®ŽŒ,Ž©—§,*,*,ˆê’i,˜A—pŒ`,æ‚Á‚¯‚é,ƒmƒbƒP,ƒmƒbƒP
+  #     •ŽŒ,Ú‘±•ŽŒ,*,*,*,*,‚Ä,ƒe,ƒe
+  #     “®ŽŒ,”ñŽ©—§,*,*,ŒÜ’iEƒJsƒC‰¹•Ö,˜A—pŒ`,’¸‚­,ƒCƒ^ƒ_ƒL,ƒCƒ^ƒ_ƒL
+  #     •“®ŽŒ,*,*,*,“ÁŽêEƒ}ƒX,Šî–{Œ`,‚Ü‚·,ƒ}ƒX,ƒ}ƒX
+  #     ‹L†,ˆê”Ê,*,*,*,*,I,I,I
   #     BOS/EOS,*,*,*,*,*,*,*,*
   #     => nil
   #
   class MeCabNode < MeCabStruct
-    attr_reader :surface
+    attr_reader :surface, :feature
 
     # Normal <tt>mecab</tt> node.
     NOR_NODE = 0
@@ -445,14 +443,12 @@ module Natto
 
     def initialize(ptr)
       super(ptr)
-    end
-
-    def surface
       if self[:surface] && self[:length] > 0
         @surface ||= self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
+        @surface.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+        @feature ||= self[:feature]
+        @feature.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
       end
-
-      @surface
     end
 
     # Returns human-readable details for the <tt>mecab</tt> node.

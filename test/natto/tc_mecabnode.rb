@@ -1,10 +1,16 @@
 # coding: utf-8
+require 'rbconfig'
+require 'nkf'
 
 # TestMeCabNode encapsulates tests for the basic
 # behavior of Natto::MeCabNode
 class TestMeCabNode < Test::Unit::TestCase
-
+  
   TEST_STR = '試験ですよ、これが。'
+  @host_os = RbConfig::CONFIG['host_os']
+  if @host_os =~ /mswin|mingw/i and TEST_STR.respond_to?(:encoding)
+    TEST_STR = NKF.nkf("-Ws", TEST_STR)
+  end
 
   def setup
     nm = Natto::MeCab.new
@@ -29,10 +35,13 @@ class TestMeCabNode < Test::Unit::TestCase
     actual = {}
     @nodes.pop
     @nodes.each do |n|
-      actual[n.surface]=n.feature
+      k = n.surface
+      v = n.feature
+      puts "---> #{k} = #{v}"
+      actual[k]=v
     end
-    
-    assert(expected == actual)
+   puts actual 
+    assert_equal(expected, actual)
   end
 
   # Tests that the accessors of Natto::MeCabNode exist.
