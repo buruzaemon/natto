@@ -13,7 +13,7 @@ module Natto
     # String name for the environment variable used by 
     # <tt>Natto</tt> to indicate the exact name / full path
     # to the <tt>mecab</tt> library.
-    MECAB_PATH = 'MECAB_PATH'
+    MECAB_PATH = 'MECAB_PATH'.freeze
     
     # @private
     def self.included(base)
