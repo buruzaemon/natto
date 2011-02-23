@@ -1,4 +1,4 @@
-# coding: sjis
+# coding: utf-8
 
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
@@ -16,18 +16,18 @@ module Natto
   #     require 'natto'
   #
   #     nm = Natto::MeCab.new(:output_format_type=>'wakati')
-  #     => #<Natto::MeCab:0x28c880fc @ptr=#<FFI::Pointer address=0x28afddc0>, \
-  #                                  @options={:output_format_type=>"wakati"}, \
-  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
+  #     => #<Natto::MeCab:0x28c880fc @ptr=#<FFI::Pointer address=0x28afddc0>, Â¥
+  #                                  @options={:output_format_type=>"wakati"}, Â¥
+  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], Â¥
   #                                  @version="0.98">
   #
-  #     nm.parse('ƒlƒoƒlƒo‚Ì‘g‚İ‡‚í‚¹”ü–¡‚µ‚¢‚Å‚·B') { |n| puts n.surface }
-  #     ƒlƒoƒlƒo
-  #     ‚Ì
-  #     ‘g‚İ‡‚í‚¹
-  #     ”ü–¡‚µ‚¢
-  #     ‚Å‚·
-  #     B
+  #     nm.parse('ãƒãƒãƒãƒã®çµ„ã¿åˆã‚ã›ç¾å‘³ã—ã„ã§ã™ã€‚') { |n| puts n.surface }
+  #     ãƒãƒãƒãƒ
+  #     ã®
+  #     çµ„ã¿åˆã‚ã›
+  #     ç¾å‘³ã—ã„
+  #     ã§ã™
+  #     ã€‚
   #
   class MeCab
     include Natto::Binding
@@ -69,21 +69,21 @@ module Natto
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
-    #     nm = Natto::MeCab.new(:node_format=>'%m\t%f[7]\n')
-    #     => #<Natto::MeCab:0x28d82f20 @ptr=#<FFI::Pointer address=0x28e378a8>, \
-    #                                  @options={:node_format=>"%m\\t%f[7]\\n"}, \
-    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
+    #     nm = Natto::MeCab.new(:node_format=>'%mÂ¥t%f[7]Â¥n')
+    #     => #<Natto::MeCab:0x28d82f20 @ptr=#<FFI::Pointer address=0x28e378a8>, Â¥
+    #                                  @options={:node_format=>"%mÂ¥Â¥t%f[7]Â¥Â¥n"}, Â¥
+    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], Â¥
     #                                  @version="0.98">
     #
-    #     puts nm.parse('ŠÈ’P‚Å”ü–¡‚µ‚­‚Ä—Ç‚¢‚Å‚·‚æ‚ËB')
-    #     ŠÈ’P       ƒJƒ“ƒ^ƒ“
-    #     ‚Å         ƒf
-    #     ”ü–¡‚µ‚­‚Ä ƒIƒCƒVƒNƒe
-    #     —Ç‚¢       ƒˆƒC
-    #     ‚Å‚·       ƒfƒX
-    #     ‚æ         ƒˆ
-    #     ‚Ë         ƒl
-    #     B
+    #     puts nm.parse('ç°¡å˜ã§ç¾å‘³ã—ãã¦è‰¯ã„ã§ã™ã‚ˆã­ã€‚')
+    #     ç°¡å˜       ã‚«ãƒ³ã‚¿ãƒ³
+    #     ã§         ãƒ‡
+    #     ç¾å‘³ã—ãã¦ ã‚ªã‚¤ã‚·ã‚¯ãƒ†
+    #     è‰¯ã„       ãƒ¨ã‚¤
+    #     ã§ã™       ãƒ‡ã‚¹
+    #     ã‚ˆ         ãƒ¨
+    #     ã­         ãƒ
+    #     ã€‚
     #     EOS
     #     => nil
     #
@@ -352,23 +352,23 @@ module Natto
   #
   #     nm = Natto::MeCab.new
   #
-  #     nm.parse('‚ß‚©‚Ô‚Ìg‚¢•û‚ª‚í‚©‚ç‚È‚­‚Ä¢‚Á‚Ä‚Ü‚µ‚½B') do |n| 
-  #       puts "#{n.surface}\t#{n.cost}" 
+  #     nm.parse('ã‚ã‹ã¶ã®ä½¿ã„æ–¹ãŒã‚ã‹ã‚‰ãªãã¦å›°ã£ã¦ã¾ã—ãŸã€‚') do |n| 
+  #       puts "#{n.surface}Â¥t#{n.cost}" 
   #     end
   #
-  #     ‚ß      7961
-  #     ‚©‚Ô    19303
-  #     ‚Ì      25995
-  #     g‚¢•û  29182
-  #     ‚ª      28327
-  #     ‚í‚©‚ç  33625
-  #     ‚È‚­    34256
-  #     ‚Ä      36454
-  #     ¢‚Á    43797
-  #     ‚Ä      42178
-  #     ‚Ü‚µ    46708
-  #     ‚½      46111
-  #     B      42677
+  #     ã‚      7961
+  #     ã‹ã¶    19303
+  #     ã®      25995
+  #     ä½¿ã„æ–¹  29182
+  #     ãŒ      28327
+  #     ã‚ã‹ã‚‰  33625
+  #     ãªã    34256
+  #     ã¦      36454
+  #     å›°ã£    43797
+  #     ã¦      42178
+  #     ã¾ã—    46708
+  #     ãŸ      46111
+  #     ã€‚      42677
   #             41141
   #     => nil
   #
@@ -376,15 +376,15 @@ module Natto
   # <tt>mecab</tt> node member to index into the 
   # <tt>FFI::Struct</tt> layout associative array like so:
   #     
-  #     nm.parse('”[“¤‚Éæ‚Á‚¯‚Ä’¸‚«‚Ü‚·I') {|n| puts n[:feature] }
+  #     nm.parse('ç´è±†ã«ä¹—ã£ã‘ã¦é ‚ãã¾ã™ï¼') {|n| puts n[:feature] }
   #
-  #     –¼Œ,ˆê”Ê,*,*,*,*,”[“¤,ƒiƒbƒgƒE,ƒiƒbƒg[
-  #     •Œ,Ši•Œ,ˆê”Ê,*,*,*,‚É,ƒj,ƒj
-  #     “®Œ,©—§,*,*,ˆê’i,˜A—pŒ`,æ‚Á‚¯‚é,ƒmƒbƒP,ƒmƒbƒP
-  #     •Œ,Ú‘±•Œ,*,*,*,*,‚Ä,ƒe,ƒe
-  #     “®Œ,”ñ©—§,*,*,ŒÜ’iEƒJsƒC‰¹•Ö,˜A—pŒ`,’¸‚­,ƒCƒ^ƒ_ƒL,ƒCƒ^ƒ_ƒL
-  #     •“®Œ,*,*,*,“ÁêEƒ}ƒX,Šî–{Œ`,‚Ü‚·,ƒ}ƒX,ƒ}ƒX
-  #     ‹L†,ˆê”Ê,*,*,*,*,I,I,I
+  #     åè©,ä¸€èˆ¬,*,*,*,*,ç´è±†,ãƒŠãƒƒãƒˆã‚¦,ãƒŠãƒƒãƒˆãƒ¼
+  #     åŠ©è©,æ ¼åŠ©è©,ä¸€èˆ¬,*,*,*,ã«,ãƒ‹,ãƒ‹
+  #     å‹•è©,è‡ªç«‹,*,*,ä¸€æ®µ,é€£ç”¨å½¢,ä¹—ã£ã‘ã‚‹,ãƒãƒƒã‚±,ãƒãƒƒã‚±
+  #     åŠ©è©,æ¥ç¶šåŠ©è©,*,*,*,*,ã¦,ãƒ†,ãƒ†
+  #     å‹•è©,éè‡ªç«‹,*,*,äº”æ®µãƒ»ã‚«è¡Œã‚¤éŸ³ä¾¿,é€£ç”¨å½¢,é ‚ã,ã‚¤ã‚¿ãƒ€ã‚­,ã‚¤ã‚¿ãƒ€ã‚­
+  #     åŠ©å‹•è©,*,*,*,ç‰¹æ®Šãƒ»ãƒã‚¹,åŸºæœ¬å½¢,ã¾ã™,ãƒã‚¹,ãƒã‚¹
+  #     è¨˜å·,ä¸€èˆ¬,*,*,*,*,ï¼,ï¼,ï¼
   #     BOS/EOS,*,*,*,*,*,*,*,*
   #     => nil
   #
