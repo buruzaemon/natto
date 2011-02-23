@@ -154,6 +154,8 @@ module Natto
         end
       else
         result = @parse_tostr.call(str)
+        result.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+        result
       end
     end
 
@@ -443,12 +445,20 @@ module Natto
 
     def initialize(ptr)
       super(ptr)
+    end
+
+    def surface
       if self[:surface] && self[:length] > 0
         @surface ||= self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
         @surface.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
-        @feature ||= self[:feature]
-        @feature.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
       end
+      @surface
+    end
+
+    def feature
+      @feature ||= self[:feature]
+      @feature.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+      @feature
     end
 
     # Returns human-readable details for the <tt>mecab</tt> node.
