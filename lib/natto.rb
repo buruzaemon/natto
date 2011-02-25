@@ -15,19 +15,25 @@ module Natto
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     nm = Natto::MeCab.new(:output_format_type=>'wakati')
-  #     => #<Natto::MeCab:0x28c880fc @ptr=#<FFI::Pointer address=0x28afddc0>, ¥
-  #                                  @options={:output_format_type=>"wakati"}, ¥
-  #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], ¥
-  #                                  @version="0.98">
+  #     nm = Natto::MeCab.new(:output_format_type=>'chasen2')
+  #     => #<Natto::MeCab:0x28d3bdc8 \
+  #          @ptr=#<FFI::Pointer address=0x28afb980>, \
+  #          @options={:output_format_type=>"chasen2"}, \
+  #          @dicts=#<Natto::DictionaryInfo:0x289a1f14 \
+  #            filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
+  #            charset="utf8">, \
+  #          @version="0.98">
   #
-  #     nm.parse('ネバネバの組み合わせ美味しいです。') { |n| puts n.surface }
-  #     ネバネバ
-  #     の
-  #     組み合わせ
-  #     美味しい
-  #     です
-  #     。
+  #     nm.parse('ネバネバの組み合わせ美味しいです。') do |n| 
+  #       puts "#{n.surface}\t#{n.feature}" 
+  #     end
+  #
+  #     ネバネバ        名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
+  #     の              助詞,連体化,*,*,*,*,の,ノ,ノ
+  #     組み合わせ      名詞,一般,*,*,*,*,組み合わせ,クミアワセ,クミアワセ
+  #     美味しい        形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
+  #     です            助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
+  #     。              記号,句点,*,*,*,*,。,。,。
   #
   class MeCab
     include Natto::Binding
@@ -36,11 +42,11 @@ module Natto
 
     # Supported options to the <tt>mecab</tt> parser.
     # See the <tt>mecab</tt> help for more details. 
-    SUPPORTED_OPTS = [  :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
-                        :output_format_type, :node_format, :unk_format, 
-                        :bos_format, :eos_format, :eon_format, :unk_feature, 
-                        :input_buffer_size, :allocate_sentence, :nbest, :theta, 
-                        :cost_factor, :output ].freeze
+    SUPPORTED_OPTS = [ :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
+                       :output_format_type, :node_format, :unk_format, 
+                       :bos_format, :eos_format, :eon_format, :unk_feature, 
+                       :input_buffer_size, :allocate_sentence, :nbest, :theta, 
+                       :cost_factor, :output ].freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt> hash.
@@ -70,10 +76,12 @@ module Natto
     # e.g.<br/>
     #
     #     nm = Natto::MeCab.new(:node_format=>'%m¥t%f[7]¥n')
-    #     => #<Natto::MeCab:0x28d82f20 @ptr=#<FFI::Pointer address=0x28e378a8>, ¥
-    #                                  @options={:node_format=>"%m¥¥t%f[7]¥¥n"}, ¥
-    #                                  @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], ¥
-    #                                  @version="0.98">
+    #     => #<Natto::MeCab:0x28d2ae10 @ptr=#<FFI::Pointer address=0x28a97980>, \
+    #          @options={:node_format=>"%m¥t%f[7]¥n"}, \
+    #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c \
+    #            @filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
+    #            @charset="utf8">], \
+    #          @version="0.98">
     #
     #     puts nm.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
@@ -97,64 +105,69 @@ module Natto
       opt_str = self.class.build_options_str(@options)
       @ptr = self.mecab_new2(opt_str)
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
- 
+
+      # set mecab parsing options
       self.mecab_set_theta(@ptr, @options[:theta].to_f) if @options[:theta]
       self.mecab_set_lattice_level(@ptr, @options[:lattice_level].to_i) if @options[:lattice_level]
       self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
-
+       
+      # set mecab parsing implementations 
       if @options[:nbest] && @options[:nbest] > 1
+        # N-Best parsing implementations
+        self.mecab_nbest_init(@ptr, str) 
         # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
         @parse_tostr = lambda { |str| 
-          self.mecab_nbest_init(@ptr, str) 
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
                 raise(MeCabError.new(self.mecab_strerror(@ptr))) 
         } 
-        @parse_tonode = lambda { |str|
-          self.mecab_nbest_init(@ptr, str) 
-          return self.mecab_nbest_next_tonode(@ptr)
-        }
+        @parse_tonode = lambda { |str| return self.mecab_nbest_next_tonode(@ptr) }
       else
         # default parsing implementations
         @parse_tostr = lambda { |str|
           return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) 
         }
-        @parse_tonode = lambda { |str|
-          return self.mecab_sparse_tonode(@ptr, str)
-        }
+        @parse_tonode = lambda { |str| return self.mecab_sparse_tonode(@ptr, str) }
       end
 
+      # set ref to dictionaries
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@ptr))
       while @dicts.last.next.address != 0x0
         @dicts << Natto::DictionaryInfo.new(@dicts.last.next)
       end
 
+      # set ref to mecab version string
       @version = self.mecab_version
 
+      # set Proc for freeing mecab pointer
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@ptr))
     end
     
-    # Parses the given string <tt>str</tt>.
+    # Parses the given string <tt>str</tt>. If a block is passed to this method,
+    # then node parsing will be used and each node yielded to the given block.
     #
     # @param [String] str
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
-    def parse(str, &block)
+    # @see MeCabNode
+    def parse(str)
       if block_given?
         m_node_ptr = @parse_tonode.call(str)
-        head = Natto::MeCabNode.new(m_node_ptr)
-        node = Natto::MeCabNode.new(head[:next])
-        while (node.nil? == false)
-          yield node
-          if node[:next].address != 0x0
-            node = Natto::MeCabNode.new(node[:next])
-          else
-            break
+        head = Natto::MeCabNode.new(m_node_ptr) 
+        if head && head[:next].address != 0x0
+          node = Natto::MeCabNode.new(head[:next])
+          while (node.nil? == false)
+            yield node
+            if node[:next].address != 0x0
+              node = Natto::MeCabNode.new(node[:next])
+            else
+              break
+            end
           end
         end
       else
         result = @parse_tostr.call(str)
-        result.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+        result.force_encoding(Encoding.default_external) if result.respond_to?(:encoding) && result.encoding!=Encoding.default_external
         result
       end
     end
@@ -173,11 +186,12 @@ module Natto
       %(#{super.chop} @ptr=#{@ptr.to_s}, @options=#{@options.to_s}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
     end
 
-    # Overrides <tt>Object#inspect</tt> by returning the string representation of <tt>self</tt>.
-    #
-    # @return [String] <tt>self.to_s</tt>
+    # Overrides <tt>Object#inspect</tt>.
+    # 
+    # @return [String] encoded object id, FFI pointer, options hash, list of dictionaries, and MeCab version
+    # @see #to_s
     def inspect
-      to_s
+      self.to_s
     end
 
     # Returns a <tt>Proc</tt> that will properly free resources
@@ -264,17 +278,6 @@ module Natto
   #
   #     puts sysdic.charset
   #     => utf8
-  #
-  # It is also possible to use the <tt>Symbol</tt> for the
-  # <tt>mecab</tt> dictionary member to index into the 
-  # <tt>FFI::Struct</tt> layout associative array like so:
-  #     
-  #     puts sysdic[:filename]
-  #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
-  #
-  #     puts sysdic[:charset]
-  #     => utf8
-  #
   class DictionaryInfo < MeCabStruct
 
     layout  :filename, :string,
@@ -300,12 +303,24 @@ module Natto
       end
     end
 
-    # Returns the full-path file name for this dictionary. 
+    # Returns human-readable details for this <tt>mecab</tt> dictionary.
     # Overrides <tt>Object#to_s</tt>.
     #
-    # @return [String] full-path filename for this dictionary
+    # - encoded object id
+    # - full-path dictionary filename
+    # - dictionary charset
+    #
+    # @return [String] encoded object id, dictionary filename, and charset
     def to_s
-      self[:filename]
+      %(#{super.chop} filename="#{self.filename}", charset="#{self.charset}">)
+    end
+    
+    # Overrides <tt>Object#inspect</tt>.
+    #
+    # @return [String] encoded object id, dictionary filename, and charset
+    # @see #to_s
+    def inspect
+      self.to_s
     end
   end
 
@@ -389,7 +404,6 @@ module Natto
   #     => nil
   #
   class MeCabNode < MeCabStruct
-    attr_reader :surface, :feature
 
     # Normal <tt>mecab</tt> node.
     NOR_NODE = 0
@@ -443,21 +457,23 @@ module Natto
       end
     end
 
-    def initialize(ptr)
-      super(ptr)
-    end
-
+    # Returns the <tt>surface</tt> value for this node.
+    #
+    # @return [String] <tt>mecab</tt> node surface value
     def surface
       if self[:surface] && self[:length] > 0
         @surface ||= self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
-        @surface.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+        @surface.force_encoding(Encoding.default_external) if @surface.respond_to?(:encoding) && @surface.encoding!=Encoding.default_external
       end
       @surface
     end
 
+    # Returns the <tt>feature</tt> value for this node.
+    #
+    # @return [String] <tt>mecab</tt> node feature value
     def feature
       @feature ||= self[:feature]
-      @feature.force_encoding(Encoding.default_external) if "".respond_to?(:encoding) && __ENCODING__ != Encoding.default_external
+      @feature.force_encoding(Encoding.default_external) if @feature.respond_to?(:encoding) && @feature.encoding!=Encoding.default_external
       @feature
     end
 
@@ -472,6 +488,14 @@ module Natto
     # @return [String] encoded object id, stat, surface, and feature 
     def to_s
       %(#{super.chop} stat=#{self[:stat]}, surface="#{self.surface}", feature="#{self.feature}">)
+    end
+
+    # Overrides <tt>Object#inspect</tt>.
+    #
+    # @return [String] encoded object id, stat, surface, and feature 
+    # @see #to_s
+    def inspect
+      self.to_s
     end
   end
 end

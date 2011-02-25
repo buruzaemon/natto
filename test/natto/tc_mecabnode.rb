@@ -35,13 +35,30 @@ class TestMeCabNode < Test::Unit::TestCase
     end
 
     actual = {}
-   # @nodes.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     @nodes.each do |n|
       actual[n.surface]=n.feature if (n.stat==Natto::MeCabNode::NOR_NODE || 
                                       n.stat==Natto::MeCabNode::UNK_NODE)
     end
     
     assert_equal(expected, actual)
+  end
+
+  # Tests MeCabNode#surface to show that it is consistent
+  # no matter how many times it is invoked.
+  def test_manysurfaces
+    @nodes.each do |n|
+      expected = n.surface
+      5.times { assert_equal(expected, n.surface) }
+    end
+  end
+
+  # Tests MeCabNode#feature to show that it is consistent
+  # no matter how many times it is invoked.
+  def test_manyfeature
+    @nodes.each do |n|
+      expected = n.feature
+      5.times { assert_equal(expected, n.feature) }
+    end
   end
 
   # Tests that the accessors of Natto::MeCabNode exist.
