@@ -139,10 +139,10 @@ class TestMeCab < Test::Unit::TestCase
     assert_equal('0.98', @m.version)
   end
 
-  # Tests mecab parsing using the --all-morphs option.
+  # Tests Natto::MeCab parsing using the --all-morphs option.
   def test_all_morphs
     m = Natto::MeCab.new(:all_morphs=>true)
-    expected = `echo #{TEST_STR} | mecab -a`.lines.to_a
+    expected = `echo #{TEST_STR} | mecab --all-morphs`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
     
     actual   = m.parse(TEST_STR).lines.to_a
@@ -151,6 +151,7 @@ class TestMeCab < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
+  # Tests Natto::MeCab parsing (default parse_tostr).
   def test_parse_tostr_default
     expected = `echo #{TEST_STR} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -161,6 +162,7 @@ class TestMeCab < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
+  # Tests Natto::MeCab parsing (default parse_tonode).
   def test_parse_tonode_default
     expected = `echo #{TEST_STR} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }

@@ -34,7 +34,8 @@ class TestDictionaryInfo < Test::Unit::TestCase
 
   # Tests the to_s method.
   def test_to_s
-    assert_equal(@sysdic_filename, @dicts.first.to_s)
+    #<Natto::DictionaryInfo:0x288879bc @filename=\"/usr/local/lib/mecab/dic/ipadic/sys.dic\", @charset=\"utf8\">
+    assert(@dicts.first.to_s.include?("filename=\"#{@sysdic_filename}\", charset=\"#{@sysdic_charset}\""))
   end
 
   # Tests the accessors of Natto::DictionaryInfo.
