@@ -39,21 +39,24 @@ e.g., from within a Ruby program
     require 'natto'
 
     nm = Natto::MeCab.new
-    => #<Natto::MeCab:0x28d4a6fc @ptr=#<FFI::Pointer address=0x28e51518>, \
-                                 @options={}, \
-                                 @dicts=[/usr/local/lib/mecab/dic/ipadic/sys.dic], \
-                                 @version="0.98">
+    => #<Natto::MeCab:0x28d30748 
+         @ptr=#<FFI::Pointer address=0x28a97d50>, \
+         @options={}, \
+         @dicts=[#<Natto::DictionaryInfo:0x28d3061c 
+                 filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", 
+                 charset="utf8">], 
+         @version="0.98">
 
     puts nm.version
-    => 0.98
+    => "0.98" 
 
     sysdic = nm.dicts.first
 
     puts sysdic.filename
-    => /usr/local/lib/mecab/dic/ipadic/sys.dic
+    => "/usr/local/lib/mecab/dic/ipadic/sys.dic"
 
     puts sysdic.charset
-    => utf8
+    => "utf8" 
 
     nm.parse('暑い日にはもってこいの一品ですね。') do |n|
       puts "#{n.surface}\t#{n.feature}"

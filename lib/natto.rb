@@ -19,9 +19,9 @@ module Natto
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @ptr=#<FFI::Pointer address=0x28afb980>, \
   #          @options={:output_format_type=>"chasen2"}, \
-  #          @dicts=#<Natto::DictionaryInfo:0x289a1f14 \
-  #            filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-  #            charset="utf8">, \
+  #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14 \
+  #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
+  #                    charset="utf8">], \
   #          @version="0.98">
   #
   #     nm.parse('ネバネバの組み合わせ美味しいです。') do |n| 
@@ -79,8 +79,8 @@ module Natto
     #     => #<Natto::MeCab:0x28d2ae10 @ptr=#<FFI::Pointer address=0x28a97980>, \
     #          @options={:node_format=>"%m¥t%f[7]¥n"}, \
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c \
-    #            @filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
-    #            @charset="utf8">], \
+    #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
+    #                    charset="utf8">], \
     #          @version="0.98">
     #
     #     puts nm.parse('簡単で美味しくて良いですよね。')
@@ -212,7 +212,7 @@ module Natto
     # be passed in the construction of <tt>mecab</tt>.
     #
     # @param [Hash] options 
-    # @return string-representation of the options to the <tt>mecab</tt> parser
+    # @return [String] representation of the options to the <tt>mecab</tt> parser
     def self.build_options_str(options={})
       opt = []
       SUPPORTED_OPTS.each do |k|
@@ -274,10 +274,10 @@ module Natto
   #     sysdic = nm.dicts.first
   #
   #     puts sysdic.filename
-  #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
+  #     => "/usr/local/lib/mecab/dic/ipadic/sys.dic"
   #
   #     puts sysdic.charset
-  #     => utf8
+  #     => "utf8"
   class DictionaryInfo < MeCabStruct
 
     layout  :filename, :string,
