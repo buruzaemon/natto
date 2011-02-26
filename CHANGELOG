@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-- __2011/02/2?__: 0.5.0 release.
+- __2011/02/26__: 0.5.0 release.
     - Added support for node parsing using blocks
     - Added support for mecab options nbest, all-morphs
     - Pulling support for mecab option partial, since it is more of a command-line feature
