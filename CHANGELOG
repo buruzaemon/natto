@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+- __2011/03/23__: 0.5.1 release.
+    - Corrected mojibake issue for surface and feature values 
+      when node-parsing.
+    - Corrected call to NBest initializer in lambdas 
+      for Natto::MeCab#initialize.
+
 - __2011/02/26__: 0.5.0 release.
     - Added support for node parsing using blocks
     - Added support for mecab options nbest, all-morphs
