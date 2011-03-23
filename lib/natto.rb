@@ -467,6 +467,10 @@ module Natto
       end
     end
 
+    # Initializes this node instance.
+    # Sets the <ttMeCab</tt> feature value for this node.
+    #
+    # @param [FFI::Pointer]
     def initialize(ptr)
       super(ptr)
 
@@ -475,7 +479,10 @@ module Natto
         @feature.force_encoding(Encoding.default_external) if @feature.respond_to?(:encoding) && @feature.encoding!=Encoding.default_external
       end
     end
-
+     
+    # Sets the morpheme surface value for this node.
+    #
+    # @param [String] 
     def surface=(str)
       if str && self[:length] > 0
         @surface = str
