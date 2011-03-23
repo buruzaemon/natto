@@ -99,7 +99,7 @@ module Natto
     # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
     # @see MeCab::SUPPORTED_OPTS
     def initialize(options={})
-      @options = options
+      @options = {}.merge(options)
       @dicts = []
 
       opt_str = self.class.build_options_str(@options)
@@ -111,17 +111,21 @@ module Natto
       self.mecab_set_lattice_level(@ptr, @options[:lattice_level].to_i) if @options[:lattice_level]
       self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
        
-      # set mecab parsing implementations 
+      # Set mecab parsing implementations for N-best and regular parsing,
+      # for both parsing as string and yielding a node object
+      # N-Best parsing implementations
       if @options[:nbest] && @options[:nbest] > 1
-        # N-Best parsing implementations
-        self.mecab_nbest_init(@ptr, str) 
         # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
         @parse_tostr = lambda { |str| 
+          self.mecab_nbest_init(@ptr, str) 
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
                 raise(MeCabError.new(self.mecab_strerror(@ptr))) 
         } 
-        @parse_tonode = lambda { |str| return self.mecab_nbest_next_tonode(@ptr) }
+        @parse_tonode = lambda { |str| 
+          self.mecab_nbest_init(@ptr, str) 
+          return self.mecab_nbest_next_tonode(@ptr) 
+        }
       else
         # default parsing implementations
         @parse_tostr = lambda { |str|
@@ -156,9 +160,14 @@ module Natto
         head = Natto::MeCabNode.new(m_node_ptr) 
         if head && head[:next].address != 0x0
           node = Natto::MeCabNode.new(head[:next])
-          while (node.nil? == false)
+          i = 0
+          while node.nil? == false
+            if node.length > 0
+               node.surface = str.bytes.to_a()[i, node.length].pack('C*')
+            end
             yield node
             if node[:next].address != 0x0
+              i += node.length
               node = Natto::MeCabNode.new(node[:next])
             else
               break
@@ -226,7 +235,7 @@ module Natto
           end
         end
       end
-      opt.join(" ")
+      opt.empty? ? "" : opt.join(" ") 
     end
   end
 
@@ -404,6 +413,7 @@ module Natto
   #     => nil
   #
   class MeCabNode < MeCabStruct
+    attr_accessor :surface, :feature
 
     # Normal <tt>mecab</tt> node.
     NOR_NODE = 0
@@ -457,24 +467,20 @@ module Natto
       end
     end
 
-    # Returns the <tt>surface</tt> value for this node.
-    #
-    # @return [String] <tt>mecab</tt> node surface value
-    def surface
-      if self[:surface] && self[:length] > 0
-        @surface ||= self[:surface].bytes.to_a()[0,self[:length]].pack('C*')
-        @surface.force_encoding(Encoding.default_external) if @surface.respond_to?(:encoding) && @surface.encoding!=Encoding.default_external
+    def initialize(ptr)
+      super(ptr)
+
+      if self[:feature]
+        @feature = self[:feature]
+        @feature.force_encoding(Encoding.default_external) if @feature.respond_to?(:encoding) && @feature.encoding!=Encoding.default_external
       end
-      @surface
     end
 
-    # Returns the <tt>feature</tt> value for this node.
-    #
-    # @return [String] <tt>mecab</tt> node feature value
-    def feature
-      @feature ||= self[:feature]
-      @feature.force_encoding(Encoding.default_external) if @feature.respond_to?(:encoding) && @feature.encoding!=Encoding.default_external
-      @feature
+    def surface=(str)
+      if str && self[:length] > 0
+        @surface = str
+        @surface.force_encoding(Encoding.default_external) if @surface.respond_to?(:encoding) && @surface.encoding!=Encoding.default_external
+      end
     end
 
     # Returns human-readable details for the <tt>mecab</tt> node.
