@@ -14,8 +14,8 @@ natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). N
 ruby で mecab を自由に利用できる natto をぜひ試してください。
 END_DESC
   s.author = 'Brooke M. Fujita'
-  s.email = 'buruzaemon@gmail.com'
-  s.homepage = 'http://code.google.com/p/natto/'
+  s.email = 'brooke.fujita@gmail.com'
+  s.homepage = 'https://github.com/buruzaemon/natto'
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.8.7'
   s.require_path = 'lib'
