@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+- __2011/09/11: 0.9.0 release.
+    - Bumping up version to 0.9.0, as natto appears to be stable.
+    - Also migrated project to github.
+
 - __2011/03/23__: 0.5.1 release.
     - Corrected mojibake issue for surface and feature values 
       when node-parsing.
