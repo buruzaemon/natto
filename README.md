@@ -8,8 +8,6 @@ natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). N
 
 You can learn more about [natto at github](https://github.com/buruzaemon/natto).
 
-Comments and questions are welcome at the [natto-users Group](http://groups.google.com/group/natto-users).
-
 ## Requirements
 natto requires the following:
 
@@ -76,7 +74,7 @@ e.g., from within a Ruby program
 
 ## Contributing to natto
 -  Use [git](http://git-scm.com/) and [check out the latest code at github](https://github.com/buruzaemon/natto) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
--  [Browse out the issue tracker](https://github.com/buruzaemon/natto/issues) to make sure someone already hasn't requested it and/or contributed it.
+-  [Browse the issue tracker](https://github.com/buruzaemon/natto/issues) to make sure someone already hasn't requested it and/or contributed it.
 -  Fork the project.
 -  Start a feature/bugfix branch.
 -  Commit and push until you are happy with your contribution.
