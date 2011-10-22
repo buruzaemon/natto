@@ -99,7 +99,7 @@ module Natto
     # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
     # @see MeCab::SUPPORTED_OPTS
     def initialize(options={})
-      @options = {}.merge(options)
+      @options = {}.merge(options.delete_if{|k,v| !SUPPORTED_OPTS.include?(k)})
       @dicts = []
 
       opt_str = self.class.build_options_str(@options)
@@ -192,7 +192,7 @@ module Natto
     #
     # @return [String] encoded object id, FFI pointer, options hash, list of dictionaries, and MeCab version
     def to_s
-      %(#{super.chop} @ptr=#{@ptr.to_s}, @options=#{@options.to_s}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
+      %(#{super.chop} @ptr=#{@ptr.to_s}, @options=#{@options.inspect}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
     end
 
     # Overrides <tt>Object#inspect</tt>.
