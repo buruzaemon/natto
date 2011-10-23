@@ -6,14 +6,12 @@
     - Pulling support for mecab option 'output', since it is more of a command-line feature
 
 - __2011/09/11__: 0.9.0 release.
-    - Bumping up version to 0.9.0, as natto appears to be stable.
-    - Also migrated project to github.
+    - Bumping up version to 0.9.0, as natto appears to be stable
+    - Also migrated project to github
 
 - __2011/03/23__: 0.5.1 release.
-    - Corrected mojibake issue for surface and feature values 
-      when node-parsing.
-    - Corrected call to NBest initializer in lambdas 
-      for Natto::MeCab#initialize.
+    - Corrected mojibake issue for surface and feature values when node-parsing
+    - Corrected call to NBest initializer in lambdas for Natto::MeCab#initialize
 
 - __2011/02/26__: 0.5.0 release.
     - Added support for node parsing using blocks
@@ -78,6 +76,6 @@
     - Continuing development on proper resource deallocation
     - Adding options hash in object initializer 
 
-- __2010/12/13__: Released version 0.0.1. The objective is to provide
-  an easy-to-use, production-level Ruby binding to MeCab.
+- __2010/12/13__: Released version 0.0.1. 
     - Initial release 
+    - The objective is to provide an easy-to-use, production-level Ruby binding to MeCab
