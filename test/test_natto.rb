@@ -9,4 +9,4 @@ require 'natto'
   '/test/natto/tc_dictionaryinfo.rb',
   '/test/natto/tc_binding.rb' ].each do |tc|
   require File.join(File.expand_path('.'), tc)
-end
+  end

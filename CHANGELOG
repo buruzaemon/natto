@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+- __2011/10/23__: 0.9.1 release.
+    - MeCab configurations can now be a string as per MeCab command-line
+    - Adding more tests around the configuration processing
+    - Pulling support for mecab option 'output', since it is more of a command-line feature
+
 - __2011/09/11__: 0.9.0 release.
     - Bumping up version to 0.9.0, as natto appears to be stable.
     - Also migrated project to github.
