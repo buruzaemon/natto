@@ -22,70 +22,97 @@ class TestMeCab < Test::Unit::TestCase
     @m = nil
   end
 
-  # Tests the Natto::MeCab.build_options_str function.
+  def test_parse_mecab_options
+    assert_equal({:rcfile => '/some/file'}, Natto::MeCab.parse_mecab_options('-r /some/file'))
+    assert_equal({:rcfile => '/some/file'}, Natto::MeCab.parse_mecab_options('--rcfile=/some/file'))
+    assert_equal({:rcfile => '/some/file'}, Natto::MeCab.parse_mecab_options(:rcfile=>"/some/file"))
+    
+    assert_equal({:dicdir => '/some/other/file'}, Natto::MeCab.parse_mecab_options('-d /some/other/file'))
+    assert_equal({:dicdir => '/some/other/file'}, Natto::MeCab.parse_mecab_options('--dicdir=/some/other/file'))
+    assert_equal({:dicdir => '/some/other/file'}, Natto::MeCab.parse_mecab_options(:dicdir=>"/some/other/file"))
+    
+    assert_equal({:userdic => '/yet/another/file'}, Natto::MeCab.parse_mecab_options('-u /yet/another/file'))
+    assert_equal({:userdic => '/yet/another/file'}, Natto::MeCab.parse_mecab_options('--userdic=/yet/another/file'))
+    assert_equal({:userdic => '/yet/another/file'}, Natto::MeCab.parse_mecab_options(:userdic=>"/yet/another/file"))
+    
+    assert_equal({:lattice_level => 42}, Natto::MeCab.parse_mecab_options('-l 42'))
+    assert_equal({:lattice_level => 42}, Natto::MeCab.parse_mecab_options('--lattice-level=42'))
+    assert_equal({:lattice_level => 42}, Natto::MeCab.parse_mecab_options(:lattice_level=>42))
+    
+    assert_equal({:all_morphs => true}, Natto::MeCab.parse_mecab_options('-a'))
+    assert_equal({:all_morphs => true}, Natto::MeCab.parse_mecab_options('--all-morphs'))
+    assert_equal({:all_morphs => true}, Natto::MeCab.parse_mecab_options(:all_morphs=>true))
+    
+    assert_equal({:output_format_type => 'natto'}, Natto::MeCab.parse_mecab_options('-O natto'))
+    assert_equal({:output_format_type => 'natto'}, Natto::MeCab.parse_mecab_options('--output-format-type=natto'))
+    assert_equal({:output_format_type => 'natto'}, Natto::MeCab.parse_mecab_options(:output_format_type=>"natto"))
+    
+    assert_equal({:node_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-F %m\t%f[7]\n'))
+    assert_equal({:node_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--node-format=%m\t%f[7]\n'))
+    assert_equal({:node_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:node_format=>'%m\t%f[7]\n'))
+    
+    assert_equal({:unk_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-U %m\t%f[7]\n'))
+    assert_equal({:unk_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--unk-format=%m\t%f[7]\n'))
+    assert_equal({:unk_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:unk_format=>'%m\t%f[7]\n'))
+    
+    assert_equal({:bos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-B %m\t%f[7]\n'))
+    assert_equal({:bos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--bos-format=%m\t%f[7]\n'))
+    assert_equal({:bos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:bos_format=>'%m\t%f[7]\n'))
+    
+    assert_equal({:eos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-E %m\t%f[7]\n'))
+    assert_equal({:eos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--eos-format=%m\t%f[7]\n'))
+    assert_equal({:eos_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:eos_format=>'%m\t%f[7]\n'))
+    
+    assert_equal({:eon_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-S %m\t%f[7]\n'))
+    assert_equal({:eon_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--eon-format=%m\t%f[7]\n'))
+    assert_equal({:eon_format => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:eon_format=>'%m\t%f[7]\n'))
+    
+    assert_equal({:unk_feature => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('-x %m\t%f[7]\n'))
+    assert_equal({:unk_feature => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options('--unk-feature=%m\t%f[7]\n'))
+    assert_equal({:unk_feature => '%m\t%f[7]\n'}, Natto::MeCab.parse_mecab_options(:unk_feature=>'%m\t%f[7]\n'))
+    
+    assert_equal({:input_buffer_size => 102400}, Natto::MeCab.parse_mecab_options('-b 102400'))
+    assert_equal({:input_buffer_size => 102400}, Natto::MeCab.parse_mecab_options('--input-buffer-size=102400'))
+    assert_equal({:input_buffer_size => 102400}, Natto::MeCab.parse_mecab_options(:input_buffer_size=>102400))
+    
+    assert_equal({:allocate_sentence => true}, Natto::MeCab.parse_mecab_options('-C'))
+    assert_equal({:allocate_sentence => true}, Natto::MeCab.parse_mecab_options('--allocate-sentence'))
+    assert_equal({:allocate_sentence => true}, Natto::MeCab.parse_mecab_options(:allocate_sentence=>true))
+    
+    assert_equal({:nbest => 42}, Natto::MeCab.parse_mecab_options('-N 42'))
+    assert_equal({:nbest => 42}, Natto::MeCab.parse_mecab_options('--nbest=42'))
+    assert_equal({:nbest => 42}, Natto::MeCab.parse_mecab_options(:nbest=>42))
+    
+    assert_equal({:theta => 0.42}, Natto::MeCab.parse_mecab_options('-t 0.42'))
+    assert_equal({:theta => 0.42}, Natto::MeCab.parse_mecab_options('--theta=0.42'))
+    assert_equal({:theta => 0.42}, Natto::MeCab.parse_mecab_options(:theta=>0.42))
+    
+    assert_equal({:cost_factor => 42}, Natto::MeCab.parse_mecab_options('-c 42'))
+    assert_equal({:cost_factor => 42}, Natto::MeCab.parse_mecab_options('--cost-factor=42'))
+    assert_equal({:cost_factor => 42}, Natto::MeCab.parse_mecab_options(:cost_factor=>42))
+
+    assert_equal({}, Natto::MeCab.parse_mecab_options)
+    assert_equal({}, Natto::MeCab.parse_mecab_options(:unknown=>"ignore"))
+  end
+
   def test_build_options_str
-    res = Natto::MeCab.build_options_str
-    assert_equal('', res)
-
-    res = Natto::MeCab.build_options_str(:unknown=>"ignore")
-    assert_equal('', res)
-
-    res = Natto::MeCab.build_options_str(:rcfile=>"/some/file")
-    assert_equal('--rcfile=/some/file', res)
-
-    res = Natto::MeCab.build_options_str(:dicdir=>"/some/other/file")
-    assert_equal('--dicdir=/some/other/file', res)
-
-    res = Natto::MeCab.build_options_str(:userdic=>"/yet/another/file")
-    assert_equal('--userdic=/yet/another/file', res)
-
-    res = Natto::MeCab.build_options_str(:lattice_level=>42)
-    assert_equal('--lattice-level=42', res)
-
-    res = Natto::MeCab.build_options_str(:all_morphs=>true)
-    assert_equal('--all-morphs', res)
-
-    res = Natto::MeCab.build_options_str(:output_format_type=>"natto")
-    assert_equal('--output-format-type=natto', res)
-    
-    res = Natto::MeCab.build_options_str(:node_format=>'%m\t%f[7]\n')
-    assert_equal('--node-format=%m\t%f[7]\n', res)
-    
-    res = Natto::MeCab.build_options_str(:unk_format=>'%m\t%f[7]\n')
-    assert_equal('--unk-format=%m\t%f[7]\n', res)
-
-    res = Natto::MeCab.build_options_str(:bos_format=>'%m\t%f[7]\n')
-    assert_equal('--bos-format=%m\t%f[7]\n', res)
-
-    res = Natto::MeCab.build_options_str(:eos_format=>'%m\t%f[7]\n')
-    assert_equal('--eos-format=%m\t%f[7]\n', res)
-
-    res = Natto::MeCab.build_options_str(:eon_format=>'%m\t%f[7]\n')
-    assert_equal('--eon-format=%m\t%f[7]\n', res)
-
-    res = Natto::MeCab.build_options_str(:unk_feature=>'%m\t%f[7]\n')
-    assert_equal('--unk-feature=%m\t%f[7]\n', res)
-
-    res = Natto::MeCab.build_options_str(:input_buffer_size=>102400)
-    assert_equal('--input-buffer-size=102400', res)
-
-    res = Natto::MeCab.build_options_str(:allocate_sentence=>true)
-    assert_equal('--allocate-sentence', res)
-
-    res = Natto::MeCab.build_options_str(:nbest=>42)
-    assert_equal('--nbest=42', res)
-
-    res = Natto::MeCab.build_options_str(:theta=>0.42)
-    assert_equal('--theta=0.42', res)
-
-    res = Natto::MeCab.build_options_str(:cost_factor=>42)
-    assert_equal('--cost-factor=42', res)
-    
-    res = Natto::MeCab.build_options_str(:output_format_type=>"natto", 
-                                         :userdic=>"/some/file", 
-                                         :dicdir=>"/some/other/file",
-                                         :all_morphs=>true)
-    assert_equal('--dicdir=/some/other/file --userdic=/some/file --all-morphs --output-format-type=natto', res)
+    assert_equal('--rcfile=/some/file', Natto::MeCab.build_options_str(:rcfile=>"/some/file"))
+    assert_equal('--dicdir=/some/other/file', Natto::MeCab.build_options_str(:dicdir=>"/some/other/file"))
+    assert_equal('--userdic=/yet/another/file', Natto::MeCab.build_options_str(:userdic=>"/yet/another/file"))
+    assert_equal('--lattice-level=42', Natto::MeCab.build_options_str(:lattice_level=>42))
+    assert_equal('--all-morphs', Natto::MeCab.build_options_str(:all_morphs=>true))
+    assert_equal('--output-format-type=natto', Natto::MeCab.build_options_str(:output_format_type=>"natto"))
+    assert_equal('--node-format=%m\t%f[7]\n', Natto::MeCab.build_options_str(:node_format=>'%m\t%f[7]\n'))
+    assert_equal('--unk-format=%m\t%f[7]\n', Natto::MeCab.build_options_str(:unk_format=>'%m\t%f[7]\n'))
+    assert_equal('--bos-format=%m\t%f[7]\n', Natto::MeCab.build_options_str(:bos_format=>'%m\t%f[7]\n'))
+    assert_equal('--eos-format=%m\t%f[7]\n', Natto::MeCab.build_options_str(:eos_format=>'%m\t%f[7]\n'))
+    assert_equal('--eon-format=%m\t%f[7]\n', Natto::MeCab.build_options_str(:eon_format=>'%m\t%f[7]\n'))
+    assert_equal('--unk-feature=%m\t%f[7]\n', Natto::MeCab.build_options_str(:unk_feature=>'%m\t%f[7]\n'))
+    assert_equal('--input-buffer-size=102400',Natto::MeCab.build_options_str(:input_buffer_size=>102400))
+    assert_equal('--allocate-sentence', Natto::MeCab.build_options_str(:allocate_sentence=>true))
+    assert_equal('--nbest=42', Natto::MeCab.build_options_str(:nbest=>42))
+    assert_equal('--theta=0.42', Natto::MeCab.build_options_str(:theta=>0.42))
+    assert_equal('--cost-factor=42', Natto::MeCab.build_options_str(:cost_factor=>42))
   end
 
   # Tests the construction and initial state of a Natto::MeCab instance.
@@ -101,16 +128,40 @@ class TestMeCab < Test::Unit::TestCase
       m = Natto::MeCab.new(opts)
     end
     assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new("-O chasen")
+    end
+    assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new("--output-format-type=chasen")
+    end
+    assert_equal(opts, m.options)
     
     opts = {:all_morphs=>true, :allocate_sentence=>true}
     assert_nothing_raised do
       m = Natto::MeCab.new(opts)
     end
     assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new('-a -C')
+    end
+    assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new('--all-morphs --allocate-sentence')
+    end
+    assert_equal(opts, m.options)
     
     opts = {:lattice_level=>999}
     assert_nothing_raised do
       m = Natto::MeCab.new(opts)
+    end
+    assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new('-l 999')
+    end
+    assert_equal(opts, m.options)
+    assert_nothing_raised do
+      m = Natto::MeCab.new('--lattice-level=999')
     end
     assert_equal(opts, m.options)
   end

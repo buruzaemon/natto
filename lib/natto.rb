@@ -7,7 +7,8 @@ module Natto
   require 'ffi'
 
   # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> parser.
-  # Options to the <tt>mecab</tt> parser are passed in as a hash at
+  # Options to the <tt>mecab</tt> parser are passed in as a string
+  # (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
   # <h2>Usage</h2>
@@ -15,7 +16,7 @@ module Natto
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     nm = Natto::MeCab.new(:output_format_type=>'chasen2')
+  #     nm = Natto::MeCab.new('-O chasen2')
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @ptr=#<FFI::Pointer address=0x28afb980>, \
   #          @options={:output_format_type=>"chasen2"}, \
@@ -40,16 +41,28 @@ module Natto
 
     attr_reader :options, :dicts, :version
 
-    # Supported options to the <tt>mecab</tt> parser.
+    # Mapping of mecab short-style configuration options to the <tt>mecab</tt> parser.
     # See the <tt>mecab</tt> help for more details. 
-    SUPPORTED_OPTS = [ :rcfile, :dicdir, :userdic, :lattice_level, :all_morphs,
-                       :output_format_type, :node_format, :unk_format, 
-                       :bos_format, :eos_format, :eon_format, :unk_feature, 
-                       :input_buffer_size, :allocate_sentence, :nbest, :theta, 
-                       :cost_factor, :output ].freeze
+    SUPPORTED_OPTS = { '-r' => :rcfile, 
+                       '-d' => :dicdir, 
+                       '-u' => :userdic, 
+                       '-l' => :lattice_level, 
+                       '-a' => :all_morphs,
+                       '-O' => :output_format_type, 
+                       '-F' => :node_format, 
+                       '-U' => :unk_format,
+                       '-B' => :bos_format, 
+                       '-E' => :eos_format, 
+                       '-S' => :eon_format, 
+                       '-x' => :unk_feature, 
+                       '-b' => :input_buffer_size, 
+                       '-C' => :allocate_sentence, 
+                       '-N' => :nbest, 
+                       '-t' => :theta, 
+                       '-c' => :cost_factor }.freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
-    # given <tt>options</tt> hash.
+    # given <tt>options</tt>.
     # 
     # Options supported are:
     #
@@ -70,8 +83,9 @@ module Natto
     # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
     # - :theta --  temperature parameter theta (float, default 0.75)
     # - :cost_factor --  cost factor (integer, default 700)
-    # - :output -- set the output file name
     # 
+    # <p>MeCab command-line arguments (-F) or long (--node-format) may be used in 
+    # addition to Ruby-style <code>Hash</code>es</p>
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
@@ -95,11 +109,12 @@ module Natto
     #     EOS
     #     => nil
     #
-    # @param [Hash]
+    # @param [Hash or String]
     # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
     # @see MeCab::SUPPORTED_OPTS
     def initialize(options={})
-      @options = {}.merge(options.delete_if{|k,v| !SUPPORTED_OPTS.include?(k)})
+      @options = self.class.parse_mecab_options(options) 
+          
       @dicts = []
 
       opt_str = self.class.build_options_str(@options)
@@ -107,8 +122,8 @@ module Natto
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @ptr.address == 0x0
 
       # set mecab parsing options
-      self.mecab_set_theta(@ptr, @options[:theta].to_f) if @options[:theta]
-      self.mecab_set_lattice_level(@ptr, @options[:lattice_level].to_i) if @options[:lattice_level]
+      self.mecab_set_theta(@ptr, @options[:theta]) if @options[:theta]
+      self.mecab_set_lattice_level(@ptr, @options[:lattice_level]) if @options[:lattice_level]
       self.mecab_set_all_morphs(@ptr, 1) if @options[:all_morphs]
        
       # Set mecab parsing implementations for N-best and regular parsing,
@@ -217,6 +232,71 @@ module Natto
       end
     end
 
+    # Prepares and returns a hash mapping symbols for
+    # the specified, recognized MeCab options, and their
+    # values. Will parse and convert string (short or
+    # long argument styles) or hash. 
+    def self.parse_mecab_options(options={})
+      h = {}
+      if options.is_a? String
+        tokens = options.split
+        t = tokens.shift
+        while t
+          if SUPPORTED_OPTS[t]
+            k = SUPPORTED_OPTS[t]
+            if [ :all_morphs, :allocate_sentence ].include?(k) 
+              h[k] = true
+            else
+              v = tokens.shift
+              if [:lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
+                h[k] = v.to_i 
+              elsif k == :theta
+                h[k] = v.to_f
+              else 
+                h[k] = v
+              end
+            end
+          elsif t.start_with?('--') 
+            k = t.split('--').last
+            if k.include?('=')
+              k,v = k.split('=')
+              k = k.gsub('-','_').to_sym
+              if SUPPORTED_OPTS.values.include?(k)
+                if [:lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
+                  h[k] = v.to_i 
+                elsif k == :theta
+                  h[k] = v.to_f
+                else 
+                  h[k] = v
+                end
+              end
+            elsif %w( all-morphs allocate-sentence ).include?(k)
+              h[k.gsub('-','_').to_sym] = true
+            end
+          end
+          t = tokens.shift
+        end 
+      else
+        SUPPORTED_OPTS.values.each do |k|
+          if options.has_key?(k)
+            if [ :all_morphs, :allocate_sentence ].include?(k) 
+              h[k] = true
+            else
+              v = options[k]  
+              if [ :lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
+                h[k] = v.to_i 
+              elsif k == :theta
+                h[k] = v.to_f
+              else 
+                h[k] = v
+              end
+            end
+          end
+        end
+      end
+      h
+    end
+
     # Returns a string-representation of the options to
     # be passed in the construction of <tt>mecab</tt>.
     #
@@ -224,10 +304,9 @@ module Natto
     # @return [String] representation of the options to the <tt>mecab</tt> parser
     def self.build_options_str(options={})
       opt = []
-      SUPPORTED_OPTS.each do |k|
+      SUPPORTED_OPTS.values.each do |k|
         if options.has_key? k
           key = k.to_s.gsub('_', '-')  
-          # all-morphs and allocate-sentence are just flags
           if %w( all-morphs allocate-sentence ).include? key
             opt << "--#{key}" if options[k]==true
           else
