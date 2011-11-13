@@ -6,7 +6,7 @@ natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [
 
 natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, as natto is _not_ a C extension. natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well. natto will also run on Windows, Unix/Linux, and Mac.
 
-You can learn more about [natto at github](https://github.com/buruzaemon/natto).
+You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
 
 ## Requirements
 natto requires the following:
@@ -73,8 +73,8 @@ e.g., from within a Ruby program
     => nil
 
 ## Contributing to natto
--  Use [git](http://git-scm.com/) and [check out the latest code at github](https://github.com/buruzaemon/natto) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
--  [Browse the issue tracker](https://github.com/buruzaemon/natto/issues) to make sure someone already hasn't requested it and/or contributed it.
+-  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+-  [Browse the issue tracker](https://bitbucket.org/buruzaemon/natto/issues/) to make sure someone already hasn't requested it and/or contributed it.
 -  Fork the project.
 -  Start a feature/bugfix branch.
 -  Commit and push until you are happy with your contribution.
