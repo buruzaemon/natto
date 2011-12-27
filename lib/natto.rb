@@ -279,6 +279,7 @@ module Natto
           end
         end
       end
+      raise MeCabError.new("Invalid N value") if h[:nbest] && (h[:nbest] < 1 || h[:nbest] > 512)
       h
     end
 
