@@ -1,10 +1,10 @@
 # coding: utf-8
-
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
 
 module Natto 
   require 'ffi'
+  require 'optparse'
 
   # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> parser.
   # Options to the <tt>mecab</tt> parser are passed in as a string
@@ -47,8 +47,9 @@ module Natto
                        '-d' => :dicdir, 
                        '-u' => :userdic, 
                        '-l' => :lattice_level, 
-                       '-a' => :all_morphs,
                        '-O' => :output_format_type, 
+                       '-a' => :all_morphs,
+                       '-N' => :nbest, 
                        '-F' => :node_format, 
                        '-U' => :unk_format,
                        '-B' => :bos_format, 
@@ -57,7 +58,6 @@ module Natto
                        '-x' => :unk_feature, 
                        '-b' => :input_buffer_size, 
                        '-C' => :allocate_sentence, 
-                       '-N' => :nbest, 
                        '-t' => :theta, 
                        '-c' => :cost_factor }.freeze
 
@@ -70,8 +70,9 @@ module Natto
     # - :dicdir --  system dicdir
     # - :userdic --  user dictionary
     # - :lattice_level --  lattice information level (integer, default 0)
-    # - :all_morphs --  output all morphs (default false)
     # - :output_format_type --  output format type (wakati, chasen, yomi, etc.)
+    # - :all_morphs --  output all morphs (default false)
+    # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
     # - :node_format --  user-defined node format
     # - :unk_format --  user-defined unknown node format
     # - :bos_format --  user-defined beginning-of-sentence format
@@ -80,7 +81,6 @@ module Natto
     # - :unk_feature --  feature for unknown word
     # - :input_buffer_size -- set input buffer size (default 8192) 
     # - :allocate_sentence -- allocate new memory for input sentence 
-    # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
     # - :theta --  temperature parameter theta (float, default 0.75)
     # - :cost_factor --  cost factor (integer, default 700)
     # 
@@ -178,7 +178,7 @@ module Natto
           i = 0
           while node.nil? == false
             if node.length > 0
-               node.surface = str.bytes.to_a()[i, node.length].pack('C*')
+              node.surface = str.bytes.to_a()[i, node.length].pack('C*')
             end
             yield node
             if node[:next].address != 0x0
@@ -239,43 +239,28 @@ module Natto
     def self.parse_mecab_options(options={})
       h = {}
       if options.is_a? String
-        tokens = options.split
-        t = tokens.shift
-        while t
-          if SUPPORTED_OPTS[t]
-            k = SUPPORTED_OPTS[t]
-            if [ :all_morphs, :allocate_sentence ].include?(k) 
-              h[k] = true
-            else
-              v = tokens.shift
-              if [:lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
-                h[k] = v.to_i 
-              elsif k == :theta
-                h[k] = v.to_f
-              else 
-                h[k] = v
-              end
-            end
-          elsif t.start_with?('--') 
-            k = t.split('--').last
-            if k.include?('=')
-              k,v = k.split('=')
-              k = k.gsub('-','_').to_sym
-              if SUPPORTED_OPTS.values.include?(k)
-                if [:lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
-                  h[k] = v.to_i 
-                elsif k == :theta
-                  h[k] = v.to_f
-                else 
-                  h[k] = v
-                end
-              end
-            elsif %w( all-morphs allocate-sentence ).include?(k)
-              h[k.gsub('-','_').to_sym] = true
-            end
-          end
-          t = tokens.shift
-        end 
+        opts = OptionParser.new do |opts|
+          opts.on('-r', '--rcfile ARG')  { |arg| h[:rcfile]   = arg.strip }
+          opts.on('-d', '--dicdir ARG')  { |arg| h[:dicdir]   = arg.strip }
+          opts.on('-u', '--userdic ARG') { |arg| h[:userdic]  = arg.strip }
+          opts.on('-l', '--lattice-level ARG') { |arg| h[:lattice_level]  = arg.strip.to_i } # !deprecated in 0.99!!!
+          opts.on('-O', '--output-format-type ARG') { |arg| h[:output_format_type]  = arg.strip }
+          opts.on('-a', '--all-morphs')  { |arg| h[:all_morphs]  = true }
+          opts.on('-N', '--nbest ARG')   { |arg| h[:nbest]    = arg.strip.to_i }
+          #opts.on('-m', '--marginal')  { |arg| h[:marginal]  = true }
+          opts.on('-F', '--node-format ARG') { |arg| h[:node_format]  = arg.strip }
+          opts.on('-U', '--unk-format ARG') { |arg| h[:unk_format]  = arg.strip }
+          opts.on('-B', '--bos-format ARG') { |arg| h[:bos_format]  = arg.strip }
+          opts.on('-E', '--eos-format ARG') { |arg| h[:eos_format]  = arg.strip }
+          opts.on('-S', '--eon-format ARG') { |arg| h[:eon_format]  = arg.strip }
+          opts.on('-x', '--unk-feature ARG') { |arg| h[:unk_feature]  = arg.strip }
+          opts.on('-b', '--input-buffer-size ARG')   { |arg| h[:input_buffer_size]  = arg.strip.to_i }
+          #opts.on('-M', '--open-mutable-dictionary')  { |arg| h[:open_mutable_dictionary]  = true }
+          opts.on('-C', '--allocate-sentence')  { |arg| h[:allocate_sentence]  = true }
+          opts.on('-t', '--theta ARG')   { |arg| h[:theta] = arg.strip.to_f }
+          opts.on('-c', '--cost-factor ARG')   { |arg| h[:cost_factor] = arg.strip.to_i }
+        end
+        opts.parse!(options.split)
       else
         SUPPORTED_OPTS.values.each do |k|
           if options.has_key?(k)
