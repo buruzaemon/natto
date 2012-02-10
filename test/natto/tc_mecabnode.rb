@@ -66,15 +66,12 @@ class TestMeCabNode < Test::Unit::TestCase
   #       in 1.8.n
   def test_mecabnode_accessors
     node = @nodes[0]
-    members = [
-      :prev,
+    [ :prev,
       :next,
       :enext,
       :bnext,
       :rpath,
       :lpath,
-      :begin_node_list,
-      :end_node_list,
       :surface,
       :feature,
       :id,
@@ -86,16 +83,14 @@ class TestMeCabNode < Test::Unit::TestCase
       :char_type,
       :stat,
       :isbest,
-      :sentence_length,
       :alpha,
       :beta,
       :prob,
       :wcost,
-      :cost,
-      :token
-    ]
-    members.each do |nomme|
-      assert_not_nil(node.respond_to? nomme ) 
+      :cost ].each do |nomme|
+        assert_nothing_raised do
+          node.send nomme
+        end
     end
     
     # NoMethodError will be raised for anything else!

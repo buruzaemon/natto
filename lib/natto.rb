@@ -23,7 +23,7 @@ module Natto
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14 \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
-  #          @version="0.98">
+  #          @version="0.992">
   #
   #     nm.parse('ネバネバの組み合わせ美味しいです。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -95,7 +95,7 @@ module Natto
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
-    #          @version="0.98">
+    #          @version="0.992">
     #
     #     puts nm.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
@@ -497,8 +497,8 @@ module Natto
             :bnext,           :pointer,
             :rpath,           :pointer,
             :lpath,           :pointer,
-            :begin_node_list, :pointer,
-            :end_node_list,   :pointer,
+            #:begin_node_list, :pointer,
+            #:end_node_list,   :pointer,
             :surface,         :string,
             :feature,         :string,
             :id,              :uint,
@@ -510,13 +510,14 @@ module Natto
             :char_type,       :uchar,
             :stat,            :uchar,
             :isbest,          :uchar,
-            :sentence_length, :uint,
+            #:sentence_length, :uint,
             :alpha,           :float,
             :beta,            :float,
             :prob,            :float,
             :wcost,           :short,
-            :cost,            :long,
-            :token,           :pointer
+            :cost,            :long
+            #,
+            #:token,           :pointer
    
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_id, :id
