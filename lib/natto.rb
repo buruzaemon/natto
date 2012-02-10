@@ -411,8 +411,6 @@ module Natto
   # - :bnext
   # - :rpath
   # - :lpath
-  # - :begin_node_list
-  # - :end_node_list
   # - :surface
   # - :feature
   # - :id
@@ -424,14 +422,12 @@ module Natto
   # - :char_type
   # - :stat
   # - :isbest
-  # - :sentence_length
   # - :alpha
   # - :beta
   # - :beta
   # - :prob
   # - :wcost
   # - :cost
-  # - :token
   #
   # <h2>Usage</h2>
   # An instance of <tt>MeCabNode</tt> is yielded to a block
@@ -497,8 +493,6 @@ module Natto
             :bnext,           :pointer,
             :rpath,           :pointer,
             :lpath,           :pointer,
-            #:begin_node_list, :pointer,
-            #:end_node_list,   :pointer,
             :surface,         :string,
             :feature,         :string,
             :id,              :uint,
@@ -510,14 +504,11 @@ module Natto
             :char_type,       :uchar,
             :stat,            :uchar,
             :isbest,          :uchar,
-            #:sentence_length, :uint,
             :alpha,           :float,
             :beta,            :float,
             :prob,            :float,
             :wcost,           :short,
             :cost,            :long
-            #,
-            #:token,           :pointer
    
     if RUBY_VERSION.to_f < 1.9
       alias_method :deprecated_id, :id
