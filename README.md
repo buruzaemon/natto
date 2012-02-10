@@ -11,7 +11,7 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 ## Requirements
 natto requires the following:
 
--  [MeCab _0.98_](http://sourceforge.net/projects/mecab/files/mecab/0.98/)
+-  [MeCab _0.992](http://code.google.com/p/mecab/downloads/list)
 -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.8.7 or greater_
 
@@ -43,10 +43,10 @@ e.g., from within a Ruby program
          @dicts=[#<Natto::DictionaryInfo:0x28d3061c 
                  filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", 
                  charset="utf8">], 
-         @version="0.98">
+         @version="0.992">
 
     puts nm.version
-    => "0.98" 
+    => "0.992" 
 
     sysdic = nm.dicts.first
 

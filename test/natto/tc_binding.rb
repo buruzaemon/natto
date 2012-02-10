@@ -15,7 +15,8 @@ class TestNattoBinding < Test::Unit::TestCase
 
   # Tests the mecab_version function.
   def test_mecab_version
-    assert_equal('0.98', @klass.mecab_version)
+    mv = `mecab -v`.split.last
+    assert_equal(mv, @klass.mecab_version)
   end
 
   # Tests for the inclusion of mecab methods made available
