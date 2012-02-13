@@ -23,7 +23,7 @@ module Natto
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14 \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
-  #          @version="0.992">
+  #          @version="0.993">
   #
   #     nm.parse('ネバネバの組み合わせ美味しいです。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -95,7 +95,7 @@ module Natto
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
-    #          @version="0.992">
+    #          @version="0.993">
     #
     #     puts nm.parse('簡単で美味しくて良いですよね。')
     #     簡単       カンタン
