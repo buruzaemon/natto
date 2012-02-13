@@ -43,10 +43,10 @@ e.g., from within a Ruby program
          @dicts=[#<Natto::DictionaryInfo:0x28d3061c 
                  filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", 
                  charset="utf8">], 
-         @version="0.992">
+         @version="0.993">
 
     puts nm.version
-    => "0.992" 
+    => "0.993" 
 
     sysdic = nm.dicts.first
 
