@@ -11,7 +11,7 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 ## Requirements
 natto requires the following:
 
--  [MeCab _0.992_](http://code.google.com/p/mecab/downloads/list)
+-  [MeCab _0.993_](http://code.google.com/p/mecab/downloads/list)
 -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.8.7 or greater_
 
