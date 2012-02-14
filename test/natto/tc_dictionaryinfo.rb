@@ -34,7 +34,6 @@ class TestDictionaryInfo < Test::Unit::TestCase
 
   # Tests the to_s method.
   def test_to_s
-    #<Natto::DictionaryInfo:0x288879bc @filename=\"/usr/local/lib/mecab/dic/ipadic/sys.dic\", @charset=\"utf8\">
     assert(@dicts.first.to_s.include?("filename=\"#{@sysdic_filename}\", charset=\"#{@sysdic_charset}\""))
   end
 
@@ -46,13 +45,13 @@ class TestDictionaryInfo < Test::Unit::TestCase
     members = [
       :filename,
       :charset,
-      :type,
       :size,
       :lsize,
       :rsize,
       :version,
       :next 
     ]
+    members << :type if RUBY_VERSION.to_f < 1.9
     members.each do |nomme|
       assert_not_nil(sysdic.send nomme ) 
     end

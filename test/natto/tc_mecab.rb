@@ -1,28 +1,28 @@
 # coding: utf-8
 require 'rbconfig'
-require 'nkf'
 
 # TestMeCab encapsulates tests for the basic
 # behavior of Natto::MeCab.
 class TestMeCab < Test::Unit::TestCase
 
-  host_os = RbConfig::CONFIG['host_os']
-  # we need to transfrom from UTF-8 ot SJIS if we are on Windows!
-  if host_os =~ /mswin|mingw/i
-    TEST_STR = NKF.nkf("-Ws", '試験ですよ、これが。')
-  else
-    TEST_STR = '試験ですよ、これが。'
-  end
-
   def setup
     @m = Natto::MeCab.new
     @ver = `mecab -v`.strip.split.last
+    @host_os = RbConfig::CONFIG['host_os']
+    @arch    = RbConfig::CONFIG['arch']
+    
+    if @host_os =~ /mswin|mingw/i
+      @test_cmd = 'type "test\\natto\\test_sjis"'
+    else
+      @test_cmd = 'cat "test/natto/test_utf8"'
+    end
+    @test_str = `#{@test_cmd}`
   end
 
   def teardown
-    @m = nil
+    @m, @ver, @host_os, @arch, @test_cmd, @test_str = nil,nil,nil,nil,nil,nil
   end
-
+ 
   def test_parse_mecab_options
     [ '-r /some/file',
       '-r/some/file',
@@ -261,31 +261,34 @@ class TestMeCab < Test::Unit::TestCase
 
   def test_all_morphs
     m = Natto::MeCab.new(:all_morphs=>true)
-    expected = `echo #{TEST_STR} | mecab --all-morphs`.lines.to_a
+    expected = `#{@test_cmd} | mecab --all-morphs`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
-    
-    actual   = m.parse(TEST_STR).lines.to_a
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+  
+    actual   = m.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     
     assert_equal(expected, actual)
   end
 
   def test_parse_tostr_default
-    expected = `echo #{TEST_STR} | mecab`.lines.to_a
+    expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-    actual = @m.parse(TEST_STR).lines.to_a
+    actual = @m.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
     assert_equal(expected, actual)
   end
 
   def test_parse_tonode_default
-    expected = `echo #{TEST_STR} | mecab`.lines.to_a
+    expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = []
-    @m.parse(TEST_STR) do |node|
+    @m.parse(@test_str) do |node|
       actual << "#{node.surface}\t#{node.feature}\n"
     end
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }

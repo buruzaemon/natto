@@ -1,26 +1,30 @@
 # coding: utf-8
+require 'open3'
 
 # TestNatto encapsulates tests for the basic
 # behavior of the Natto::Binding module.
 class TestNattoBinding < Test::Unit::TestCase
   def setup
+    sin,sout,serr = Open3.popen3('mecab -v')
+    @ver = sout.gets.strip.split.last
+    #@ver = `mecab -v`.strip.split.last
     @klass = Class.new do
       include Natto::Binding
     end
   end
 
   def teardown
-    @klass = nil
+    @ver, @klass = nil,nil
   end
 
-  # Tests the mecab_version function.
+  def test_fu
+    assert_not_nil @klass
+  end
+
   def test_mecab_version
-    mv = `mecab -v`.split.last
-    assert_equal(mv, @klass.mecab_version)
+    assert_equal(@ver, @klass.mecab_version)
   end
 
-  # Tests for the inclusion of mecab methods made available
-  # to any classes including the Natto::Binding module.
   def test_functions_included
     [  :mecab_new2, 
        :mecab_version, 
@@ -34,8 +38,9 @@ class TestNattoBinding < Test::Unit::TestCase
        :mecab_nbest_init,
        :mecab_nbest_sparse_tostr,
        :mecab_nbest_next_tonode,
-       :mecab_dictionary_info ].each do |f|
-       assert(@klass.respond_to? f)
+       :mecab_dictionary_info 
+    ].each do |f|
+      assert(@klass.respond_to? f)
     end
   end
 end
