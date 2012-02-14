@@ -1,33 +1,34 @@
 # coding: utf-8
 require 'rbconfig'
-require 'nkf'
 
 # TestMeCabNode encapsulates tests for the basic
 # behavior of Natto::MeCabNode
 class TestMeCabNode < Test::Unit::TestCase
-  
-  host_os = RbConfig::CONFIG['host_os']
-  # we need to transfrom from UTF-8 ot SJIS if we are on Windows!
-  if host_os =~ /mswin|mingw/i
-    TEST_STR = NKF.nkf("-Ws", '試験ですよ、これが。')
-  else
-    TEST_STR = '試験ですよ、これが。'
-  end
 
   def setup
+    @host_os = RbConfig::CONFIG['host_os']
+    @arch    = RbConfig::CONFIG['arch']
+
+    if @host_os =~ /mswin|mingw/i
+      @test_cmd = 'type "test\\natto\\test_sjis"'
+    else
+      @test_cmd = 'cat "test/natto/test_utf8"'
+    end
+
     nm = Natto::MeCab.new
     @nodes = []
-    nm.parse(TEST_STR) { |n| @nodes << n }
+    nm.parse(`#{@test_cmd}`) { |n| @nodes << n }
   end
 
   def teardown
-    @nodes = nil
+    @nodes, @host_os, @arch, @test_cmd = nil,nil,nil,nil
   end
 
   # Tests the surface and feature accessors methods.
   def test_surface_and_feature_accessors
-    raw = `echo #{TEST_STR} | mecab`.lines.to_a
+    raw = `#{@test_cmd} | mecab`.lines.to_a
     raw.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    raw.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
     expected = {}
     raw.each do |l|
       tokens = l.split("\t")
@@ -41,24 +42,6 @@ class TestMeCabNode < Test::Unit::TestCase
     end
     
     assert_equal(expected, actual)
-  end
-
-  # Tests MeCabNode#surface to show that it is consistent
-  # no matter how many times it is invoked.
-  def test_manysurfaces
-    @nodes.each do |n|
-      expected = n.surface
-      5.times { assert_equal(expected, n.surface) }
-    end
-  end
-
-  # Tests MeCabNode#feature to show that it is consistent
-  # no matter how many times it is invoked.
-  def test_manyfeature
-    @nodes.each do |n|
-      expected = n.feature
-      5.times { assert_equal(expected, n.feature) }
-    end
   end
 
   # Tests that the accessors of Natto::MeCabNode exist.
@@ -87,10 +70,11 @@ class TestMeCabNode < Test::Unit::TestCase
       :beta,
       :prob,
       :wcost,
-      :cost ].each do |nomme|
-        assert_nothing_raised do
-          node.send nomme
-        end
+      :cost 
+    ].each do |nomme|
+      assert_nothing_raised do
+        node.send nomme
+      end
     end
     
     # NoMethodError will be raised for anything else!
