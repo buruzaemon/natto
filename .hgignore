@@ -1,6 +1,8 @@
 # use glob syntax.
 syntax: glob
 
+Gemfile.lock
+
 # Temporary files used by the vim editor.
 .*.swp
 
