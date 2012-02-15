@@ -69,7 +69,7 @@ module Natto
     # - :rcfile --  resource file
     # - :dicdir --  system dicdir
     # - :userdic --  user dictionary
-    # - :lattice_level --  lattice information level (integer, default 0)
+    # - :lattice_level --  lattice information level (DEPRECATED)
     # - :output_format_type --  output format type (wakati, chasen, yomi, etc.)
     # - :all_morphs --  output all morphs (default false)
     # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
