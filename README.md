@@ -15,8 +15,22 @@ natto requires the following:
 -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.8.7 or greater_
 
-## Installation
+## Installation on *NIX/Mac/Cygwin
 Install natto with the following gem command:
+
+    gem install natto
+
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which is what natto uses to bind to the <tt>mecab</tt> library.
+
+## Installation on Windows 
+However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), which is a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including <tt>ffi</tt>.
+
+1. Download the latest releases ifor RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
+2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer <tt>.exe</tt>, and expand the contents to an appropriate location, for example <tt>C:\devkit</tt>.
+3. Open a command window under <tt>C:\devkit</tt>, and execute: <tt>ruby dk.rb init</tt>. This will locate all known ruby installations, and add them to <tt>C:\devkit\config.yml</tt>.
+4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>.
+5. Now you should be able to install and build the <tt>ffi</tt> rubygem correctly on your Windows-installed ruby, so you can install <tt>natto with</tt>: 
+
     gem install natto
 
 ## Configuration
@@ -24,12 +38,19 @@ Install natto with the following gem command:
 -  In case of <tt>LoadError</tt>, please set the <tt>MECAB_PATH</tt> environment variable to the exact name/path to your <tt>mecab</tt> library.
 
 e.g., for bash on UNIX/Linux
+
     export MECAB_PATH=/usr/local/lib/libmecab.so
+
 e.g., on Windows
+
     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+
 e.g., for Cygwin
+
     export MECAB_PATH=cygmecab-1
+
 e.g., from within a Ruby program
+
     ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
 
 ## Usage
