@@ -1,7 +1,7 @@
 ## CHANGELOG
 
-- __2012/02/xx__: 0.9.3 release.
-    - Updating structures, tests following the latest release of MeCab 0.993a
+- __2012/02/14__: 0.9.3 release.
+    - Updating structures, tests following the latest release of MeCab 0.993
     - Ending support for 0.98 MeCab.
     - Support for MeCab 0.993 in Cygwin is still not confirmed.
 
