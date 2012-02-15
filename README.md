@@ -31,6 +31,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>.
 5. Now you should be able to install and build the <tt>ffi</tt> rubygem correctly on your Windows-installed ruby, so you can install <tt>natto with</tt>: 
 
+
     gem install natto
 
 ## Configuration
