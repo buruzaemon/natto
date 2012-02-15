@@ -31,9 +31,13 @@ module Natto
     # @raise [LoadError] if MECAB_PATH environment variable is not set in Windows
     # <br/>
     # e.g., for bash on UNIX/Linux
+    #
     #     export MECAB_PATH=/usr/local/lib/libmecab.so
+    #
     # e.g., on Windows
+    #
     #     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+    #
     # e.g., for Cygwin
     #     export MECAB_PATH=cygmecab-1
     # e.g., from within a Ruby program
