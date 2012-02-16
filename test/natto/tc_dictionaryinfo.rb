@@ -4,10 +4,15 @@
 # behavior of Natto::DictionaryInfo
 class TestDictionaryInfo < Test::Unit::TestCase
   def setup
-
-    usrdic = File.join(File.dirname(__FILE__), "shift-jis.dic")
-
-    m = Natto::MeCab.new("-u #{usrdic}")
+    usrdic, m = nil,nil
+    encs = %w( shift-jis utf8 euc-jp )
+    begin
+      usrdic = File.join(File.dirname(__FILE__), "#{encs.shift}.dic")
+      m = Natto::MeCab.new("-u #{usrdic}")
+    rescue
+      retry
+    end
+    assert_not_nil(m, "FAIL! No good usr dics")
     @dicts = m.dicts
 
     out = `mecab -u #{usrdic} -D`.lines.to_a
