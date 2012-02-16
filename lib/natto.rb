@@ -352,7 +352,17 @@ module Natto
   #
   #     puts sysdic.charset
   #     => "utf8"
+  # 
+  #     puts sysdic.is_sysdic?
+  #     => true
   class DictionaryInfo < MeCabStruct
+
+    # System dictionary.
+    SYS_DIC = 0
+    # User dictionary.
+    USR_DIC = 1
+    # Unknown dictionary.
+    UNK_DIC = 2
 
     layout  :filename, :string,
             :charset,  :string,
@@ -381,12 +391,13 @@ module Natto
     # Overrides <tt>Object#to_s</tt>.
     #
     # - encoded object id
+    # - dictionary type
     # - full-path dictionary filename
     # - dictionary charset
     #
-    # @return [String] encoded object id, dictionary filename, and charset
+    # @return [String] encoded object id, type, dictionary filename, and charset
     def to_s
-      %(#{super.chop} filename="#{self.filename}", charset="#{self.charset}">)
+      %(#{super.chop} type="#{self.type}", filename="#{self.filename}", charset="#{self.charset}">)
     end
     
     # Overrides <tt>Object#inspect</tt>.
@@ -395,6 +406,24 @@ module Natto
     # @see #to_s
     def inspect
       self.to_s
+    end
+
+    # Returns <tt>true</tt> if this is a system dictionary.
+    # @return [Boolean]
+    def is_sysdic?
+      self.type == SYS_DIC
+    end
+
+    # Returns <tt>true</tt> if this is a user dictionary.
+    # @return [Boolean]
+    def is_usrdic?
+      self.type == USR_DIC
+    end
+
+    # Returns <tt>true</tt> if this is a unknown dictionary type.
+    # @return [Boolean]
+    def is_unkdic?
+      self.type == UNK_DIC
     end
   end
 
@@ -476,15 +505,15 @@ module Natto
   class MeCabNode < MeCabStruct
     attr_accessor :surface, :feature
 
-    # Normal <tt>mecab</tt> node.
+    # Normal <tt>mecab</tt> node defined in the dictionary.
     NOR_NODE = 0
-    # Unknown <tt>mecab</tt> node.
+    # Unknown <tt>mecab</tt> node not defined in the dictionary.
     UNK_NODE = 1
-    # Beginning-of-string <tt>mecab</tt> node.
+    # Virtual node representing the beginning of the sentence.
     BOS_NODE = 2
-    # End-of-string <tt>mecab</tt> node.
+    # Virutual node representing the end of the sentence.
     EOS_NODE = 3
-    # End-of-NBest <tt>mecab</tt> node list.
+    # Virtual node representing the end of an N-Best <tt>mecab</tt> node list.
     EON_NODE = 4
 
     layout  :prev,            :pointer,
@@ -551,7 +580,7 @@ module Natto
     # Overrides <tt>Object#to_s</tt>.
     #
     # - encoded object id
-    # - stat 
+    # - stat (node type: NOR, UNK, BOS/EOS, EON)
     # - surface 
     # - feature
     #
@@ -566,6 +595,36 @@ module Natto
     # @see #to_s
     def inspect
       self.to_s
+    end
+
+    # Returns <tt>true</tt> if this is a normal <tt>mecab</tt> node found in the dictionary.
+    # @return [Boolean]
+    def is_nor?
+      self.stat == NOR_NODE
+    end
+
+    # Returns <tt>true</tt> if this is an unknown <tt>mecab</tt> node not found in the dictionary.
+    # @return [Boolean]
+    def is_unk?
+      self.stat == UNK_NODE
+    end
+   
+    # Returns <tt>true</tt> if this is a virtual <tt>mecab</tt> node representing the beginning of the sentence.
+    # @return [Boolean]
+    def is_bos?
+      self.stat == BOS_NODE
+    end
+   
+    # Returns <tt>true</tt> if this is a virtual <tt>mecab</tt> node representing the end of the sentence.
+    # @return [Boolean]
+    def is_eos?
+      self.stat == EOS_NODE 
+    end
+   
+    # Returns <tt>true</tt> if this is a virtual <tt>mecab</tt> node representing the end of the node list.
+    # @return [Boolean]
+    def is_eon?
+      self.stat == EON_NODE
     end
   end
 end
