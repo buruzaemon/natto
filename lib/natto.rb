@@ -21,6 +21,7 @@ module Natto
   #          @ptr=#<FFI::Pointer address=0x28afb980>, \
   #          @options={:output_format_type=>"chasen2"}, \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14 \
+  #                    type="0", \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
   #          @version="0.993">
@@ -93,6 +94,7 @@ module Natto
     #     => #<Natto::MeCab:0x28d2ae10 @ptr=#<FFI::Pointer address=0x28a97980>, \
     #          @options={:node_format=>"%m¥t%f[7]¥n"}, \
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c \
+    #                    type="0", \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
     #          @version="0.993">
@@ -459,15 +461,14 @@ module Natto
   # - :cost
   #
   # <h2>Usage</h2>
-  # An instance of <tt>MeCabNode</tt> is yielded to a block
-  # used with <tt>MeCab#parse</tt>. Each resulting node is
-  # yielded to the block passed in, where the above-mentioned
+  # An instance of <tt>MeCabNode</tt> is yielded to the block
+  # used with <tt>MeCab#parse</tt>, where the above-mentioned
   # node attributes may be accessed.
   #
   #     nm = Natto::MeCab.new
   #
   #     nm.parse('めかぶの使い方がわからなくて困ってました。') do |n| 
-  #       puts "#{n.surface}¥t#{n.cost}" 
+  #       puts "#{n.surface}¥t#{n.cost}" if n.is_nor?
   #     end
   #
   #     め      7961
@@ -483,7 +484,6 @@ module Natto
   #     まし    46708
   #     た      46111
   #     。      42677
-  #             41141
   #     => nil
   #
   # It is also possible to use the <tt>Symbol</tt> for the

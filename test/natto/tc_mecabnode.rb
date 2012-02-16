@@ -37,8 +37,7 @@ class TestMeCabNode < Test::Unit::TestCase
 
     actual = {}
     @nodes.each do |n|
-      actual[n.surface]=n.feature if (n.stat==Natto::MeCabNode::NOR_NODE || 
-                                      n.stat==Natto::MeCabNode::UNK_NODE)
+      actual[n.surface]=n.feature if (n.is_nor? || n.is_unk?)
     end
     
     assert_equal(expected, actual)
