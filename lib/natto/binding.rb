@@ -39,8 +39,11 @@ module Natto
     #     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
     #
     # e.g., for Cygwin
+    #
     #     export MECAB_PATH=cygmecab-1
+    #
     # e.g., from within a Ruby program
+    #
     #     ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
     def self.find_library
       host_os = RbConfig::CONFIG['host_os']

@@ -61,9 +61,10 @@ e.g., from within a Ruby program
     => #<Natto::MeCab:0x28d30748 
          @ptr=#<FFI::Pointer address=0x28a97d50>, \
          @options={}, \
-         @dicts=[#<Natto::DictionaryInfo:0x28d3061c 
-                 filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", 
-                 charset="utf8">], 
+         @dicts=[#<Natto::DictionaryInfo:0x28d3061c \
+                 type="0", \
+                 filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
+                 charset="utf8">], \
          @version="0.993">
 
     puts nm.version
@@ -76,9 +77,9 @@ e.g., from within a Ruby program
 
     puts sysdic.charset
     => "utf8" 
-
+    
     nm.parse('暑い日にはもってこいの一品ですね。') do |n|
-      puts "#{n.surface}\t#{n.feature}"
+      puts "#{n.surface}\t#{n.feature}" if n.is_nor?
     end
     暑い    形容詞,自立,*,*,形容詞・アウオ段,基本形,暑い,アツイ,アツイ
     日      名詞,非自立,副詞可能,*,*,*,日,ヒ,ヒ
@@ -90,7 +91,6 @@ e.g., from within a Ruby program
     です    助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
     ね      助詞,終助詞,*,*,*,*,ね,ネ,ネ
     。      終助詞記号,句点,*,*,*,*,。,。,。
-            BOS/EOS,*,*,*,*,*,*,*,*
     => nil
 
 ## Contributing to natto
