@@ -4,37 +4,46 @@
 # behavior of Natto::DictionaryInfo
 class TestDictionaryInfo < Test::Unit::TestCase
   def setup
-    m = Natto::MeCab.new
+
+    usrdic = File.join(File.dirname(__FILE__), "shift-jis.dic")
+
+    m = Natto::MeCab.new("-u #{usrdic}")
     @dicts = m.dicts
 
-    out = `mecab -D`.lines.to_a
-    out.each do |l|
-      tokens = l.split("\t")
-      @sysdic_filename = tokens[1].strip if tokens[0] =~ /filename:/i
-      @sysdic_charset = tokens[1].strip if tokens[0] =~ /charset:/i
-    end
+    out = `mecab -u #{usrdic} -D`.lines.to_a
+
+    @sysdic_filename = out[0].split("\t")[1].strip
+    @sysdic_charset  = out[2].split("\t")[1].strip
+    @sysdic_type     = out[3].split("\t")[1].strip.to_i
+
+    @usrdic_filename = out[8].split("\t")[1].strip
+    @usrdic_charset  = out[10].split("\t")[1].strip
+    @usrdic_type     = out[11].split("\t")[1].strip.to_i
   end
 
   def teardown
-    @dicts = nil
+    @dicts, @sysdic_filename, @sysdic_charset, @sysdic_type, @usrdic_filename, @usrdic_charset, @usrdic_type = nil,nil,nil,nil,nil,nil,nil
   end
 
   # Tests the dictionaries accessor method of Natto::MeCab.
-  # Assumes that:
-  # a) system dictionary is /usr/local/lib/mecab/dic/ipadic/sys.dic
-  # b) system dictionary encoding is utf-8
-  # c) only dealing w/ case of 1 dictionary being used
   def test_dictionaries_accessor
     assert @dicts.empty? == false
     sysdic = @dicts.first
+    assert_equal(@sysdic_type, sysdic[:type])
     assert_equal(@sysdic_filename, sysdic[:filename])
     assert_equal(@sysdic_charset, sysdic[:charset])
-    assert_equal(0x0, sysdic[:next].address)
+    assert_not_equal(0x0, sysdic[:next].address)
+
+    usrdic = @dicts.last
+    assert_equal(@usrdic_type, usrdic[:type])
+    assert_equal(@usrdic_filename, usrdic[:filename])
+    assert_equal(@usrdic_charset, usrdic[:charset])
+    assert_equal(0x0, usrdic[:next].address)
   end
 
-  # Tests the to_s method.
   def test_to_s
-    assert(@dicts.first.to_s.include?("filename=\"#{@sysdic_filename}\", charset=\"#{@sysdic_charset}\""))
+    assert(@dicts.first.to_s.include?("type=\"#{@sysdic_type}\", filename=\"#{@sysdic_filename}\", charset=\"#{@sysdic_charset}\""))
+    assert(@dicts.last.to_s.include?("type=\"#{@usrdic_type}\", filename=\"#{@usrdic_filename}\", charset=\"#{@usrdic_charset}\""))
   end
 
   # Tests the accessors of Natto::DictionaryInfo.
@@ -53,12 +62,21 @@ class TestDictionaryInfo < Test::Unit::TestCase
     ]
     members << :type if RUBY_VERSION.to_f < 1.9
     members.each do |nomme|
-      assert_not_nil(sysdic.send nomme ) 
+      assert_not_nil(sysdic.send nomme) 
     end
     
-    # NoMethodError will be raised for anything else!
     assert_raise NoMethodError do
       sysdic.send :unknown_attr
     end
+  end
+
+  def test_is
+    assert @dicts[0].is_sysdic? == true      
+    assert @dicts[0].is_usrdic? == false      
+    assert @dicts[0].is_unkdic? == false      
+
+    assert @dicts[1].is_sysdic? == false      
+    assert @dicts[1].is_usrdic? == true      
+    assert @dicts[1].is_unkdic? == false      
   end
 end

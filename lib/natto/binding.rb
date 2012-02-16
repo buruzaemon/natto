@@ -56,6 +56,8 @@ module Natto
 
     ffi_lib(ENV[MECAB_PATH] || find_library)
 
+    attach_function :mecab_do, [:int, :string], :int
+
     attach_function :mecab_new2, [:string], :pointer
     attach_function :mecab_version, [], :string
     attach_function :mecab_strerror, [:pointer],:string
@@ -76,6 +78,10 @@ module Natto
 
     # @private
     module ClassMethods
+      def mecab_do(argc, argv)
+        Natto::Binding.mecab_do(argc, argv)
+      end
+      
       def mecab_new2(options_str)
         Natto::Binding.mecab_new2(options_str)
       end
