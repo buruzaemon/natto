@@ -134,21 +134,23 @@ module Natto
       if @options[:nbest] && @options[:nbest] > 1
         # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@ptr, (@options[:lattice_level] || 1))
-        @parse_tostr = lambda { |str| 
-          self.mecab_nbest_init(@ptr, str) 
+        #self.mecab_nbest_init(@ptr, str) 
+        @parse_tostr = lambda do |str| 
           return self.mecab_nbest_sparse_tostr(@ptr, @options[:nbest], str) || 
                 raise(MeCabError.new(self.mecab_strerror(@ptr))) 
-        } 
-        @parse_tonode = lambda { |str| 
-          self.mecab_nbest_init(@ptr, str) 
+        end 
+        @parse_tonode = lambda do |str| 
           return self.mecab_nbest_next_tonode(@ptr) 
-        }
+        end
       else
         # default parsing implementations
-        @parse_tostr = lambda { |str|
-          return self.mecab_sparse_tostr(@ptr, str) || raise(MeCabError.new(self.mecab_strerror(@ptr))) 
-        }
-        @parse_tonode = lambda { |str| return self.mecab_sparse_tonode(@ptr, str) }
+        @parse_tostr = lambda do |str|
+          return self.mecab_sparse_tostr(@ptr, str) || 
+                raise(MeCabError.new(self.mecab_strerror(@ptr))) 
+        end
+        @parse_tonode = lambda do |str| 
+          return self.mecab_sparse_tonode(@ptr, str) 
+        end
       end
 
       # set ref to dictionaries
@@ -171,26 +173,61 @@ module Natto
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
     # @see MeCabNode
+    
+    def print_bnext(bp)
+      n = Natto::MeCabNode.new(bp) 
+      puts "\t====> #{n}"
+      print_bnext(n[:bnext]) if n[:bnext] && n[:bnext].address != 0x0
+    end
+   
+
+    def parse_to_nodes(str)
+    end
+
     def parse(str)
+      if @options[:nbest] && @options[:nbest] > 1
+        self.mecab_nbest_init(@ptr, str) 
+      end
+
       if block_given?
-        m_node_ptr = @parse_tonode.call(str)
-        head = Natto::MeCabNode.new(m_node_ptr) 
-        if head && head[:next].address != 0x0
-          node = Natto::MeCabNode.new(head[:next])
-          i = 0
+        n_ptr = @parse_tonode.call(str)
+        n_arr = []
+        i = 0
+        bnext = nil
+        nparse = lambda do |p|
+          node = Natto::MeCabNode.new(p) 
+          bnext = node[:bnext] if node[:bnext] && node[:bnext].address!=0x0
           while node.nil? == false
             if node.length > 0
               node.surface = str.bytes.to_a()[i, node.length].pack('C*')
             end
-            yield node
+            n_arr << node if node.is_bos? == false
             if node[:next].address != 0x0
               i += node.length
               node = Natto::MeCabNode.new(node[:next])
             else
+              i = 0
               break
             end
           end
+          #nparse.call(bnext) if bnext
         end
+       
+        nparse.call(n_ptr)
+
+        n_arr.each {|n| yield n }
+        #while node.nil? == false
+        #  if node.length > 0
+        #    node.surface = str.bytes.to_a()[i, node.length].pack('C*')
+        #  end
+        #  yield node
+        #  if node[:next].address != 0x0
+        #    i += node.length
+        #    node = Natto::MeCabNode.new(node[:next])
+        #  else
+        #    break
+        #  end
+        #end
       else
         result = @parse_tostr.call(str)
         result.force_encoding(Encoding.default_external) if result.respond_to?(:encoding) && result.encoding!=Encoding.default_external
@@ -358,7 +395,6 @@ module Natto
   #     puts sysdic.is_sysdic?
   #     => true
   class DictionaryInfo < MeCabStruct
-
     # System dictionary.
     SYS_DIC = 0
     # User dictionary.
@@ -463,7 +499,7 @@ module Natto
   # <h2>Usage</h2>
   # An instance of <tt>MeCabNode</tt> is yielded to the block
   # used with <tt>MeCab#parse</tt>, where the above-mentioned
-  # node attributes may be accessed.
+  # node attributes may be accessed by name.
   #
   #     nm = Natto::MeCab.new
   #
@@ -586,7 +622,8 @@ module Natto
     #
     # @return [String] encoded object id, stat, surface, and feature 
     def to_s
-      %(#{super.chop} stat=#{self[:stat]}, surface="#{self.surface}", feature="#{self.feature}">)
+      #%(#{super.chop} stat=#{self[:stat]}, surface="#{self.surface}", feature="#{self.feature}">)
+      %(#{super.chop} stat=#{self[:stat]}, surface="#{self.surface}", feature="#{self.feature}", bnext="#{self[:bnext]}", enext="#{self[:enext]}">)
     end
 
     # Overrides <tt>Object#inspect</tt>.
