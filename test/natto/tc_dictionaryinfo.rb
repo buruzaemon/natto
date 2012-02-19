@@ -5,7 +5,7 @@
 class TestDictionaryInfo < Test::Unit::TestCase
   def setup
     usrdic, m = nil,nil
-    encs = %w( shift-jis utf8 euc-jp )
+    encs = %w( sjis utf8 euc-jp )
     begin
       usrdic = File.join(File.dirname(__FILE__), "#{encs.shift}.dic")
       m = Natto::MeCab.new("-u #{usrdic}")
