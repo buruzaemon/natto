@@ -94,7 +94,7 @@ e.g., from within a Ruby program
                BOS/EOS,*,*,*,*,*,*,*,*
 
 
-## Learn 
+## Learn more 
 - Learn more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
 
 ## Contributing to natto
