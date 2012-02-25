@@ -1,13 +1,8 @@
 # coding: utf-8
-require 'open3'
 
-# TestNatto encapsulates tests for the basic
-# behavior of the Natto::Binding module.
 class TestNattoBinding < Test::Unit::TestCase
   def setup
-    sin,sout,serr = Open3.popen3('mecab -v')
-    @ver = sout.gets.strip.split.last
-    #@ver = `mecab -v`.strip.split.last
+    @ver = `mecab -v`.strip.split.last
     @klass = Class.new do
       include Natto::Binding
     end
@@ -34,10 +29,11 @@ class TestNattoBinding < Test::Unit::TestCase
        :mecab_set_lattice_level,
        :mecab_set_all_morphs,
        :mecab_sparse_tostr, 
-       :mecab_nbest_sparse_tostr, 
+       :mecab_sparse_tonode,
        :mecab_nbest_init,
-       :mecab_nbest_sparse_tostr,
+       :mecab_nbest_sparse_tostr, 
        :mecab_nbest_next_tonode,
+       :mecab_format_node,
        :mecab_dictionary_info 
     ].each do |f|
       assert(@klass.respond_to? f)

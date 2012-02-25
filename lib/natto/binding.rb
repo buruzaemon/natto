@@ -1,5 +1,4 @@
 # coding: utf-8
-
 module Natto
 
   # Module <tt>Binding</tt> encapsulates methods and behavior 
@@ -49,7 +48,7 @@ module Natto
       host_os = RbConfig::CONFIG['host_os']
 
       if host_os =~ /mswin|mingw/i
-        raise LoadError, "Please set #{MECAB_PATH} to full path to libmecab.dll"
+        raise LoadError, "Please set #{MECAB_PATH} to the full path to libmecab.dll"
       elsif host_os =~ /cygwin/i
         'cygmecab-1'
       else
@@ -63,39 +62,19 @@ module Natto
     attach_function :mecab_version, [], :string
     attach_function :mecab_strerror, [:pointer],:string
     attach_function :mecab_destroy, [:pointer], :void
-  
     attach_function :mecab_set_theta, [:pointer, :float], :void
     attach_function :mecab_set_lattice_level, [:pointer, :int], :void 
     attach_function :mecab_set_all_morphs, [:pointer, :int], :void
-    
     attach_function :mecab_sparse_tostr, [:pointer, :string], :string
     attach_function :mecab_sparse_tonode, [:pointer, :string], :pointer
-    
     attach_function :mecab_nbest_init, [:pointer, :string], :int
     attach_function :mecab_nbest_sparse_tostr, [:pointer, :int, :string], :string
     attach_function :mecab_nbest_next_tonode, [:pointer], :pointer
-    
+    attach_function :mecab_format_node, [:pointer, :pointer], :string
     attach_function :mecab_dictionary_info, [:pointer], :pointer
-
-    attach_function :mecab_parse_lattice, [:pointer, :pointer], :int
-    attach_function :mecab_lattice_new, [], :pointer
-    attach_function :mecab_lattice_destroy, [:pointer], :void
-    attach_function :mecab_lattice_get_begin_nodes, [:pointer, :int], :pointer
-    attach_function :mecab_lattice_get_end_nodes, [:pointer, :int], :pointer
-    attach_function :mecab_lattice_get_sentence, [:pointer], :string
-    attach_function :mecab_lattice_set_sentence, [:pointer, :string], :void
-    attach_function :mecab_lattice_get_size, [:pointer], :int
-    attach_function :mecab_lattice_next, [:pointer], :int
-    attach_function :mecab_lattice_get_request_type, [:pointer], :int
-    attach_function :mecab_lattice_set_request_type, [:pointer, :int], :void
-    attach_function :mecab_lattice_tostr, [:pointer], :string
 
     # @private
     module ClassMethods
-      def mecab_do(argc, argv)
-        Natto::Binding.mecab_do(argc, argv)
-      end
-      
       def mecab_new2(options_str)
         Natto::Binding.mecab_new2(options_str)
       end
@@ -104,96 +83,56 @@ module Natto
         Natto::Binding.mecab_version
       end
 
-      def mecab_strerror(ptr)
-        Natto::Binding.mecab_strerror(ptr)
+      def mecab_strerror(m_ptr)
+        Natto::Binding.mecab_strerror(m_ptr)
       end
 
-      def mecab_destroy(ptr)
-        Natto::Binding.mecab_destroy(ptr)
+      def mecab_destroy(m_ptr)
+        Natto::Binding.mecab_destroy(m_ptr)
       end
 
-      def mecab_set_theta(ptr, t)
-        Natto::Binding.mecab_set_theta(ptr, t)
+      def mecab_set_theta(m_ptr, t)
+        Natto::Binding.mecab_set_theta(m_ptr, t)
       end
 
-      def mecab_set_lattice_level(ptr, ll)
-        Natto::Binding.mecab_set_lattice_level(ptr, ll)
-      end
-
-      def mecab_set_all_morphs(ptr, am)
-        Natto::Binding.mecab_set_all_morphs(ptr, am)
-      end
-
-      def mecab_sparse_tostr(ptr, str)
-        Natto::Binding.mecab_sparse_tostr(ptr, str)
+      def mecab_set_lattice_level(m_ptr, ll)
+        Natto::Binding.mecab_set_lattice_level(m_ptr, ll)
       end
       
-      def mecab_sparse_tonode(ptr, str)
-        Natto::Binding.mecab_sparse_tonode(ptr, str)
+      def mecab_set_all_morphs(m_ptr, am)
+        Natto::Binding.mecab_set_all_morphs(m_ptr, am)
       end
 
-      def mecab_nbest_next_tonode(ptr)
-        Natto::Binding.mecab_nbest_next_tonode(ptr)
+      def mecab_sparse_tostr(m_ptr, str)
+        Natto::Binding.mecab_sparse_tostr(m_ptr, str)
+      end
+      
+      def mecab_sparse_tonode(m_ptr, str)
+        Natto::Binding.mecab_sparse_tonode(m_ptr, str)
       end
 
-      def mecab_nbest_init(ptr, str)
-        Natto::Binding.mecab_nbest_init(ptr, str)
+      def mecab_nbest_next_tonode(m_ptr)
+        Natto::Binding.mecab_nbest_next_tonode(m_ptr)
       end
 
-      def mecab_nbest_sparse_tostr(ptr, n, str)
-        Natto::Binding.mecab_nbest_sparse_tostr(ptr, n, str)
+      def mecab_nbest_init(m_ptr, str)
+        Natto::Binding.mecab_nbest_init(m_ptr, str)
       end
 
-      def mecab_dictionary_info(ptr)
-        Natto::Binding.mecab_dictionary_info(ptr)
+      def mecab_nbest_sparse_tostr(m_ptr, n, str)
+        Natto::Binding.mecab_nbest_sparse_tostr(m_ptr, n, str)
       end
 
-      def mecab_parse_lattice(m_ptr, l_ptr)
-        Natto::Binding.mecab_parse_lattice(m_ptr, l_tpr)
+      def mecab_nbest_next_tonode(m_ptr)
+        Natto::Binding.mecab_nbest_next_tonode(m_ptr)
       end
 
-      def mecab_lattice_new()
-        Natto::Binding.mecab_lattice_new()
+      def mecab_format_node(m_ptr, n_ptr)
+        Natto::Binding.mecab_format_node(m_ptr, n_ptr)
       end
-
-      def mecab_lattice_destroy(l_ptr)
-        Natto::Binding.mecab_lattice_destroy(l_ptr)
-      end
-
-      def mecab_lattice_get_begin_nodes(l_ptr, pos)
-        Natto::Binding.mecab_lattice_get_begin_nodes(l_ptr, pos)
-      end
-
-      def mecab_lattice_get_end_nodes(l_ptr, pos)
-        Natto::Binding.mecab_lattice_get_end_nodes(l_ptr, pos)
-      end
-
-      def mecab_lattice_get_sentence(l_ptr)
-        Natto::Binding.mecab_lattice_get_sentence(l_ptr)
-      end
-
-      def mecab_lattice_set_sentence(l_ptr, str)
-        Natto::Binding.mecab_lattice_set_sentence(l_ptr, str)
-      end
-
-      def mecab_lattice_get_size(l_ptr)
-        Natto::Binding.mecab_lattice_get_size(l_ptr)
-      end
-
-      def mecab_lattice_next(l_ptr)
-        Natto::Binding.mecab_lattice_next(l_ptr)
-      end
-
-      def mecab_lattice_get_request_type(l_ptr)
-        Natto::Binding.mecab_lattice_get_request_type(l_ptr)
-      end
-
-      def mecab_lattice_set_request_type(l_ptr, rtype)
-        Natto::Binding.mecab_lattice_set_request_type(l_ptr, rtype)
-      end
-
-      def mecab_lattice_tostr(l_ptr)
-        Natto::Binding.mecab_lattice_tostr(l_ptr)
+      
+      def mecab_dictionary_info(m_ptr)
+        Natto::Binding.mecab_dictionary_info(m_ptr)
       end
     end
   end
