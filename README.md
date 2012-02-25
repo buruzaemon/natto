@@ -90,9 +90,12 @@ e.g., from within a Ruby program
     ヒーロー    名詞,一般,*,*,*,*,ヒーロー,ヒーローー,ヒーロー
     が          助詞,格助詞,一般,*,*,*,が,ガ,ガ
     現れる      動詞,自立,*,*,一段,基本形,現れる,アラワレル,アラワレル
-    。          記号,句点,*,*,*,*,。,。,。句点
-                BOS/EOS,*,*,*,*,*,*,*,*
+    。         記号,句点,*,*,*,*,。,。,。句点
+               BOS/EOS,*,*,*,*,*,*,*,*
 
+
+## Learn 
+- Learn more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
 
 ## Contributing to natto
 -  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
