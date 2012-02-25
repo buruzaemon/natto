@@ -1,7 +1,5 @@
 # coding: utf-8
 
-# TestDictionaryInfo encapsulates tests for the basic
-# behavior of Natto::DictionaryInfo
 class TestDictionaryInfo < Test::Unit::TestCase
   def setup
     usrdic, m = nil,nil
@@ -27,7 +25,13 @@ class TestDictionaryInfo < Test::Unit::TestCase
   end
 
   def teardown
-    @dicts, @sysdic_filename, @sysdic_charset, @sysdic_type, @usrdic_filename, @usrdic_charset, @usrdic_type = nil,nil,nil,nil,nil,nil,nil
+    @dicts              = nil
+    @sysdic_filename    = nil
+    @sysdic_charset     = nil
+    @sysdic_type        = nil
+    @usrdic_filename    = nil
+    @usrdic_charset     = nil
+    @usrdic_type        = nil
   end
 
   # Tests the dictionaries accessor method of Natto::MeCab.

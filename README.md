@@ -25,7 +25,7 @@ This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem,
 ## Installation on Windows 
 However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), which is a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including <tt>ffi</tt>.
 
-1. Download the latest releases ifor RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
+1. Download the latest release for RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
 2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer <tt>.exe</tt>, and expand the contents to an appropriate location, for example <tt>C:\devkit</tt>.
 3. Open a command window under <tt>C:\devkit</tt>, and execute: <tt>ruby dk.rb init</tt>. This will locate all known ruby installations, and add them to <tt>C:\devkit\config.yml</tt>.
 4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>.
@@ -59,7 +59,7 @@ e.g., from within a Ruby program
 
     nm = Natto::MeCab.new
     => #<Natto::MeCab:0x28d30748 
-         @ptr=#<FFI::Pointer address=0x28a97d50>, \
+         @tagger=#<FFI::Pointer address=0x28a97d50>, \
          @options={}, \
          @dicts=[#<Natto::DictionaryInfo:0x28d3061c \
                  type="0", \
@@ -78,20 +78,21 @@ e.g., from within a Ruby program
     puts sysdic.charset
     => "utf8" 
     
-    nm.parse('暑い日にはもってこいの一品ですね。') do |n|
-      puts "#{n.surface}\t#{n.feature}" if n.is_nor?
+    nm.parse('ピンチの時には必ずヒーローが現れる。') do |n|
+      puts "#{n.surface}\t#{n.feature}"
     end
-    暑い    形容詞,自立,*,*,形容詞・アウオ段,基本形,暑い,アツイ,アツイ
-    日      名詞,非自立,副詞可能,*,*,*,日,ヒ,ヒ
-    に      助詞,格助詞,一般,*,*,*,に,ニ,ニ
-    は      助詞,係助詞,*,*,*,*,は,ハ,ワ
-    もってこい 名詞,一般,*,*,*,*,もってこい,モッテコイ,モッテコイ
-    の      助詞,連体化,*,*,*,*,の,ノ,ノ
-    一品    名詞,一般,*,*,*,*,一品,イッピン,イッピン
-    です    助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
-    ね      助詞,終助詞,*,*,*,*,ね,ネ,ネ
-    。      終助詞記号,句点,*,*,*,*,。,。,。
-    => nil
+    ピンチ      名詞,一般,*,*,*,*,ピンチ,ピンチ,ピンチ
+    の          助詞,連体化,*,*,*,*,の,ノ,ノ
+    時          名詞,非自立,副詞可能,*,*,*,時,トキ,トキ 
+    に          助詞,格助詞,一般,*,*,*,に,一般ニ,ニ
+    は          助詞,係助詞,*,*,*,*,は,ハ,ワ
+    必ず        副詞,助詞類接続,*,*,*,*,必ず,カナラズ,カナラズ
+    ヒーロー    名詞,一般,*,*,*,*,ヒーロー,ヒーローー,ヒーロー
+    が          助詞,格助詞,一般,*,*,*,が,ガ,ガ
+    現れる      動詞,自立,*,*,一段,基本形,現れる,アラワレル,アラワレル
+    。          記号,句点,*,*,*,*,。,。,。句点
+                BOS/EOS,*,*,*,*,*,*,*,*
+
 
 ## Contributing to natto
 -  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.

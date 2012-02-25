@@ -1,12 +1,14 @@
 # coding: utf-8
 require 'rbconfig'
 
-# TestMeCab encapsulates tests for the basic
-# behavior of Natto::MeCab.
 class TestMeCab < Test::Unit::TestCase
 
   def setup
     @m = Natto::MeCab.new
+    @mn = Natto::MeCab.new('-N2')
+    @mn_f = Natto::MeCab.new('-N2 -F%f[7]')
+    @mn_w = Natto::MeCab.new('-N4 -Owakati')
+    @mn_y = Natto::MeCab.new('-N2 -Oyomi')
     @ver = `mecab -v`.strip.split.last
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -20,7 +22,16 @@ class TestMeCab < Test::Unit::TestCase
   end
 
   def teardown
-    @m, @ver, @host_os, @arch, @test_cmd, @test_str = nil,nil,nil,nil,nil,nil
+    @m          = nil
+    @mn         = nil
+    @mn_f       = nil
+    @mn_w       = nil
+    @mn_y       = nil
+    @ver        = nil
+    @host_os    = nil
+    @arch       = nil
+    @test_cmd   = nil
+    @test_str   = nil
   end
  
   def test_parse_mecab_options
@@ -288,11 +299,94 @@ class TestMeCab < Test::Unit::TestCase
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = []
-    @m.parse(@test_str) do |node|
-      actual << "#{node.surface}\t#{node.feature}\n"
+    @m.parse(@test_str) do |n|
+      actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
     end
-    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
     assert_equal(expected, actual)
+  end
+
+  def test_parse_nbest_tostr
+    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+
+    actual = @mn.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|\t)/ }
+    
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_nbest_tonodes
+    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+
+    actual = []
+    @mn.parse(@test_str) {|n| actual << n if n.is_nor? }    
+  
+    expected.each_with_index do |f,i|
+      a = actual[i]
+      assert_equal(f.strip, "#{a.surface}\t#{a.feature}")
+    end
+  end
+
+  def test_parse_nbest_with_nodeformatting
+    expected = `#{@test_cmd} | mecab -N2 -F'%f[7]\n'`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+
+    actual = []
+    @mn_f.parse(@test_str) {|n| actual << n if n.is_nor? }    
+    
+    expected.each_with_index do |f,i|
+      a = actual[i]
+      assert_equal(f.strip, "#{a.feature}")
+    end
+  end
+
+  def test_parse_nbest_with_wakati
+    expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
+    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+
+    actual = @mn_w.parse(@test_str).lines.to_a
+    
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_nbest_nodes_with_wakati
+    expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
+    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+
+    tmp = []
+    @mn_w.parse(@test_str) {|n| tmp << n }    
+    n1 = tmp.slice(0,7).map{|e| e.surface}.join(" ")
+    n2 = tmp.slice(8,7).map{|e| e.surface}.join(" ")
+    n3 = tmp.slice(16,7).map{|e| e.surface}.join(" ")
+    n4 = tmp.slice(24,8).map{|e| e.surface}.join(" ")
+
+    assert_equal(expected[0].strip, n1)
+    assert_equal(expected[1].strip, n2)
+    assert_equal(expected[2].strip, n3)
+    assert_equal(expected[3].strip, n4)
+  end
+
+  def test_parse_nbest_with_yomi
+    expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
+    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+
+    actual = @mn_y.parse(@test_str).lines.to_a
+    
+    assert_equal(expected, actual)
+  end
+  
+  def test_parse_nbest_nodes_with_yomi
+    expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
+    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+
+    tmp = []
+    @mn_y.parse(@test_str) {|n| tmp << n }    
+    n1 = tmp.slice(0,7).map{|e| e.feature}.join
+    n2 = tmp.slice(8,7).map{|e| e.feature}.join
+
+    assert_equal(expected[0].strip, n1)
+    assert_equal(expected[1].strip, n2)
   end
 end 

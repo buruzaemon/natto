@@ -1,9 +1,15 @@
 ## CHANGELOG
 
 - __2012/02/??__: 0.9.4 release.
+    - Exposing the underlying FFI pointer as @tagger in Natto::MeCab
+    - Exposing the underlying FFI pointer as @pointer in Natto::MeCabNode
+    - Fixed node formatting behavior for both regular and N-Best node parsing
     - Adding is_nor?, is_unk?, is_bos?, is_eos?, is_eon? to Natto::MeCabNode 
     - Adding is_sysdic?, is_usrdic?, is_unkdic? to Natto::DictionaryInfo 
+    - Adding readnodes to allow for method-chaining on list of parsed nodes
+    - Adding readlines to allow for method-chaining on list of string output
     - Updating README to include description of DevKit install for RubyInstaller
+    - Refactored the codebase, introducing more tests
 
 - __2012/02/14__: 0.9.3 release.
     - Updating structures, tests following the latest release of MeCab 0.993

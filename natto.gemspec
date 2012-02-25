@@ -25,15 +25,10 @@ END_DESC
     'lib/natto.rb', 
     'lib/natto/binding.rb', 
     'lib/natto/version.rb', 
-    'test/test_natto.rb', 
-    'test/natto/tc_binding.rb', 
-    'test/natto/tc_dictionaryinfo.rb', 
-    'test/natto/tc_mecab.rb', 
-    'test/natto/tc_mecabnode.rb', 
+    'lib/natto/utils.rb', 
     'README.md',
     'LICENSE', 
     'CHANGELOG',
     '.yardopts'
   ]
-  s.test_file = 'test/test_natto.rb'
 end
