@@ -7,8 +7,8 @@ module Natto
   require 'ffi'
   require 'optparse'
 
-  # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> parser.
-  # Options to the <tt>mecab</tt> parser are passed in as a string
+  # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> tagger.
+  # Options to the <tt>mecab</tt> tagger are passed in as a string
   # (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
@@ -17,26 +17,34 @@ module Natto
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
-  #     nm = Natto::MeCab.new('-Ochasen2')
+  #     nm = Natto::MeCab.new('-Ochasen')
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @tagger=#<FFI::Pointer address=0x28afb980>, \
-  #          @options={:output_format_type=>"chasen2"},  \
+  #          @options={:output_format_type=>"chasen"},  \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
   #                    type="0", \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
   #          @version="0.993">
   #
-  #     nm.parse('ネバネバの組み合わせ美味しいです。') do |n| 
+  #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
-  #     end
-  #
-  #     ネバネバ        名詞,サ変接続,*,*,*,*,ネバネバ,ネバネバ,ネバネバ
-  #     の              助詞,連体化,*,*,*,*,の,ノ,ノ
-  #     組み合わせ      名詞,一般,*,*,*,*,組み合わせ,クミアワセ,クミアワセ
-  #     美味しい        形容詞,自立,*,*,形容詞・イ段,基本形,美味しい,オイシイ,オイシイ
-  #     です            助動詞,*,*,*,特殊・デス,基本形,です,デス,デス
-  #     。              記号,句点,*,*,*,*,。,。,。
+  #     end 
+  #     凡人   名詞,一般,*,*,*,*,凡人,ボンジン,ボンジン
+  #     に     助詞,格助詞,一般,*,*,*,に,ニ,ニ 
+  #     しか   助詞,係助詞,*,*,*,*,しか,シカ,シカ 
+  #     見え   動詞,自立,*,*,一段,未然形,見える,ミエ,ミエ
+  #     ねえ   助動詞,*,*,*,特殊・ナイ,音便基本形,ない,ネエ,ネー 
+  #     風景   名詞,一般,*,*,*,*,風景,フウケイ,フーケイ
+  #     って   助詞,格助詞,連語,*,*,*,って,ッテ,ッテ
+  #     の     名詞,非自立,一般,*,*,*,の,ノ,ノ 
+  #     が     助詞,格助詞,一般,*,*,*,が,ガ,ガ
+  #     ある   動詞,自立,*,*,五段・ラ行,基本形,ある,アル,アル 
+  #     ん     名詞,非自立,一般,*,*,*,ん,ン,ン
+  #     だ     助動詞,*,*,*一般,特殊・ダ,基本形,だ,ダ,ダ
+  #     よ     助詞,終助詞,*,*,*,*,よ,ã¨,ヨ
+  #     。     記号,句点,*,*,*,*,。,。,。
+  #            BOS/EOS,*,*,*,*,*,*,*,*BOS
   #
   class MeCab
     include Natto::Binding
@@ -44,7 +52,7 @@ module Natto
 
     attr_reader :tagger, :options, :dicts, :version
 
-    # Mapping of mecab short-style configuration options to the <tt>mecab</tt> parser.
+    # Mapping of mecab short-style configuration options to the <tt>mecab</tt> tagger.
     # See the <tt>mecab</tt> help for more details. 
     SUPPORTED_OPTS = { '-r' => :rcfile, 
                        '-d' => :dicdir, 
@@ -101,18 +109,22 @@ module Natto
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
     #          @version="0.993">
-    #
-    #     puts nm.parse('簡単で美味しくて良いですよね。')
-    #     簡単       カンタン
-    #     で         デ
-    #     美味しくて オイシクテ
-    #     良い       ヨイ
-    #     です       デス
-    #     よ         ヨ
-    #     ね         ネ
-    #     。
+    # 
+    #     puts nm.parse('才能とは求める人間に与えられるものではない。')
+    #     才能    サイノウ
+    #     と      ト
+    #     は      ハ
+    #     求      モトメル
+    #     人間    ニンゲン
+    #     に      ニ
+    #     与え    アタエ
+    #     られる  ラレル
+    #     もの    モノ
+    #     で      デ
+    #     は      ハ
+    #     ない    ナイ
+    #     。      。
     #     EOS
-    #     => nil
     #
     # @param [Hash or String]
     # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
@@ -196,16 +208,13 @@ module Natto
         end
       end
 
-      # set ref to dictionaries
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@tagger))
       while @dicts.last.next.address != 0x0
         @dicts << Natto::DictionaryInfo.new(@dicts.last.next)
       end
 
-      # set ref to mecab version string
       @version = self.mecab_version
 
-      # set Proc for freeing mecab pointer
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@tagger))
     end
     
@@ -214,7 +223,7 @@ module Natto
     #
     # @param [String] str
     # @return parsing result from <tt>mecab</tt>
-    # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
+    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
     # @see MeCabNode
     def parse(str)
       if block_given?
@@ -229,7 +238,7 @@ module Natto
     # a list of <tt>mecab</tt> nodes.
     # @param [String] str
     # @return [Array] of parsed <tt>mecab</tt> nodes.
-    # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
+    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
     # @see MeCabNode
     def readnodes(str)
       @parse_tonodes.call(str)
@@ -239,16 +248,16 @@ module Natto
     # a list of <tt>mecab</tt> result strings.
     # @param [String] str
     # @return [Array] of parsed <tt>mecab</tt> result strings.
-    # @raise [MeCabError] if the <tt>mecab</tt> parser cannot parse the given string <tt>str</tt>
+    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
     def readlines(str)
       self.class.force_enc(@parse_tostr.call(str)).lines.to_a
     end
 
-    # Returns human-readable details for the wrapped <tt>mecab</tt> parser.
+    # Returns human-readable details for the wrapped <tt>mecab</tt> tagger.
     # Overrides <tt>Object#to_s</tt>.
     #
     # - encoded object id
-    # - underlying FFI pointer to the MeCab Tagger
+    # - underlying FFI pointer to the <tt>mecab</tt> tagger
     # - options hash
     # - list of dictionaries
     # - MeCab version
@@ -332,10 +341,10 @@ module Natto
     end
 
     # Returns a string-representation of the options to
-    # be passed in the construction of <tt>mecab</tt>.
+    # be passed in the construction of the <tt>mecab</tt> tagger.
     #
     # @param [Hash] options 
-    # @return [String] representation of the options to the <tt>mecab</tt> parser
+    # @return [String] representation of the options to the <tt>mecab</tt> tagger
     def self.build_options_str(options={})
       opt = []
       SUPPORTED_OPTS.values.each do |k|
@@ -512,40 +521,35 @@ module Natto
   #
   #     nm = Natto::MeCab.new
   #
-  #     nm.parse('めかぶの使い方がわからなくて困ってました。') do |n| 
-  #       puts "#{n.surface}¥t#{n.cost}" if n.is_nor?
+  #     nm.parse('卓球なんて死ぬまでの暇つぶしだよ。') do |n| 
+  #       puts "#{n.surface}\t#{n.cost}" if n.is_nor? 
   #     end
-  #
-  #     め      7961
-  #     かぶ    19303
-  #     の      25995
-  #     使い方  29182
-  #     が      28327
-  #     わから  33625
-  #     なく    34256
-  #     て      36454
-  #     困っ    43797
-  #     て      42178
-  #     まし    46708
-  #     た      46111
-  #     。      42677
-  #     => nil
+  #     卓球     2874
+  #     な       4398
+  #     死ぬ     9261
+  #     まで     9386
+  #     の       10007
+  #     暇つぶし 13324
+  #     だ       15346
+  #     よ       14396
+  #     。       10194
   #
   # It is also possible to use the <tt>Symbol</tt> for the
   # <tt>mecab</tt> node member to index into the 
   # <tt>FFI::Struct</tt> layout associative array like so:
   #     
-  #     nm.parse('納豆に乗っけて頂きます！') {|n| puts n[:feature] }
-  #
-  #     名詞,一般,*,*,*,*,納豆,ナットウ,ナットー
-  #     助詞,格助詞,一般,*,*,*,に,ニ,ニ
-  #     動詞,自立,*,*,一段,連用形,乗っける,ノッケ,ノッケ
-  #     助詞,接続助詞,*,*,*,*,て,テ,テ
-  #     動詞,非自立,*,*,五段・カ行イ音便,連用形,頂く,イタダキ,イタダキ
-  #     助動詞,*,*,*,特殊・マス,基本形,ます,マス,マス
-  #     記号,一般,*,*,*,*,！,！,！
+  #     nm.parse('あいつ笑うと結構可愛い顔してんよ。') {|n| puts n[:feature] }
+  #     名詞,代名詞,一般,*,*,*,あいつ,アイツ,アイツ
+  #     動詞,自立,*,*,五段・ワ行促音便,基本形,笑う,ワラウ,ワラウ
+  #     助詞,接続助詞,*,*,*,*,と,ト,ト
+  #     副詞,一般,*,*,*,*,結構,ケッコウ,ケッコー
+  #     形容詞,自立,*,*,形容詞・イ段,基本形,可愛い,カワイイ,カワイイ
+  #     名詞,一般,*,*,*,*,顔,カオ,カオ
+  #     動詞,自立,*,*,サ変・スル,連用形,する,シ,シ
+  #     動詞,非自立,*,*,一段,体言接続特殊,てる,テン,テン
+  #     助詞,終助詞,*,*,*,*,よ,ヨ,ヨ
+  #     記号,句点,*,*,*,*,。,。,。
   #     BOS/EOS,*,*,*,*,*,*,*,*
-  #     => nil
   #
   class MeCabNode < MeCabStruct
     include Natto::Utils
@@ -614,15 +618,6 @@ module Natto
       end
     end
      
-    # Sets the morpheme surface value for this node.
-    #
-    # @param [String] 
-    #def surface=(str)
-    #  if str && self[:length] > 0
-    #    @surface = self.class.force_enc(str)
-    #  end
-    #end
-
     # Returns human-readable details for the <tt>mecab</tt> node.
     # Overrides <tt>Object#to_s</tt>.
     #

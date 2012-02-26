@@ -55,7 +55,6 @@ class TestDictionaryInfo < Test::Unit::TestCase
     assert(@dicts.last.to_s.include?("type=\"#{@usrdic_type}\", filename=\"#{@usrdic_filename}\", charset=\"#{@usrdic_charset}\""))
   end
 
-  # Tests the accessors of Natto::DictionaryInfo.
   # Note: Object#type is deprecated in 1.9.n, but comes with a warning
   #       in 1.8.n
   def test_dictionary_info_member_accessors

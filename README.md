@@ -95,7 +95,7 @@ e.g., from within a Ruby program
 
 
 ## Learn more 
-- Learn more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
+- You can read more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
 
 ## Contributing to natto
 -  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
