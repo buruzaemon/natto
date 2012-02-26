@@ -615,9 +615,9 @@ module Natto
       super(ptr)
       @pointer = ptr
 
-      if self[:feature]
-        @feature = self.class.force_enc(self[:feature])
-      end
+      #if self[:feature]
+      #  @feature = self.class.force_enc(self[:feature])
+      #end
     end
      
     # Sets the morpheme surface value for this node.

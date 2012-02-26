@@ -6,7 +6,7 @@ class TestMeCab < Test::Unit::TestCase
   def setup
     @m = Natto::MeCab.new
     @mn = Natto::MeCab.new('-N2')
-    @mn_f = Natto::MeCab.new('-N2 -F%f[7]')
+    @mn_f = Natto::MeCab.new('-N2 -F%pl\t%f[7]...')
     @mn_w = Natto::MeCab.new('-N4 -Owakati')
     @mn_y = Natto::MeCab.new('-N2 -Oyomi')
     @ver = `mecab -v`.strip.split.last
@@ -297,6 +297,10 @@ class TestMeCab < Test::Unit::TestCase
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    puts "==============="
+    puts expected.size
+    puts "==============="
+
 
     actual = []
     @m.parse(@test_str) do |n|
@@ -330,15 +334,20 @@ class TestMeCab < Test::Unit::TestCase
   end
 
   def test_parse_nbest_with_nodeformatting
-    expected = `#{@test_cmd} | mecab -N2 -F'%f[7]\n'`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+    expected = `#{@test_cmd} | mecab -N2 -F"%pl\t%f[7]..."`.split("EOS\n").join.split('...')
 
     actual = []
-    @mn_f.parse(@test_str) {|n| actual << n if n.is_nor? }    
-    
+    @mn_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
+   
+    puts expected
+    puts
+    puts actual
+    puts
     expected.each_with_index do |f,i|
-      a = actual[i]
-      assert_equal(f.strip, "#{a.feature}")
+      sl, y = f.split("\t").map{|e| e.strip}
+      asl, ay = actual[i].feature.split('...').first.split("\t").map{|e| e.strip}
+      assert_equal(sl, asl)
+      assert_equal(y, ay)
     end
   end
 
