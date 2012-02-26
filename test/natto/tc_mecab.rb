@@ -297,10 +297,6 @@ class TestMeCab < Test::Unit::TestCase
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-    puts "==============="
-    puts expected.size
-    puts "==============="
-
 
     actual = []
     @m.parse(@test_str) do |n|
@@ -339,10 +335,6 @@ class TestMeCab < Test::Unit::TestCase
     actual = []
     @mn_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
    
-    puts expected
-    puts
-    puts actual
-    puts
     expected.each_with_index do |f,i|
       sl, y = f.split("\t").map{|e| e.strip}
       asl, ay = actual[i].feature.split('...').first.split("\t").map{|e| e.strip}
