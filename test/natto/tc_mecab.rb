@@ -2,7 +2,6 @@
 require 'rbconfig'
 
 class TestMeCab < Test::Unit::TestCase
-
   def setup
     @m = Natto::MeCab.new
     @mn = Natto::MeCab.new('-N2')

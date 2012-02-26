@@ -1,10 +1,10 @@
 # coding: utf-8
 
 # <tt>Natto</tt> is the namespace for objects that provide
-# a binding to the <tt>mecab</tt> parser and related resources.
+# a binding to the <tt>mecab</tt> tagger and related resources.
 #
 # <tt>Natto::MeCab</tt> is a wrapper class for the <tt>mecab</tt> 
-# parser.
+# tagger.
 #
 # <tt>Natto::MeCabStruct</tt> is a base class for a <tt>mecab</tt>
 # struct.

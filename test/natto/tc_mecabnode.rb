@@ -1,10 +1,7 @@
 # coding: utf-8
 require 'rbconfig'
 
-# TestMeCabNode encapsulates tests for the basic
-# behavior of Natto::MeCabNode
 class TestMeCabNode < Test::Unit::TestCase
-
   def setup
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -32,7 +29,6 @@ class TestMeCabNode < Test::Unit::TestCase
     @test_cmd   = nil
   end
 
-  # Tests the surface and feature accessors methods.
   def test_surface_and_feature_accessors
     raw = `#{@test_cmd} | mecab`.lines.to_a
     raw.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -51,7 +47,6 @@ class TestMeCabNode < Test::Unit::TestCase
     assert_equal(expected, actual)
   end
 
-  # Tests that the accessors of Natto::MeCabNode exist.
   # Note: Object#id is deprecated in 1.9.n, but comes with a warning
   #       in 1.8.n
   def test_mecabnode_accessors
@@ -84,7 +79,6 @@ class TestMeCabNode < Test::Unit::TestCase
       end
     end
     
-    # NoMethodError will be raised for anything else!
     assert_raise NoMethodError do
       node.send :unknown_attr
     end

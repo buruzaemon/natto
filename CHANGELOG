@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-- __2012/02/??__: 0.9.4 release.
+- __2012/02/26__: 0.9.4 release.
     - Exposing the underlying FFI pointer as @tagger in Natto::MeCab
     - Exposing the underlying FFI pointer as @pointer in Natto::MeCabNode
     - Fixed node formatting behavior for both regular and N-Best node parsing
