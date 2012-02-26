@@ -151,9 +151,6 @@ module Natto
               s = str.bytes.to_a
               while n && n.address != 0x0
                 mn = Natto::MeCabNode.new(n)
-                if mn[:feature]
-                  mn.feature = self.class.force_enc(mn[:feature])
-                end
                 if mn.is_nor?
                   slen, sarr = mn.length, []
                   slen.times { sarr << s.shift }
@@ -164,7 +161,7 @@ module Natto
                   end
                 end
                 nodes << mn if !mn.is_bos?
-                n = mn[:next] 
+                n = mn.next
               end
               n = self.mecab_nbest_next_tonode(@tagger)
             end
@@ -182,26 +179,18 @@ module Natto
           n = self.mecab_sparse_tonode(@tagger, str) 
           raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
           mn = Natto::MeCabNode.new(n)
-          mn = Natto::MeCabNode.new(mn.next) if mn.is_bos?
-          if mn[:feature]
-            mn.feature = self.class.force_enc(mn[:feature])
-          end
+          n = mn.next if mn.next.address!=0x0 && mn.is_bos?
           s = str.bytes.to_a
-          while mn && mn.pointer.address!=0x0
+          while n && n.address!=0x0
+            mn = Natto::MeCabNode.new(n)
             if mn.is_nor?
               slen, sarr = mn.length, []
               slen.times { sarr << s.shift }
               surf = sarr.pack('C*')
               mn.surface = self.class.force_enc(surf)
-              if @options[:output_format_type] || @options[:node_format]
-                mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, mn.pointer)) 
-              end
             end
             nodes << mn 
-            mn = Natto::MeCabNode.new(mn.next)
-            if mn[:feature]
-              mn.feature = self.class.force_enc(mn[:feature])
-            end
+            n = mn.next
           end
           return nodes
         end
@@ -620,9 +609,9 @@ module Natto
       super(ptr)
       @pointer = ptr
 
-      #if self[:feature]
-      #  @feature = self.class.force_enc(self[:feature])
-      #end
+      if self[:feature]
+        @feature = self.class.force_enc(self[:feature])
+      end
     end
      
     # Sets the morpheme surface value for this node.
