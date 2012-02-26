@@ -151,6 +151,9 @@ module Natto
               s = str.bytes.to_a
               while n && n.address != 0x0
                 mn = Natto::MeCabNode.new(n)
+                if mn[:feature]
+                  mn.feature = self.class.force_enc(mn[:feature])
+                end
                 if mn.is_nor?
                   slen, sarr = mn.length, []
                   slen.times { sarr << s.shift }
@@ -159,8 +162,6 @@ module Natto
                   if @options[:output_format_type] || @options[:node_format]
                     mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, n)) 
                   end
-                elsif mn.is_eos? && @options[:eos_format]
-                  mn.feature = self.class.force_enc(@options[:eos_format])
                 end
                 nodes << mn if !mn.is_bos?
                 n = mn[:next] 
@@ -182,6 +183,9 @@ module Natto
           raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
           mn = Natto::MeCabNode.new(n)
           mn = Natto::MeCabNode.new(mn.next) if mn.is_bos?
+          if mn[:feature]
+            mn.feature = self.class.force_enc(mn[:feature])
+          end
           s = str.bytes.to_a
           while mn && mn.pointer.address!=0x0
             if mn.is_nor?
@@ -192,11 +196,12 @@ module Natto
               if @options[:output_format_type] || @options[:node_format]
                 mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, mn.pointer)) 
               end
-            elsif mn.is_eos? && @options[:eos_format]
-              mn.feature = self.class.force_enc(@options[:eos_format])
             end
             nodes << mn 
             mn = Natto::MeCabNode.new(mn.next)
+            if mn[:feature]
+              mn.feature = self.class.force_enc(mn[:feature])
+            end
           end
           return nodes
         end
@@ -608,7 +613,7 @@ module Natto
     end
 
     # Initializes this node instance.
-    # Sets the <ttMeCab</tt> feature value for this node.
+    # Sets the <tt>MeCab</tt> feature value for this node.
     #
     # @param [FFI::Pointer]
     def initialize(ptr)
