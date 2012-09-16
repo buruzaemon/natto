@@ -19,13 +19,14 @@ END_DESC
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.8.7'
   s.require_path = 'lib'
-  s.requirements << 'MeCab, 0.993 or greater'
+  s.requirements << 'MeCab, 0.994 or greater'
   s.requirements << 'FFI, 0.6.3 or greater'
   s.files = [
     'lib/natto.rb', 
     'lib/natto/binding.rb', 
-    'lib/natto/version.rb', 
+    'lib/natto/option_parse.rb', 
     'lib/natto/utils.rb', 
+    'lib/natto/version.rb', 
     'README.md',
     'LICENSE', 
     'CHANGELOG',

@@ -1,11 +1,11 @@
 # coding: utf-8
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
 require 'natto/binding'
+require 'natto/option_parse'
 require 'natto/utils'
 
 module Natto 
   require 'ffi'
-  require 'optparse'
 
   # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> tagger.
   # Options to the <tt>mecab</tt> tagger are passed in as a string
@@ -20,12 +20,12 @@ module Natto
   #     nm = Natto::MeCab.new('-Ochasen')
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @tagger=#<FFI::Pointer address=0x28afb980>, \
-  #          @options={:output_format_type=>"chasen"},  \
+  #          @options={:output_format_type=>"chasen"},   \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
   #                    type="0", \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
-  #          @version="0.993">
+  #          @version="0.994">
   #
   #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -48,29 +48,10 @@ module Natto
   #
   class MeCab
     include Natto::Binding
+    include Natto::OptionParse
     include Natto::Utils
 
     attr_reader :tagger, :options, :dicts, :version
-
-    # Mapping of mecab short-style configuration options to the <tt>mecab</tt> tagger.
-    # See the <tt>mecab</tt> help for more details. 
-    SUPPORTED_OPTS = { '-r' => :rcfile, 
-                       '-d' => :dicdir, 
-                       '-u' => :userdic, 
-                       '-l' => :lattice_level, 
-                       '-O' => :output_format_type, 
-                       '-a' => :all_morphs,
-                       '-N' => :nbest, 
-                       '-F' => :node_format, 
-                       '-U' => :unk_format,
-                       '-B' => :bos_format, 
-                       '-E' => :eos_format, 
-                       '-S' => :eon_format, 
-                       '-x' => :unk_feature, 
-                       '-b' => :input_buffer_size, 
-                       '-C' => :allocate_sentence, 
-                       '-t' => :theta, 
-                       '-c' => :cost_factor }.freeze
 
     # Initializes the wrapped <tt>mecab</tt> instance with the
     # given <tt>options</tt>.
@@ -108,7 +89,7 @@ module Natto
     #                    type="0", \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
-    #          @version="0.993">
+    #          @version="0.994">
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
     #     才能    サイノウ
@@ -128,10 +109,8 @@ module Natto
     #
     # @param [Hash or String]
     # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
-    # @see MeCab::SUPPORTED_OPTS
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
-          
       @dicts = []
 
       opt_str = self.class.build_options_str(@options)
@@ -146,7 +125,6 @@ module Natto
       # for both parsing as string and yielding a node object
       # N-Best parsing implementations
       if @options[:nbest] && @options[:nbest] > 1
-        # nbest parsing require lattice level >= 1
         self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
         @parse_tostr = lambda do |str| 
           return self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], str) || 
@@ -159,18 +137,19 @@ module Natto
             n = self.mecab_nbest_next_tonode(@tagger)
             raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
             nlen = @options[:nbest]
-            nlen.times do
+            nlen.times do |i|
               s = str.bytes.to_a
               while n && n.address != 0x0
                 mn = Natto::MeCabNode.new(n)
-                if mn.is_nor?
-                  slen, sarr = mn.length, []
-                  slen.times { sarr << s.shift }
+                s = s.drop_while {|e| (e==0xa || e==0x20)}
+                if !s.empty?
+                  sarr = []
+                  mn.length.times { sarr << s.shift }
                   surf = sarr.pack('C*')
                   mn.surface = self.class.force_enc(surf)
-                  if @options[:output_format_type] || @options[:node_format]
-                    mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, n)) 
-                  end
+                end
+                if @options[:output_format_type] || @options[:node_format]
+                  mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, n)) 
                 end
                 nodes << mn if !mn.is_bos?
                 n = mn.next
@@ -191,13 +170,14 @@ module Natto
           n = self.mecab_sparse_tonode(@tagger, str) 
           raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
           mn = Natto::MeCabNode.new(n)
-          n = mn.next if mn.next.address!=0x0 && mn.is_bos?
+          n = mn.next if mn.next.address!=0x0
           s = str.bytes.to_a
           while n && n.address!=0x0
             mn = Natto::MeCabNode.new(n)
-            if mn.is_nor?
-              slen, sarr = mn.length, []
-              slen.times { sarr << s.shift }
+            s = s.drop_while {|e| (e==0xa || e==0x20)}
+            if !s.empty?
+              sarr = []
+              mn.length.times { sarr << s.shift }
               surf = sarr.pack('C*')
               mn.surface = self.class.force_enc(surf)
             end
@@ -240,7 +220,7 @@ module Natto
     # @return [Array] of parsed <tt>mecab</tt> nodes.
     # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
     # @see MeCabNode
-    def readnodes(str)
+    def parse_as_nodes(str)
       @parse_tonodes.call(str)
     end
 
@@ -249,8 +229,20 @@ module Natto
     # @param [String] str
     # @return [Array] of parsed <tt>mecab</tt> result strings.
     # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
-    def readlines(str)
+    def parse_as_strings(str)
       self.class.force_enc(@parse_tostr.call(str)).lines.to_a
+    end
+
+    # DEPRECATED: use parse_as_nodes instead.
+    def readnodes(str)
+      $stdout.puts 'DEPRECATED: use parse_as_nodes instead'
+      parse_as_nodes(str)
+    end
+
+    # DEPRECATED: use parse_as_strings instead.
+    def readlines(str)
+      $stdout.puts 'DEPRECATED: use parse_as_strings instead'
+      parse_as_strings(str)
     end
 
     # Returns human-readable details for the wrapped <tt>mecab</tt> tagger.
@@ -287,77 +279,6 @@ module Natto
       Proc.new do
         self.mecab_destroy(ptr)
       end
-    end
-
-    # Prepares and returns a hash mapping symbols for
-    # the specified, recognized MeCab options, and their
-    # values. Will parse and convert string (short or
-    # long argument styles) or hash. 
-    def self.parse_mecab_options(options={})
-      h = {}
-      if options.is_a? String
-        opts = OptionParser.new do |opts|
-          opts.on('-r', '--rcfile ARG')  { |arg| h[:rcfile]   = arg.strip }
-          opts.on('-d', '--dicdir ARG')  { |arg| h[:dicdir]   = arg.strip }
-          opts.on('-u', '--userdic ARG') { |arg| h[:userdic]  = arg.strip }
-          opts.on('-l', '--lattice-level ARG') { |arg| h[:lattice_level]  = arg.strip.to_i } # !deprecated in 0.99!!!
-          opts.on('-O', '--output-format-type ARG') { |arg| h[:output_format_type]  = arg.strip }
-          opts.on('-a', '--all-morphs')  { |arg| h[:all_morphs]  = true }
-          opts.on('-N', '--nbest ARG')   { |arg| h[:nbest]    = arg.strip.to_i }
-          #opts.on('-m', '--marginal')  { |arg| h[:marginal]  = true }
-          opts.on('-F', '--node-format ARG') { |arg| h[:node_format]  = arg.strip }
-          opts.on('-U', '--unk-format ARG') { |arg| h[:unk_format]  = arg.strip }
-          opts.on('-B', '--bos-format ARG') { |arg| h[:bos_format]  = arg.strip }
-          opts.on('-E', '--eos-format ARG') { |arg| h[:eos_format]  = arg.strip }
-          opts.on('-S', '--eon-format ARG') { |arg| h[:eon_format]  = arg.strip }
-          opts.on('-x', '--unk-feature ARG') { |arg| h[:unk_feature]  = arg.strip }
-          opts.on('-b', '--input-buffer-size ARG')   { |arg| h[:input_buffer_size]  = arg.strip.to_i }
-          #opts.on('-M', '--open-mutable-dictionary')  { |arg| h[:open_mutable_dictionary]  = true }
-          opts.on('-C', '--allocate-sentence')  { |arg| h[:allocate_sentence]  = true }
-          opts.on('-t', '--theta ARG')   { |arg| h[:theta] = arg.strip.to_f }
-          opts.on('-c', '--cost-factor ARG')   { |arg| h[:cost_factor] = arg.strip.to_i }
-        end
-        opts.parse!(options.split)
-      else
-        SUPPORTED_OPTS.values.each do |k|
-          if options.has_key?(k)
-            if [ :all_morphs, :allocate_sentence ].include?(k) 
-              h[k] = true
-            else
-              v = options[k]  
-              if [ :lattice_level, :input_buffer_size, :nbest, :cost_factor ].include?(k)
-                h[k] = v.to_i 
-              elsif k == :theta
-                h[k] = v.to_f
-              else 
-                h[k] = v
-              end
-            end
-          end
-        end
-      end
-      raise MeCabError.new("Invalid N value") if h[:nbest] && (h[:nbest] < 1 || h[:nbest] > 512)
-      h
-    end
-
-    # Returns a string-representation of the options to
-    # be passed in the construction of the <tt>mecab</tt> tagger.
-    #
-    # @param [Hash] options 
-    # @return [String] representation of the options to the <tt>mecab</tt> tagger
-    def self.build_options_str(options={})
-      opt = []
-      SUPPORTED_OPTS.values.each do |k|
-        if options.has_key? k
-          key = k.to_s.gsub('_', '-')  
-          if %w( all-morphs allocate-sentence ).include? key
-            opt << "--#{key}" if options[k]==true
-          else
-            opt << "--#{key}=#{options[k]}"
-          end
-        end
-      end
-      opt.empty? ? "" : opt.join(" ") 
     end
   end
 
@@ -429,14 +350,13 @@ module Natto
             :version,  :ushort,
             :next,     :pointer
    
-    if RUBY_VERSION.to_f < 1.9
+    if Object.respond_to?(:type) && Object.respond_to?(:class)
       alias_method :deprecated_type, :type
-      # <tt>Object#type</tt> override defined when <tt>RUBY_VERSION</tt> is
-      # older than 1.9. This is a hack to avoid the <tt>Object#type</tt>
-      # deprecation warning thrown up in Ruby 1.8.7.
+      # <tt>Object#type</tt> override defined when both <tt>type</tt> and
+      # <tt>class</tt> are Object methods. This is a hack to avoid the 
+      # <tt>Object#type</tt> deprecation warning thrown up in Ruby 1.8.7
+      # and in JRuby.
       #
-      # <i>This method override is not defined when the Ruby interpreter
-      # is 1.9 or greater.</i>
       # @return [Fixnum] <tt>mecab</tt> dictionary type
       def type
         self[:type]

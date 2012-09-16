@@ -273,7 +273,7 @@ class TestMeCab < Test::Unit::TestCase
     m = Natto::MeCab.new(:all_morphs=>true)
     expected = `#{@test_cmd} | mecab --all-morphs`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
   
     actual   = m.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -284,7 +284,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_tostr_default
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = @m.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -295,7 +295,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_tonode_default
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @host_os =~ /mswin|mingw/i && @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = []
     @m.parse(@test_str) do |n|
@@ -308,6 +308,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_tostr
     expected = `#{@test_cmd} | mecab -N2`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = @mn.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|\t)/ }
@@ -318,6 +319,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_tonodes
     expected = `#{@test_cmd} | mecab -N2`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = []
     @mn.parse(@test_str) {|n| actual << n if n.is_nor? }    
@@ -330,6 +332,7 @@ class TestMeCab < Test::Unit::TestCase
 
   def test_parse_nbest_with_nodeformatting
     expected = `#{@test_cmd} | mecab -N2 -F"%pl\t%f[7]..."`.split("EOS\n").join.split('...')
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = []
     @mn_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
@@ -345,6 +348,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_with_wakati
     expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
     expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = @mn_w.parse(@test_str).lines.to_a
     
@@ -354,6 +358,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_nodes_with_wakati
     expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
     expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     tmp = []
     @mn_w.parse(@test_str) {|n| tmp << n }    
@@ -371,6 +376,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_with_yomi
     expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
     expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     actual = @mn_y.parse(@test_str).lines.to_a
     
@@ -380,6 +386,7 @@ class TestMeCab < Test::Unit::TestCase
   def test_parse_nbest_nodes_with_yomi
     expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
     expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
     tmp = []
     @mn_y.parse(@test_str) {|n| tmp << n }    
@@ -388,5 +395,29 @@ class TestMeCab < Test::Unit::TestCase
 
     assert_equal(expected[0].strip, n1)
     assert_equal(expected[1].strip, n2)
+  end
+  
+  def test_parse_as_strings
+    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    actual = @mn.parse_as_strings(@test_str)
+    actual.delete_if {|e| e =~ /^(EOS|\t)/ }
+    
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_as_nodes
+    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    actual = @mn.parse_as_nodes(@test_str).reject {|n| !n.is_nor? }    
+  
+    expected.each_with_index do |f,i|
+      a = actual[i]
+      assert_equal(f.strip, "#{a.surface}\t#{a.feature}")
+    end
   end
 end 

@@ -21,7 +21,11 @@
 #
 # Module <tt>Natto::Binding</tt> encapsulates methods and behavior 
 # which are made available via <tt>FFI</tt> bindings to <tt>mecab</tt>.
+#
+# Module <tt>OptionParse</tt> encapsulates methods and behavior 
+# for parsing the various <tt>mecab</tt> options supported by
+# <tt>Natto</tt>.
 module Natto
   # Version string for this Rubygem.
-  VERSION = "0.9.4"
+  VERSION = "0.9.5"
 end

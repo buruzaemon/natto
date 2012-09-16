@@ -11,7 +11,7 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 ## Requirements
 natto requires the following:
 
--  [MeCab _0.993_](http://code.google.com/p/mecab/downloads/list)
+-  [MeCab _0.994_](http://code.google.com/p/mecab/downloads/list)
 -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.8.7 or greater_
 
@@ -20,16 +20,16 @@ Install natto with the following gem command:
 
     gem install natto
 
-This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which is what natto uses to bind to the <tt>mecab</tt> library.
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the <tt>mecab</tt> library.
 
 ## Installation on Windows 
-However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), which is a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including <tt>ffi</tt>.
+However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including <tt>ffi</tt>.
 
 1. Download the latest release for RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
 2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer <tt>.exe</tt>, and expand the contents to an appropriate location, for example <tt>C:\devkit</tt>.
 3. Open a command window under <tt>C:\devkit</tt>, and execute: <tt>ruby dk.rb init</tt>. This will locate all known ruby installations, and add them to <tt>C:\devkit\config.yml</tt>.
-4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>.
-5. Now you should be able to install and build the <tt>ffi</tt> rubygem correctly on your Windows-installed ruby, so you can install <tt>natto with</tt>: 
+4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>. Now you should be able to install and build the <tt>ffi</tt> rubygem correctly on your Windows-installed ruby. 
+5. Install <tt>natto</tt> with: 
 
     gem install natto
 
@@ -65,10 +65,10 @@ e.g., from within a Ruby program
                  type="0", \
                  filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
                  charset="utf8">], \
-         @version="0.993">
+         @version="0.994">
 
     puts nm.version
-    => "0.993" 
+    => "0.994" 
 
     sysdic = nm.dicts.first
 
