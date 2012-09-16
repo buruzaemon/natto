@@ -420,4 +420,12 @@ class TestMeCab < Test::Unit::TestCase
       assert_equal(f.strip, "#{a.surface}\t#{a.feature}")
     end
   end
+
+  def test_argument_error
+    [ :parse, :parse_as_nodes, :parse_as_strings ].each do |m|
+      assert_raise ArgumentError do
+        @mn.send(m, nil) 
+      end
+    end
+  end
 end 

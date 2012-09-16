@@ -2,6 +2,7 @@
 
 - __2012/09/16__: 0.9.5 release.
     - Fixed [Issue 9: trimされていない文字列のparse](https://bitbucket.org/buruzaemon/natto/issue/9/trim-parse) 
+    - Fixed [Issue 10: BUG Segmentation Fault](https://bitbucket.org/buruzaemon/natto/issue/10/bug-segmentation-fault) 
     - Adding parse_as_nodes to allow for method-chaining on list of parsed nodes
     - Adding parse_as_strings to allow for method-chaining on list of string output
     - Deprecating both readnodes and readlines (badly named methods, see parse_as_nodes and parse_as_strings, respectively)
