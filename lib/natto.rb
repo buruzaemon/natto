@@ -204,8 +204,10 @@ module Natto
     # @param [String] str
     # @return parsing result from <tt>mecab</tt>
     # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
+    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
     # @see MeCabNode
     def parse(str)
+      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       if block_given?
         nodes = @parse_tonodes.call(str)
         nodes.each {|n| yield n }
@@ -219,8 +221,10 @@ module Natto
     # @param [String] str
     # @return [Array] of parsed <tt>mecab</tt> nodes.
     # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
+    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
     # @see MeCabNode
     def parse_as_nodes(str)
+      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tonodes.call(str)
     end
 
@@ -229,7 +233,9 @@ module Natto
     # @param [String] str
     # @return [Array] of parsed <tt>mecab</tt> result strings.
     # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
+    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
     def parse_as_strings(str)
+      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       self.class.force_enc(@parse_tostr.call(str)).lines.to_a
     end
 
