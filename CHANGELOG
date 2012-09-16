@@ -1,5 +1,13 @@
 ## CHANGELOG
 
+- __2012/09/16__: 0.9.5 release.
+    - Fixed [Issue 9: trimされていない文字列のparse](https://bitbucket.org/buruzaemon/natto/issue/9/trim-parse) 
+    - Adding parse_as_nodes to allow for method-chaining on list of parsed nodes
+    - Adding parse_as_strings to allow for method-chaining on list of string output
+    - Deprecating both readnodes and readlines (badly named methods, see parse_as_nodes and parse_as_strings, respectively)
+    - Refactored the option parsing logic into Natto::OptionParse
+    - Enhanced Natto::DictionaryInfo#type override for java or ruby < 1.9
+
 - __2012/02/26__: 0.9.4 release.
     - Exposing the underlying FFI pointer as @tagger in Natto::MeCab
     - Exposing the underlying FFI pointer as @pointer in Natto::MeCabNode
