@@ -25,7 +25,7 @@ module Natto
   #                    type="0", \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
-  #          @version="0.994">
+  #          @version="0.995">
   #
   #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -65,6 +65,9 @@ module Natto
     # - :output_format_type --  output format type (wakati, chasen, yomi, etc.)
     # - :all_morphs --  output all morphs (default false)
     # - :nbest --  output N best results (integer, default 1), requires lattice level >= 1
+    # - :partial --  partial parsing mode 
+    # - :marginal --  output marginal probability
+    # - :max_grouping_size --  maximum grouping size for unknown words (default 24)
     # - :node_format --  user-defined node format
     # - :unk_format --  user-defined unknown node format
     # - :bos_format --  user-defined beginning-of-sentence format
@@ -89,7 +92,7 @@ module Natto
     #                    type="0", \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
-    #          @version="0.994">
+    #          @version="0.995">
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
     #     才能    サイノウ
