@@ -27,5 +27,5 @@
 # <tt>Natto</tt>.
 module Natto
   # Version string for this Rubygem.
-  VERSION = "0.9.5"
+  VERSION = "0.9.6"
 end

@@ -15,12 +15,12 @@ ruby で mecab を自由に利用できる natto をぜひ試してください�
 END_DESC
   s.author = 'Brooke M. Fujita'
   s.email = 'buruzaemon@gmail.com'
-  s.homepage = 'https://bitbucket.org/buruzaemon/natto/overview'
+  s.homepage = 'https://bitbucket.org/buruzaemon/natto'
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.8.7'
   s.require_path = 'lib'
-  s.requirements << 'MeCab, 0.994 or greater'
-  s.requirements << 'FFI, 0.6.3 or greater'
+  s.requirements << 'MeCab, 0.995 or greater'
+  s.requirements << 'FFI, 1.3.1 or greater'
   s.files = [
     'lib/natto.rb', 
     'lib/natto/binding.rb', 

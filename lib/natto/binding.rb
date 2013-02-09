@@ -37,20 +37,14 @@ module Natto
     #
     #     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
     #
-    # e.g., for Cygwin
-    #
-    #     export MECAB_PATH=cygmecab-1
-    #
     # e.g., from within a Ruby program
     #
-    #     ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
+    #     ENV['MECAB_PATH']='usr/local/lib/libmecab.so'
     def self.find_library
       host_os = RbConfig::CONFIG['host_os']
 
       if host_os =~ /mswin|mingw/i
         raise LoadError, "Please set #{MECAB_PATH} to the full path to libmecab.dll"
-      elsif host_os =~ /cygwin/i
-        'cygmecab-1'
       else
         'mecab'
       end
