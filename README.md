@@ -11,11 +11,11 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 ## Requirements
 natto requires the following:
 
--  [MeCab _0.994_](http://code.google.com/p/mecab/downloads/list)
+-  [MeCab _0.995_](http://code.google.com/p/mecab/downloads/list)
 -  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.8.7 or greater_
 
-## Installation on *NIX/Mac/Cygwin
+## Installation on *NIX/Mac
 Install natto with the following gem command:
 
     gem install natto
@@ -45,13 +45,9 @@ e.g., on Windows
 
     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
 
-e.g., for Cygwin
-
-    export MECAB_PATH=cygmecab-1
-
 e.g., from within a Ruby program
 
-    ENV['MECAB_PATH']=/usr/local/lib/libmecab.so
+    ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
     require 'rubygems' if RUBY_VERSION.to_f < 1.9
@@ -65,10 +61,10 @@ e.g., from within a Ruby program
                  type="0", \
                  filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
                  charset="utf8">], \
-         @version="0.994">
+         @version="0.995">
 
     puts nm.version
-    => "0.994" 
+    => "0.995" 
 
     sysdic = nm.dicts.first
 
