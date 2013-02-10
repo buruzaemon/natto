@@ -1,7 +1,7 @@
 # coding: utf-8
 require 'rbconfig'
 
-class TestMeCabNode < Test::Unit::TestCase
+class TestMeCabNode < MiniTest::Unit::TestCase
   def setup
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -74,12 +74,10 @@ class TestMeCabNode < Test::Unit::TestCase
       :wcost,
       :cost 
     ].each do |nomme|
-      assert_nothing_raised do
-        node.send nomme
-      end
+      refute_nil(node.send nomme)
     end
     
-    assert_raise NoMethodError do
+    assert_raises NoMethodError do
       node.send :unknown_attr
     end
   end
@@ -95,6 +93,6 @@ class TestMeCabNode < Test::Unit::TestCase
     n1 = @nb_nodes[0]
     n2 = @nb_nodes[8]
     assert_equal(n1.surface, n2.surface)
-    assert_not_equal(n1.feature, n2.feature)
+    refute_equal(n1.feature, n2.feature)
   end
 end

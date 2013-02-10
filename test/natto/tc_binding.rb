@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class TestNattoBinding < Test::Unit::TestCase
+class TestNattoBinding < MiniTest::Unit::TestCase
   def setup
     @ver = `mecab -v`.strip.split.last
     @klass = Class.new do
@@ -13,7 +13,7 @@ class TestNattoBinding < Test::Unit::TestCase
   end
 
   def test_fu
-    assert_not_nil @klass
+    refute_nil @klass
   end
 
   def test_mecab_version

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class TestDictionaryInfo < Test::Unit::TestCase
+class TestDictionaryInfo < MiniTest::Unit::TestCase
   def setup
     usrdic, m = nil,nil
     encs = %w( sjis utf8 euc-jp )
@@ -10,7 +10,7 @@ class TestDictionaryInfo < Test::Unit::TestCase
     rescue
       retry
     end
-    assert_not_nil(m, "FAIL! No good usr dics")
+    refute_nil(m, "FAIL! No good usr dics")
     @dicts = m.dicts
 
     out = `mecab -u #{usrdic} -D`.lines.to_a
@@ -41,7 +41,7 @@ class TestDictionaryInfo < Test::Unit::TestCase
     assert_equal(@sysdic_type, sysdic[:type])
     assert_equal(@sysdic_filename, sysdic[:filename])
     assert_equal(@sysdic_charset, sysdic[:charset])
-    assert_not_equal(0x0, sysdic[:next].address)
+    refute_equal(0x0, sysdic[:next].address)
 
     usrdic = @dicts.last
     assert_equal(@usrdic_type, usrdic[:type])
@@ -70,10 +70,10 @@ class TestDictionaryInfo < Test::Unit::TestCase
     ]
     members << :type if RUBY_VERSION.to_f < 1.9
     members.each do |nomme|
-      assert_not_nil(sysdic.send nomme) 
+      refute_nil(sysdic.send nomme) 
     end
     
-    assert_raise NoMethodError do
+    assert_raises NoMethodError do
       sysdic.send :unknown_attr
     end
   end

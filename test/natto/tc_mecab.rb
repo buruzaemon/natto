@@ -1,13 +1,13 @@
 # coding: utf-8
 require 'rbconfig'
 
-class TestMeCab < Test::Unit::TestCase
+class TestMeCab < MiniTest::Unit::TestCase
   def setup
     @m = Natto::MeCab.new
-    @mn = Natto::MeCab.new('-N2')
-    @mn_f = Natto::MeCab.new('-N2 -F%pl\t%f[7]...')
-    @mn_w = Natto::MeCab.new('-N4 -Owakati')
-    @mn_y = Natto::MeCab.new('-N2 -Oyomi')
+    @mn = Natto::MeCab.new '-N2' 
+    @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
+    @mn_w = Natto::MeCab.new '-N4 -Owakati' 
+    @mn_y = Natto::MeCab.new '-N2 -Oyomi' 
     @ver = `mecab -v`.strip.split.last
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -90,7 +90,7 @@ class TestMeCab < Test::Unit::TestCase
       assert_equal({:nbest => 42}, Natto::MeCab.parse_mecab_options(opts))
     end
     [ '--nbest=-1', '--nbest=0', '--nbest=513' ].each do |bad|
-      assert_raise Natto::MeCabError do
+      assert_raises Natto::MeCabError do
         Natto::MeCab.parse_mecab_options(bad)
       end
     end
@@ -197,70 +197,29 @@ class TestMeCab < Test::Unit::TestCase
     assert_equal('--cost-factor=42', Natto::MeCab.build_options_str(:cost_factor=>42))
   end
 
-  def test_construction
-    m = nil
-    assert_nothing_raised do
-      m = Natto::MeCab.new
+  def test_lattice_level_warning
+    [{:lattice_level=>999}, '-l 999', '--lattice-level=999' ].each do |opt|
+      out, err = capture_io do
+        Natto::MeCab.new opt
+      end
+      assert_equal ":lattice-level is DEPRECATED, please use :marginal or :nbest\n", err
     end
-    assert_equal({}, m.options)
-
-    opts = {:output_format_type=>'chasen'}
-    assert_nothing_raised do
-      m = Natto::MeCab.new(opts)
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new("-O chasen")
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new("--output-format-type=chasen")
-    end
-    assert_equal(opts, m.options)
-    
-    opts = {:all_morphs=>true, :allocate_sentence=>true}
-    assert_nothing_raised do
-      m = Natto::MeCab.new(opts)
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new('-a -C')
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new('--all-morphs --allocate-sentence')
-    end
-    assert_equal(opts, m.options)
-    
-    opts = {:lattice_level=>999}
-    assert_nothing_raised do
-      m = Natto::MeCab.new(opts)
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new('-l 999')
-    end
-    assert_equal(opts, m.options)
-    assert_nothing_raised do
-      m = Natto::MeCab.new('--lattice-level=999')
-    end
-    assert_equal(opts, m.options)
   end
 
   def test_initialize_with_errors
-    assert_raise Natto::MeCabError do
+    assert_raises Natto::MeCabError do
       Natto::MeCab.new(:output_format_type=>'not_defined_anywhere')
     end
     
-    assert_raise Natto::MeCabError do
+    assert_raises Natto::MeCabError do
       Natto::MeCab.new(:rcfile=>'/rcfile/does/not/exist')
     end
 
-    assert_raise Natto::MeCabError do
+    assert_raises Natto::MeCabError do
       Natto::MeCab.new(:dicdir=>'/dicdir/does/not/exist')
     end
 
-    assert_raise Natto::MeCabError do
+    assert_raises Natto::MeCabError do
       Natto::MeCab.new(:userdic=>'/userdic/does/not/exist')
     end
   end
@@ -423,7 +382,7 @@ class TestMeCab < Test::Unit::TestCase
 
   def test_argument_error
     [ :parse, :parse_as_nodes, :parse_as_strings ].each do |m|
-      assert_raise ArgumentError do
+      assert_raises ArgumentError do
         @mn.send(m, nil) 
       end
     end

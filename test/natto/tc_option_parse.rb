@@ -1,6 +1,7 @@
 # coding: utf-8
 
-class TestNattoOptParse < Test::Unit::TestCase
+#class TestNattoOptParse < Test::Unit::TestCase
+class TestNattoOptParse < MiniTest::Unit::TestCase
   def setup
     @klass = Class.new do
       include Natto::OptionParse
@@ -74,7 +75,7 @@ class TestNattoOptParse < Test::Unit::TestCase
       assert_equal({:nbest => 42}, @klass.parse_mecab_options(opts))
     end
     [ '--nbest=-1', '--nbest=0', '--nbest=513' ].each do |bad|
-      assert_raise Natto::MeCabError do
+      assert_raises Natto::MeCabError do
         @klass.parse_mecab_options(bad)
       end
     end
