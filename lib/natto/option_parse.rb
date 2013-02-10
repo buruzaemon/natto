@@ -6,8 +6,11 @@ module Natto
   module OptionParse
     require 'optparse'
 
-    # Mapping of mecab short-style configuration options to the <tt>mecab</tt> tagger.
-    # See the <tt>mecab</tt> help for more details. 
+    WARNING_LATTICE_LEVEL = 
+        ":lattice-level is DEPRECATED, please use :marginal or :nbest\n".freeze
+
+    # Mapping of mecab short-style configuration options to the <tt>mecab</tt>
+    # tagger. See the <tt>mecab</tt> help for more details. 
     SUPPORTED_OPTS = { '-r' => :rcfile, 
                        '-d' => :dicdir, 
                        '-u' => :userdic, 
@@ -62,7 +65,6 @@ module Natto
             opts.on('-S', '--eon-format ARG')       { |arg| h[:eon_format] = arg.strip }
             opts.on('-x', '--unk-feature ARG')      { |arg| h[:unk_feature] = arg.strip }
             opts.on('-b', '--input-buffer-size ARG'){ |arg| h[:input_buffer_size] = arg.strip.to_i }
-            #opts.on('-M', '--open-mutable-dictionary')  { |arg| h[:open_mutable_dictionary]  = true }
             opts.on('-C', '--allocate-sentence')    { |arg| h[:allocate_sentence] = true }
             opts.on('-t', '--theta ARG')            { |arg| h[:theta] = arg.strip.to_f }
             opts.on('-c', '--cost-factor ARG')      { |arg| h[:cost_factor] = arg.strip.to_i }
@@ -75,14 +77,10 @@ module Natto
                 h[k] = true
               else
                 v = options[k]  
-                if [ :nbest, :max_grouping_size, :input_buffer_size, :cost_factor ].include?(k)
+                if [ :lattice_level, :nbest, :max_grouping_size, :input_buffer_size, :cost_factor ].include?(k)
                   h[k] = v.to_i 
                 elsif k == :theta
                   h[k] = v.to_f
-                elsif k == :lattice_level
-                  $stderr.print(":lattice-level is DEPRECATED, please use :marginal or :nbest\n")
-                  h[k] = v.to_i 
-                  #raise MeCabError.new(":lattice-level is DEPRECATED, please use :marginal or :nbest")
                 else 
                   h[k] = v
                 end
@@ -90,6 +88,7 @@ module Natto
             end
           end
         end
+        $stderr.print WARNING_LATTICE_LEVEL if h.include? :lattice_level
         raise MeCabError.new("Invalid N value") if h[:nbest] && (h[:nbest] < 1 || h[:nbest] > 512)
         h
       end

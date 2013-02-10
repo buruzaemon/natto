@@ -20,3 +20,6 @@ pkg
 
 # rubinius compiled files
 *.rbx
+
+# rbenv shtuff
+.rbenv-version

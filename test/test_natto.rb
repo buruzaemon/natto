@@ -1,7 +1,7 @@
 # coding: utf-8
 $: << 'lib'
 require 'rubygems' if RUBY_VERSION.to_f < 1.9
-require 'test/unit'
+require 'minitest/autorun'
 require 'natto'
 
 [ 
