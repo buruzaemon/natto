@@ -1,30 +1,30 @@
 # coding: utf-8
 
-# <tt>Natto</tt> is the namespace for objects that provide
-# a binding to the <tt>mecab</tt> tagger and related resources.
+# `Natto` is the namespace for objects that provide
+# a binding to the `mecab` tagger and related resources.
 #
-# <tt>Natto::MeCab</tt> is a wrapper class for the <tt>mecab</tt> 
+# `Natto::MeCab` is a wrapper class for the `mecab` 
 # tagger.
 #
-# <tt>Natto::MeCabStruct</tt> is a base class for a <tt>mecab</tt>
+# `Natto::MeCabStruct` is a base class for a `mecab`
 # struct.
 #
-# <tt>Natto::MeCabNode</tt> is a wrapper for the struct representing
-# a <tt>mecab</tt>-parsed node.
+# `Natto::MeCabNode` is a wrapper for the struct representing
+# a `mecab`-parsed node.
 #
-# <tt>Natto::DictionaryInfo</tt> is a wrapper for the struct 
-# representing a <tt>Natto::MeCab</tt> instance's related 
+# `Natto::DictionaryInfo` is a wrapper for the struct 
+# representing a `Natto::MeCab` instance's related 
 # dictionary information.
 #
-# <tt>Natto::MeCabError</tt> is a general error class for the 
-# <tt>Natto</tt> module.
+# `Natto::MeCabError` is a general error class for the 
+# `Natto` module.
 #
-# Module <tt>Natto::Binding</tt> encapsulates methods and behavior 
-# which are made available via <tt>FFI</tt> bindings to <tt>mecab</tt>.
+# Module `Natto::Binding` encapsulates methods and behavior 
+# which are made available via `FFI` bindings to `mecab`.
 #
-# Module <tt>OptionParse</tt> encapsulates methods and behavior 
-# for parsing the various <tt>mecab</tt> options supported by
-# <tt>Natto</tt>.
+# Module `OptionParse` encapsulates methods and behavior 
+# for parsing the various `mecab` options supported by
+# `Natto`.
 module Natto
   # Version string for this Rubygem.
   VERSION = "0.9.6"

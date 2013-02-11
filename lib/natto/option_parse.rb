@@ -1,16 +1,16 @@
 module Natto
 
-  # Module <tt>OptionParse</tt> encapsulates methods and behavior 
-  # for parsing the various <tt>mecab</tt> options supported by
-  # <tt>Natto</tt>.
+  # Module `OptionParse` encapsulates methods and behavior 
+  # for parsing the various `mecab` options supported by
+  # `Natto`.
   module OptionParse
     require 'optparse'
 
     WARNING_LATTICE_LEVEL = 
         ":lattice-level is DEPRECATED, please use :marginal or :nbest\n".freeze
 
-    # Mapping of mecab short-style configuration options to the <tt>mecab</tt>
-    # tagger. See the <tt>mecab</tt> help for more details. 
+    # Mapping of mecab short-style configuration options to the `mecab`
+    # tagger. See the `mecab` help for more details. 
     SUPPORTED_OPTS = { '-r' => :rcfile, 
                        '-d' => :dicdir, 
                        '-u' => :userdic, 
@@ -94,10 +94,10 @@ module Natto
       end
 
       # Returns a string-representation of the options to
-      # be passed in the construction of the <tt>mecab</tt> tagger.
+      # be passed in the construction of the `mecab` tagger.
       #
       # @param [Hash] options 
-      # @return [String] representation of the options to the <tt>mecab</tt> tagger
+      # @return [String] representation of the options to the `mecab` tagger
       def build_options_str(options={})
         opt = []
         SUPPORTED_OPTS.values.each do |k|
