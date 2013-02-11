@@ -5,12 +5,12 @@ require 'natto/struct'
 require 'natto/utils'
 
 module Natto 
-  # <tt>MeCab</tt> is a wrapper class for the <tt>mecab</tt> tagger.
-  # Options to the <tt>mecab</tt> tagger are passed in as a string
+  # `MeCab` is a wrapper class for the `mecab` tagger.
+  # Options to the `mecab` tagger are passed in as a string
   # (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
-  # <h2>Usage</h2>
+  # ## Usage
   #
   #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
@@ -51,8 +51,8 @@ module Natto
 
     attr_reader :tagger, :options, :dicts, :version
 
-    # Initializes the wrapped <tt>mecab</tt> instance with the
-    # given <tt>options</tt>.
+    # Initializes the wrapped `mecab` instance with the
+    # given `options`.
     # 
     # Options supported are:
     #
@@ -78,7 +78,7 @@ module Natto
     # - :cost_factor --  cost factor (integer, default 700)
     # 
     # <p>MeCab command-line arguments (-F) or long (--node-format) may be used in 
-    # addition to Ruby-style <code>Hash</code>es</p>
+    # addition to Ruby-style `Hash`es</p>
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
@@ -109,7 +109,7 @@ module Natto
     #     EOS
     #
     # @param [Hash or String]
-    # @raise [MeCabError] if <tt>mecab</tt> cannot be initialized with the given <tt>options</tt>
+    # @raise [MeCabError] if `mecab` cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
       @dicts = []
@@ -199,13 +199,13 @@ module Natto
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@tagger))
     end
     
-    # Parses the given string <tt>str</tt>. If a block is passed to this method,
+    # Parses the given string `str`. If a block is passed to this method,
     # then node parsing will be used and each node yielded to the given block.
     #
     # @param [String] str
-    # @return parsing result from <tt>mecab</tt>
-    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
-    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
+    # @return parsing result from `mecab`
+    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
+    # @raise [ArgumentError] if the given string `str` argument is `nil`
     # @see MeCabNode
     def parse(str)
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
@@ -217,24 +217,24 @@ module Natto
       end
     end
 
-    # Parses the given string <tt>str</tt>, and returns
-    # a list of <tt>mecab</tt> nodes.
+    # Parses the given string `str`, and returns
+    # a list of `mecab` nodes.
     # @param [String] str
-    # @return [Array] of parsed <tt>mecab</tt> nodes.
-    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
-    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
+    # @return [Array] of parsed `mecab` nodes.
+    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
+    # @raise [ArgumentError] if the given string `str` argument is `nil`
     # @see MeCabNode
     def parse_as_nodes(str)
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tonodes.call(str)
     end
 
-    # Parses the given string <tt>str</tt>, and returns
-    # a list of <tt>mecab</tt> result strings.
+    # Parses the given string `str`, and returns
+    # a list of `mecab` result strings.
     # @param [String] str
-    # @return [Array] of parsed <tt>mecab</tt> result strings.
-    # @raise [MeCabError] if the <tt>mecab</tt> tagger cannot parse the given string <tt>str</tt>
-    # @raise [ArgumentError] if the given string <tt>str</tt> argument is <tt>nil</tt>
+    # @return [Array] of parsed `mecab` result strings.
+    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
+    # @raise [ArgumentError] if the given string `str` argument is `nil`
     def parse_as_strings(str)
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       self.class.force_enc(@parse_tostr.call(str)).lines.to_a
@@ -252,11 +252,11 @@ module Natto
       parse_as_strings(str)
     end
 
-    # Returns human-readable details for the wrapped <tt>mecab</tt> tagger.
-    # Overrides <tt>Object#to_s</tt>.
+    # Returns human-readable details for the wrapped `mecab` tagger.
+    # Overrides `Object#to_s`.
     #
     # - encoded object id
-    # - underlying FFI pointer to the <tt>mecab</tt> tagger
+    # - underlying FFI pointer to the `mecab` tagger
     # - options hash
     # - list of dictionaries
     # - MeCab version
@@ -266,7 +266,7 @@ module Natto
       %(#{super.chop} @tagger=#{@tagger}, @options=#{@options.inspect}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
     end
 
-    # Overrides <tt>Object#inspect</tt>.
+    # Overrides `Object#inspect`.
     # 
     # @return [String] encoded object id, FFI pointer, options hash, list of dictionaries, and MeCab version
     # @see #to_s
@@ -274,14 +274,14 @@ module Natto
       self.to_s
     end
 
-    # Returns a <tt>Proc</tt> that will properly free resources
-    # when this <tt>MeCab</tt> instance is garbage collected.
-    # The <tt>Proc</tt> returned is registered to be invoked
-    # after the <tt>MeCab</tt> instance  owning <tt>ptr</tt> 
+    # Returns a `Proc` that will properly free resources
+    # when this `MeCab` instance is garbage collected.
+    # The `Proc` returned is registered to be invoked
+    # after the `MeCab` instance  owning `ptr` 
     # has been destroyed.
     #
     # @param [FFI::Pointer] ptr
-    # @return [Proc] to release <tt>mecab</tt> resources properly
+    # @return [Proc] to release `mecab` resources properly
     def self.create_free_proc(ptr)
       Proc.new do
         self.mecab_destroy(ptr)
@@ -289,7 +289,7 @@ module Natto
     end
   end
 
-  # <tt>MeCabError</tt> is a general error class 
-  # for the <tt>Natto</tt> module.
+  # `MeCabError` is a general error class 
+  # for the `Natto` module.
   class MeCabError < RuntimeError; end
 end

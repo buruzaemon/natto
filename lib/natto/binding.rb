@@ -1,17 +1,17 @@
 # coding: utf-8
 module Natto
 
-  # Module <tt>Binding</tt> encapsulates methods and behavior 
-  # which are made available via <tt>FFI</tt> bindings to 
-  # <tt>mecab</tt>.
+  # Module `Binding` encapsulates methods and behavior 
+  # which are made available via `FFI` bindings to 
+  # `mecab`.
   module Binding
     require 'ffi'
     require 'rbconfig'
     extend FFI::Library
 
     # String name for the environment variable used by 
-    # <tt>Natto</tt> to indicate the exact name / full path
-    # to the <tt>mecab</tt> library.
+    # `Natto` to indicate the exact name / full path
+    # to the `mecab` library.
     MECAB_PATH = 'MECAB_PATH'.freeze
     
     # @private
@@ -19,14 +19,14 @@ module Natto
       base.extend(ClassMethods)
     end
 
-    # Returns the name of the <tt>mecab</tt> library based on 
+    # Returns the name of the `mecab` library based on 
     # the runtime environment. The value of the environment
-    # parameter <tt>MECAB_PATH</tt> is checked before this
+    # parameter `MECAB_PATH` is checked before this
     # function is invoked, and in the case of Windows, a
-    # <tt>LoadError</tt> will be raised if <tt>MECAB_PATH</tt>
-    # is <b>not</b> set to the full path of the <tt>mecab</tt>
+    # `LoadError` will be raised if `MECAB_PATH`
+    # is _not_ set to the full path of the `mecab`
     # library.
-    # @return name of the <tt>mecab</tt> library
+    # @return name of the `mecab` library
     # @raise [LoadError] if MECAB_PATH environment variable is not set in Windows
     # <br/>
     # e.g., for bash on UNIX/Linux
@@ -56,6 +56,7 @@ module Natto
     attach_function :mecab_version, [], :string
     attach_function :mecab_strerror, [:pointer],:string
     attach_function :mecab_destroy, [:pointer], :void
+    attach_function :mecab_set_partial, [:pointer, :int], :void 
     attach_function :mecab_set_theta, [:pointer, :float], :void
     attach_function :mecab_set_lattice_level, [:pointer, :int], :void 
     attach_function :mecab_set_all_morphs, [:pointer, :int], :void
@@ -85,6 +86,10 @@ module Natto
         Natto::Binding.mecab_destroy(m_ptr)
       end
 
+      def mecab_set_partial(m_ptr, ll)
+        Natto::Binding.mecab_set_partial(m_ptr, ll)
+      end
+      
       def mecab_set_theta(m_ptr, t)
         Natto::Binding.mecab_set_theta(m_ptr, t)
       end

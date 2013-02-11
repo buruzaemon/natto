@@ -20,22 +20,22 @@ Install natto with the following gem command:
 
     gem install natto
 
-This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the <tt>mecab</tt> library.
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the `mecab` library.
 
 ## Installation on Windows 
-However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including <tt>ffi</tt>.
+However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including `ffi`.
 
 1. Download the latest release for RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
-2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer <tt>.exe</tt>, and expand the contents to an appropriate location, for example <tt>C:\devkit</tt>.
-3. Open a command window under <tt>C:\devkit</tt>, and execute: <tt>ruby dk.rb init</tt>. This will locate all known ruby installations, and add them to <tt>C:\devkit\config.yml</tt>.
-4. Next, execute: <tt>ruby dk.rb install</tt>, which will add the DevKit to all of the installed rubies listed in your <tt>C:\devkit\config.yml</tt>. Now you should be able to install and build the <tt>ffi</tt> rubygem correctly on your Windows-installed ruby. 
-5. Install <tt>natto</tt> with: 
+2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer `.exe`, and expand the contents to an appropriate location, for example `C:\devkit`.
+3. Open a command window under `C:\devkit`, and execute: `ruby dk.rb init`. This will locate all known ruby installations, and add them to `C:\devkit\config.yml`.
+4. Next, execute: `ruby dk.rb install`, which will add the DevKit to all of the installed rubies listed in your `C:\devkit\config.yml`. Now you should be able to install and build the `ffi` rubygem correctly on your Windows-installed ruby. 
+5. Install `natto` with: 
 
     gem install natto
 
 ## Configuration
--  natto will try to locate the <tt>mecab</tt> library based upon its runtime environment.
--  In case of <tt>LoadError</tt>, please set the <tt>MECAB_PATH</tt> environment variable to the exact name/path to your <tt>mecab</tt> library.
+-  natto will try to locate the `mecab` library based upon its runtime environment.
+-  In case of `LoadError`, please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
 
 e.g., for bash on UNIX/Linux
 
@@ -50,7 +50,6 @@ e.g., from within a Ruby program
     ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
-    require 'rubygems' if RUBY_VERSION.to_f < 1.9
     require 'natto'
 
     nm = Natto::MeCab.new
@@ -99,8 +98,8 @@ e.g., from within a Ruby program
 -  Fork the project.
 -  Start a feature/bugfix branch.
 -  Commit and push until you are happy with your contribution.
--  Make sure to add tests for it. This is important so I don't break it in a future version unintentionally. I use [Test::Unit](http://ruby-doc.org/stdlib/libdoc/test/unit/rdoc/classes/Test/Unit.html) since it is simple and it works.
--  Please try not to mess with the Rakefile, version, or history. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+-  Make sure to add tests for it. This is important so I don't break it in a future version unintentionally. I use [MiniTest::Unit](http://rubydoc.info/gems/minitest/MiniTest/Unit) as it is very natural and easy-to-use.
+-  Please try not to mess with the Rakefile, CHANGELOG, or version. If you must have your own version, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Changelog
 Please see the {file:CHANGELOG} for this gem's release history.
