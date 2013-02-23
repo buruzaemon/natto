@@ -1,13 +1,13 @@
 ## CHANGELOG
 
-- __2013/02/??__: 0.9.6 release.
-    - Upgrade to mecab 0.996, following the earlier 0.995 release
+- __2013/02/23__: 0.9.6 release.
+    - Upgrade to mecab 0.996, following on the heels of the earlier 0.995 release
     - Adding support for partial parsing mode (-p / --partial)
     - Adding support for marginal probability output mode (-m / --marginal)
     - Adding support for maximum grouping size for unknown words (-M / --max-grouping-size)
     - Outputting warning message for deprecation of :lattice_level option
     - Migrating to minitest
-    - Removing automatic library load for Cygwin platform  
+    - Removing automatic library load for Cygwin platform (does not compile) 
 
 - __2012/09/16__: 0.9.5 release.
     - Fixed [Issue 9: trimされていない文字列のparse](https://bitbucket.org/buruzaemon/natto/issue/9/trim-parse) 
