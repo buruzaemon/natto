@@ -23,7 +23,7 @@ module Natto
   #                    type="0", \
   #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
   #                    charset="utf8">], \
-  #          @version="0.995">
+  #          @version="0.996">
   #
   #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -90,7 +90,7 @@ module Natto
     #                    type="0", \
     #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
     #                    charset="utf8">], \
-    #          @version="0.995">
+    #          @version="0.996">
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
     #     才能    サイノウ
