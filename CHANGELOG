@@ -1,7 +1,7 @@
 ## CHANGELOG
 
 - __2013/02/??__: 0.9.6 release.
-    - Upgrade to mecab 0.995
+    - Upgrade to mecab 0.996, following the earlier 0.995 release
     - Adding support for partial parsing mode (-p / --partial)
     - Adding support for marginal probability output mode (-m / --marginal)
     - Adding support for maximum grouping size for unknown words (-M / --max-grouping-size)
