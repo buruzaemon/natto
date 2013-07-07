@@ -12,8 +12,8 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 natto requires the following:
 
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
--  [ffi _0.6.3 or greater_](http://rubygems.org/gems/ffi)
--  Ruby _1.8.7 or greater_
+-  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
+-  Ruby _1.9 or greater_
 
 ## Installation on *NIX/Mac
 Install natto with the following gem command:

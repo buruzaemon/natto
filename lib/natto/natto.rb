@@ -2,7 +2,6 @@
 require 'natto/binding'
 require 'natto/option_parse'
 require 'natto/struct'
-require 'natto/utils'
 
 module Natto 
   # `MeCab` is a wrapper class for the `mecab` tagger.
@@ -47,7 +46,6 @@ module Natto
   class MeCab
     include Natto::Binding
     include Natto::OptionParse
-    include Natto::Utils
 
     attr_reader :tagger, :options, :dicts, :version
 
@@ -121,6 +119,7 @@ module Natto
       self.mecab_set_theta(@tagger, @options[:theta]) if @options[:theta]
       self.mecab_set_lattice_level(@tagger, @options[:lattice_level]) if @options[:lattice_level]
       self.mecab_set_all_morphs(@tagger, 1) if @options[:all_morphs]
+      self.mecab_set_partial(@tagger, 1) if @options[:partial]
        
       # Set mecab parsing implementations for N-best and regular parsing,
       # for both parsing as string and yielding a node object
@@ -147,10 +146,11 @@ module Natto
                   sarr = []
                   mn.length.times { sarr << s.shift }
                   surf = sarr.pack('C*')
-                  mn.surface = self.class.force_enc(surf)
+                  #mn.surface = self.class.force_enc(surf)
+                  mn.surface = surf.force_encoding(Encoding.default_external)
                 end
                 if @options[:output_format_type] || @options[:node_format]
-                  mn.feature = self.class.force_enc(self.mecab_format_node(@tagger, n)) 
+                  mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
                 end
                 nodes << mn if !mn.is_bos?
                 n = mn.next
@@ -180,7 +180,7 @@ module Natto
               sarr = []
               mn.length.times { sarr << s.shift }
               surf = sarr.pack('C*')
-              mn.surface = self.class.force_enc(surf)
+              mn.surface = surf.force_encoding(Encoding.default_external)
             end
             nodes << mn 
             n = mn.next
@@ -213,7 +213,7 @@ module Natto
         nodes = @parse_tonodes.call(str)
         nodes.each {|n| yield n }
       else
-        self.class.force_enc(@parse_tostr.call(str))
+        @parse_tostr.call(str).force_encoding(Encoding.default_external)
       end
     end
 
@@ -237,7 +237,7 @@ module Natto
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     def parse_as_strings(str)
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
-      self.class.force_enc(@parse_tostr.call(str)).lines.to_a
+      @parse_tostr.call(str).force_encoding(Encoding.default_external).lines.to_a
     end
 
     # DEPRECATED: use parse_as_nodes instead.

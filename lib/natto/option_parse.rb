@@ -73,7 +73,7 @@ module Natto
         else
           SUPPORTED_OPTS.values.each do |k|
             if options.has_key?(k)
-              if [ :all_morphs, :allocate_sentence ].include?(k) 
+              if [ :all_morphs, :partial, :marginal, :allocate_sentence ].include?(k) 
                 h[k] = true
               else
                 v = options[k]  

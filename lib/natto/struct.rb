@@ -1,7 +1,6 @@
 # coding: utf-8
 require 'natto/binding'
 require 'natto/option_parse'
-require 'natto/utils'
 
 module Natto 
   require 'ffi'
@@ -192,8 +191,6 @@ module Natto
   #     BOS/EOS,*,*,*,*,*,*,*,*
   #
   class MeCabNode < MeCabStruct
-    include Natto::Utils
-
     attr_accessor :surface, :feature
     attr_reader   :pointer
 
@@ -231,19 +228,19 @@ module Natto
             :wcost,           :short,
             :cost,            :long
    
-    if RUBY_VERSION.to_f < 1.9
-      alias_method :deprecated_id, :id
-      # `Object#id` override defined when `RUBY_VERSION` is
-      # older than 1.9. This is a hack to avoid the `Object#id`
-      # deprecation warning thrown up in Ruby 1.8.7.
-      #
-      # <i>This method override is not defined when the Ruby interpreter
-      # is 1.9 or greater.</i>
-      # @return [Fixnum] `mecab` node id
-      def id
-        self[:id]
-      end
-    end
+    #if RUBY_VERSION.to_f < 1.9
+    #  alias_method :deprecated_id, :id
+    #  # `Object#id` override defined when `RUBY_VERSION` is
+    #  # older than 1.9. This is a hack to avoid the `Object#id`
+    #  # deprecation warning thrown up in Ruby 1.8.7.
+    #  #
+    #  # <i>This method override is not defined when the Ruby interpreter
+    #  # is 1.9 or greater.</i>
+    #  # @return [Fixnum] `mecab` node id
+    #  def id
+    #    self[:id]
+    #  end
+    #end
 
     # Initializes this node instance.
     # Sets the `MeCab` feature value for this node.
@@ -254,7 +251,7 @@ module Natto
       @pointer = ptr
 
       if self[:feature]
-        @feature = self.class.force_enc(self[:feature])
+        @feature = self[:feature].force_encoding(Encoding.default_external)
       end
     end
      
