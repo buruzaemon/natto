@@ -100,6 +100,7 @@ class TestNattoOptParse < MiniTest::Unit::TestCase
     ].each do |opts|
       assert_equal({:max_grouping_size => 42}, @klass.parse_mecab_options(opts))
     end
+    
     [ '-F %m\t%f[7]\n',
       '-F%m\t%f[7]\n',
       '--node-format=%m\t%f[7]\n',

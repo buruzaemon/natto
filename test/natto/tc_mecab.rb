@@ -94,6 +94,29 @@ class TestMeCab < MiniTest::Unit::TestCase
         Natto::MeCab.parse_mecab_options(bad)
       end
     end
+
+    [ '-p',
+      '--partial',
+      {:partial=>true}
+    ].each do |opts|
+      assert_equal({:partial => true}, Natto::MeCab.parse_mecab_options(opts))
+    end
+   
+    [ '-m',
+      '--marginal',
+      {:marginal=>true}
+    ].each do |opts|
+      assert_equal({:marginal => true}, Natto::MeCab.parse_mecab_options(opts))
+    end
+   
+    [ '-M 42',
+      '-M42',
+      '--max-grouping-size=42',
+      '--max-grouping-size 42',
+      {:max_grouping_size=>42}
+    ].each do |opts|
+      assert_equal({:max_grouping_size => 42}, Natto::MeCab.parse_mecab_options(opts))
+    end
    
     [ '-F %m\t%f[7]\n',
       '-F%m\t%f[7]\n',
