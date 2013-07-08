@@ -23,7 +23,7 @@ Install natto with the following gem command:
 This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the `mecab` library.
 
 ## Installation on Windows 
-However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit than enables your Windows Ruby installation to build many of the native C/C++ extensions available, including `ffi`.
+However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit that enables your Windows Ruby installation to build many of the native C/C++ extensions available, including `ffi`.
 
 1. Download the latest release for RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
 2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer `.exe`, and expand the contents to an appropriate location, for example `C:\devkit`.
