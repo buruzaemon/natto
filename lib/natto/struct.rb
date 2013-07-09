@@ -22,7 +22,7 @@ module Natto
   end
 
   # `DictionaryInfo` is a wrapper for `struct mecab_dictionary_info_t`
-  # that holds the `MeCab` instance's related dictionary information.
+  # structure holding the `MeCab` instance's related dictionary information.
   # 
   # Values for the `mecab` dictionary attributes may be 
   # obtained by using the following `Symbol`s as keys 
@@ -123,8 +123,8 @@ module Natto
     end
   end
 
-  # `MeCabNode` is a wrapper for the structure holding
-  # the parsed `node`.
+  # `MeCabNode` is a wrapper for the `struct mecab_node_t`
+  # structure holding the parsed `node`.
   # 
   # Values for the `mecab` node attributes may be 
   # obtained by using the following `Symbol`s as keys 
