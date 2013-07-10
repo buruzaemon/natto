@@ -21,7 +21,7 @@ module Natto
     end
   end
 
-  # `DictionaryInfo` is a wrapper for `struct mecab_dictionary_info_t`
+  # `DictionaryInfo` is a wrapper for the `struct mecab_dictionary_info_t`
   # structure holding the `MeCab` instance's related dictionary information.
   # 
   # Values for the `mecab` dictionary attributes may be 
