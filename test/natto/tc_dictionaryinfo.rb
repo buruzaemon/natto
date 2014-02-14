@@ -8,7 +8,7 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
       usrdic = File.join(File.dirname(__FILE__), "#{encs.shift}.dic")
       m = Natto::MeCab.new("-u #{usrdic}")
     rescue
-      retry
+      retry unless encs.empty?
     end
     refute_nil(m, "FAIL! No good usr dics")
     @dicts = m.dicts
