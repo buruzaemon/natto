@@ -11,4 +11,9 @@ task :test do
   ruby %{ test/test_natto.rb }
 end
 
+desc "Run benchmarks"
+task :benchmark do
+  ruby %{ benchmark/bench_parse.rb }
+end
+
 task :default => [:test]
