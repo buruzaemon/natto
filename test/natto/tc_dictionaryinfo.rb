@@ -1,19 +1,43 @@
 # coding: utf-8
+require 'open3'
 
 class TestDictionaryInfo < MiniTest::Unit::TestCase
   def setup
     usrdic, m = nil,nil
-    encs = %w( sjis utf8 euc-jp )
+
     begin
-      usrdic = File.join(File.dirname(__FILE__), "#{encs.shift}.dic")
-      m = Natto::MeCab.new("-u #{usrdic}")
+
+      testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
+
+      @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
+      
+      ledir = `mecab-config --libexecdir`.strip
+      mdi   = File.join(ledir, 'mecab-dict-index')
+      
+      out = `mecab -P`.lines.to_a.keep_if {|e| e=~/^dicdir/}
+      dicdir = out.first[8...-1].strip
+
+      out = `mecab -D`.lines.to_a.keep_if {|e| e=~/^charset/}
+      enc = out.first[9...-1].strip
+
+      File.delete(@testdic) if File.exist?(@testdic)
+
+      cmd = "#{mdi} --dicdir #{dicdir} --userdic #{@testdic} --dictionary-charset #{enc} --charset #{enc} #{testcsv}"
+
+      Open3.popen3(cmd) do |stdin,stdout,stderr|
+        stdout.read.split("\n").each {|l| $stdout.puts l }
+        #puts
+        #p stderr.read
+      end
+      
+      m = Natto::MeCab.new("-u #{@testdic}")
     rescue
-      retry unless encs.empty?
+      #retry unless encs.empty?
     end
     refute_nil(m, "FAIL! No good usr dics")
     @dicts = m.dicts
 
-    out = `mecab -u #{usrdic} -D`.lines.to_a
+    out = `mecab -u #{@testdic} -D`.lines.to_a
 
     @sysdic_filename = out[0].split("\t")[1].strip
     @sysdic_charset  = out[2].split("\t")[1].strip
@@ -32,6 +56,8 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
     @usrdic_filename    = nil
     @usrdic_charset     = nil
     @usrdic_type        = nil
+    
+    File.delete(@testdic) if File.exist?(@testdic)
   end
 
   # Tests the dictionaries accessor method of Natto::MeCab.
