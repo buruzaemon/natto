@@ -28,14 +28,14 @@ module Natto
   # obtained by using the following `Symbol`s as keys 
   # to the layout associative array of `FFI::Struct` members.
   #
-  # - :filename
-  # - :charset
-  # - :size
-  # - :type
-  # - :lsize
-  # - :rsize
-  # - :version
-  # - :next
+  # - :filename - filename of dictionary; on Windows, filename is stored in UTF-8 encoding
+  # - :charset - character set of the dictionary
+  # - :size - number of words contained in dictionary
+  # - :type - dictionary type: 0 (system), 1 (user-defined), 2 (unknown)
+  # - :lsize - left attributes size
+  # - :rsize - right attributes size
+  # - :version - version of this dictionary
+  # - :next - pointer to next dictionary in list
   # 
   # ## Usage
   # `mecab` dictionary attributes can be obtained by
@@ -130,28 +130,28 @@ module Natto
   # obtained by using the following `Symbol`s as keys 
   # to the layout associative array of `FFI::Struct` members.
   #
-  # - :prev
-  # - :next
-  # - :enext
-  # - :bnext
-  # - :rpath
-  # - :lpath
-  # - :surface
-  # - :feature
-  # - :id
-  # - :length
-  # - :rlength
-  # - :rcAttr
-  # - :lcAttr
-  # - :posid
-  # - :char_type
-  # - :stat
-  # - :isbest
-  # - :alpha
-  # - :beta
-  # - :prob
-  # - :wcost
-  # - :cost
+  # - :prev - pointer to previous node
+  # - :next - pointer to next node
+  # - :enext - pointer to the node which ends at the same position
+  # - :bnext - pointer to the node which starts at the same position
+  # - :rpath - pointer to the right path; nil if MECAB_ONE_BEST mode
+  # - :lpath - pointer to the right path; nil if MECAB_ONE_BEST mode
+  # - :surface - surface string; length may be obtainedi with length/rlength members
+  # - :feature - feature string
+  # - :id - unique node id
+  # - :length - length of surface form
+  # - :rlength - length of the surface form including white space before the morph
+  # - :rcAttr - right attribute id
+  # - :lcAttr - left attribute id
+  # - :posid - part-of-speech id
+  # - :char_type - character type
+  # - :stat - node status; 0 (NOR), 1 (UNK), 2 (BOS), 3 (EOS), 4 (EON)
+  # - :isbest - 1 if this node is best node
+  # - :alpha - forward accumulative log summation, only with marginal probability flag
+  # - :beta - backward accumulative log summation, only with marginal probability flag
+  # - :prob - marginal probability, only with marginal probability flag
+  # - :wcost - word cost
+  # - :cost - best accumulative cost from bos node to this node
   #
   # ## Usage
   # An instance of `MeCabNode` is yielded to the block
@@ -194,15 +194,15 @@ module Natto
     attr_accessor :surface, :feature
     attr_reader   :pointer
 
-    # Normal `mecab` node defined in the dictionary.
+    # Normal `mecab` node defined in the dictionary, c.f. `stat`.
     NOR_NODE = 0
-    # Unknown `mecab` node not defined in the dictionary.
+    # Unknown `mecab` node not defined in the dictionary, c.f. `stat`.
     UNK_NODE = 1
-    # Virtual node representing the beginning of the sentence.
+    # Virtual node representing the beginning of the sentence, c.f. `stat`.
     BOS_NODE = 2
-    # Virutual node representing the end of the sentence.
+    # Virutual node representing the end of the sentence, c.f. `stat`.
     EOS_NODE = 3
-    # Virtual node representing the end of an N-Best `mecab` node list.
+    # Virtual node representing the end of an N-Best `mecab` node list, c.f. `stat`.
     EON_NODE = 4
 
     layout  :prev,            :pointer,
@@ -227,20 +227,6 @@ module Natto
             :prob,            :float,
             :wcost,           :short,
             :cost,            :long
-   
-    #if RUBY_VERSION.to_f < 1.9
-    #  alias_method :deprecated_id, :id
-    #  # `Object#id` override defined when `RUBY_VERSION` is
-    #  # older than 1.9. This is a hack to avoid the `Object#id`
-    #  # deprecation warning thrown up in Ruby 1.8.7.
-    #  #
-    #  # <i>This method override is not defined when the Ruby interpreter
-    #  # is 1.9 or greater.</i>
-    #  # @return [Fixnum] `mecab` node id
-    #  def id
-    #    self[:id]
-    #  end
-    #end
 
     # Initializes this node instance.
     # Sets the `MeCab` feature value for this node.
