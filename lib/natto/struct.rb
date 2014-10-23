@@ -136,7 +136,7 @@ module Natto
   # - :bnext - pointer to the node which starts at the same position
   # - :rpath - pointer to the right path; nil if MECAB_ONE_BEST mode
   # - :lpath - pointer to the right path; nil if MECAB_ONE_BEST mode
-  # - :surface - surface string; length may be obtainedi with length/rlength members
+  # - :surface - surface string; length may be obtained with length/rlength members
   # - :feature - feature string
   # - :id - unique node id
   # - :length - length of surface form
@@ -164,7 +164,7 @@ module Natto
   #       puts "#{n.surface}\t#{n.cost}" if n.is_nor? 
   #     end
   #     卓球     2874
-  #     な       4398
+  #     なんて    4398
   #     死ぬ     9261
   #     まで     9386
   #     の       10007
