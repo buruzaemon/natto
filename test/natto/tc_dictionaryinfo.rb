@@ -1,8 +1,11 @@
 # coding: utf-8
 require 'open3'
+require 'rbconfig'
 
 class TestDictionaryInfo < MiniTest::Unit::TestCase
   def setup
+    @host_os = RbConfig::CONFIG['host_os']
+
     usrdic, m = nil,nil
 
     begin
@@ -11,7 +14,19 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
 
       @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
       
-      ledir = `mecab-config --libexecdir`.strip
+      if @host_os =~ /mswin|mingw/i
+        require 'win32/registry'
+        base = nil
+        Win32::Registry::HKEY_CURRENT_USER.open('Software\MeCab') do |r|
+          base = r['mecabrc'] 
+        end
+        raise 'TestDictionaryInfo.setup: cannot locate MeCab install in registry' if base.nil?
+
+        ledir = base.split('etc')+'bin' 
+      else
+        ledir = `mecab-config --libexecdir`.strip
+      end
+    
       mdi   = File.join(ledir, 'mecab-dict-index')
       
       out = `mecab -P`.lines.to_a.keep_if {|e| e=~/^dicdir/}
