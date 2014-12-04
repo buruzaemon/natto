@@ -20,24 +20,32 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
         Win32::Registry::HKEY_CURRENT_USER.open('Software\MeCab') do |r|
           base = r['mecabrc'] 
         end
+        puts "1: base - #{base}"
         raise 'TestDictionaryInfo.setup: cannot locate MeCab install in registry' if base.nil?
 
-        ledir = base.split('etc')+'bin' 
+        ledir = File.join(base.split('etc').first, 'bin')
+        ledir = File.realpath(ledir)
       else
         ledir = `mecab-config --libexecdir`.strip
       end
+      puts "2: ledir - #{ledir}"
     
-      mdi   = File.join(ledir, 'mecab-dict-index')
+      mdi   = "\"#{File.join(ledir, 'mecab-dict-index')}\""
+      puts "3: mdi - #{mdi}"
       
       out = `mecab -P`.lines.to_a.keep_if {|e| e=~/^dicdir/}
       dicdir = out.first[8...-1].strip
+      dicdir = "\"#{File.realpath(dicdir)}\""
+      puts "4: dicdir - #{dicdir}"
 
       out = `mecab -D`.lines.to_a.keep_if {|e| e=~/^charset/}
       enc = out.first[9...-1].strip
+      puts "5: enc - #{enc}"
 
-      File.delete(@testdic) if File.exist?(@testdic)
+      #File.delete(@testdic) if File.exist?(@testdic)
 
       cmd = "#{mdi} --dicdir #{dicdir} --userdic #{@testdic} --dictionary-charset #{enc} --charset #{enc} #{testcsv}"
+      puts "6: cmd - #{cmd}"
 
       Open3.popen3(cmd) do |stdin,stdout,stderr|
         stdout.read.split("\n").each {|l| $stdout.puts l }
@@ -46,6 +54,7 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
       end
       
       m = Natto::MeCab.new("-u #{@testdic}")
+      puts m
     rescue
       #retry unless encs.empty?
     end
@@ -72,7 +81,11 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
     @usrdic_charset     = nil
     @usrdic_type        = nil
     
-    File.delete(@testdic) if File.exist?(@testdic)
+    begin
+      File.delete(@testdic) if File.exist?(@testdic)
+    rescue
+      $stderr.puts "[INFO] teardown: could not delete test.dic, please remove manually."
+    end
   end
 
   # Tests the dictionaries accessor method of Natto::MeCab.
