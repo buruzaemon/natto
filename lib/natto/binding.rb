@@ -68,8 +68,8 @@ module Natto
           cmd = 'mecab-config --libs'
           Open3.popen3(cmd) do |stdin,stdout,stderr|
             toks = stdout.read.split
-            base = toks.first[2..-1]
-            lib = toks.last[2..-1]
+            base = toks[0][2..-1]
+            lib  = toks[1][2..-1]
           end
           File.realpath(File.join(base, "lib#{lib}.#{ext}"))
         rescue
