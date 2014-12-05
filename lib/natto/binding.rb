@@ -71,7 +71,7 @@ module Natto
             base = toks.first[2..-1]
             lib = toks.last[2..-1]
           end
-          File.realpath(File.join(base, "#{lib}#{ext}"))
+          File.realpath(File.join(base, "lib#{lib}.#{ext}"))
         rescue
           raise LoadError, "Please set #{MECAB_PATH} to the full path to libmecab.#{ext}"
         end
