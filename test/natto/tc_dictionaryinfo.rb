@@ -4,60 +4,48 @@ require 'rbconfig'
 
 class TestDictionaryInfo < MiniTest::Unit::TestCase
   def setup
+    begin
+      File.delete(@testdic) if File.exist?(@testdic)
+    rescue
+      $stderr.puts "[INFO] setup: could not delete test.dic, you might want to remove manually."
+    end
+
     @host_os = RbConfig::CONFIG['host_os']
 
     usrdic, m = nil,nil
 
-    begin
-
-      testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
-
-      @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
-      
-      if @host_os =~ /mswin|mingw/i
-        require 'win32/registry'
-        base = nil
-        Win32::Registry::HKEY_CURRENT_USER.open('Software\MeCab') do |r|
-          base = r['mecabrc'] 
-        end
-        puts "1: base - #{base}"
-        raise 'TestDictionaryInfo.setup: cannot locate MeCab install in registry' if base.nil?
-
-        ledir = File.join(base.split('etc').first, 'bin')
-        ledir = File.realpath(ledir)
-      else
-        ledir = `mecab-config --libexecdir`.strip
-      end
-      puts "2: ledir - #{ledir}"
+    testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
+    @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     
-      mdi   = "\"#{File.join(ledir, 'mecab-dict-index')}\""
-      puts "3: mdi - #{mdi}"
-      
-      out = `mecab -P`.lines.to_a.keep_if {|e| e=~/^dicdir/}
-      dicdir = out.first[8...-1].strip
-      dicdir = "\"#{File.realpath(dicdir)}\""
-      puts "4: dicdir - #{dicdir}"
-
-      out = `mecab -D`.lines.to_a.keep_if {|e| e=~/^charset/}
-      enc = out.first[9...-1].strip
-      puts "5: enc - #{enc}"
-
-      #File.delete(@testdic) if File.exist?(@testdic)
-
-      cmd = "#{mdi} --dicdir #{dicdir} --userdic #{@testdic} --dictionary-charset #{enc} --charset #{enc} #{testcsv}"
-      puts "6: cmd - #{cmd}"
-
-      Open3.popen3(cmd) do |stdin,stdout,stderr|
-        stdout.read.split("\n").each {|l| $stdout.puts l }
-        #puts
-        #p stderr.read
+    if @host_os =~ /mswin|mingw/i
+      require 'win32/registry'
+      base = nil
+      Win32::Registry::HKEY_CURRENT_USER.open('Software\MeCab') do |r|
+        base = r['mecabrc'] 
       end
-      
-      m = Natto::MeCab.new("-u #{@testdic}")
-      puts m
-    rescue
-      #retry unless encs.empty?
+      raise 'TestDictionaryInfo.setup: cannot locate MeCab install in registry' if base.nil?
+
+      ledir = File.join(base.split('etc').first, 'bin')
+      ledir = File.realpath(ledir)
+    else
+      ledir = `mecab-config --libexecdir`.strip
     end
+    
+    mdi   = "\"#{File.join(ledir, 'mecab-dict-index')}\""
+    
+    out = `mecab -P`.lines.to_a.keep_if {|e| e=~/^dicdir/}
+    dicdir = out.first[8...-1].strip
+    dicdir = "\"#{File.realpath(dicdir)}\""
+
+    out = `mecab -D`.lines.to_a.keep_if {|e| e=~/^charset/}
+    enc = out.first[9...-1].strip
+
+    cmd = "#{mdi} --dicdir #{dicdir} --userdic #{@testdic} --dictionary-charset #{enc} --charset #{enc} #{testcsv}"
+    Open3.popen3(cmd) do |stdin,stdout,stderr|
+      stdout.read.split("\n").each {|l| $stdout.puts l }
+    end
+    
+    m = Natto::MeCab.new("-u #{@testdic}")
     refute_nil(m, "FAIL! No good usr dics")
     @dicts = m.dicts
 
@@ -142,3 +130,29 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
     assert @dicts[1].is_unkdic? == false      
   end
 end
+
+# Copyright (c) 2014, Brooke M. Fujita.
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#  * Redistributions of source code must retain the above
+#    copyright notice, this list of conditions and the
+#    following disclaimer.
+# 
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the
+#    following disclaimer in the documentation and/or other
+#    materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
