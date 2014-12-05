@@ -14,6 +14,7 @@ doc
 
 # generated gems, archive files, etc.
 pkg
+test/natto/test.dic
 
 # mercurial tmp files
 *.orig

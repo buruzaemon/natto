@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+- __2014/12/nn__: 0.9.7 release.
+    - Updating LICENSE, adding to all files 
+
 - __2013/07/07__: 0.9.6 release.
     - Upgrade to mecab 0.996
     - Adding support for partial parsing mode (-p / --partial)
