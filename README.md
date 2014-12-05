@@ -31,7 +31,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 4. Next, execute: `ruby dk.rb install`, which will add the DevKit to all of the installed rubies listed in your `C:\devkit\config.yml`. Now you should be able to install and build the `ffi` rubygem correctly on your Windows-installed ruby. 
 5. Install `natto` with: 
 
-    gem install natto
+        gem install natto
 
 ## Configuration
 -  natto will try to locate the `mecab` library based upon its runtime environment.
@@ -109,4 +109,4 @@ e.g., from within a Ruby program
 Please see the {file:CHANGELOG} for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details. 
+Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.
