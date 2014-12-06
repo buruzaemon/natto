@@ -2,7 +2,7 @@
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
-A package leveraging FFI (foreign function interface), natto combines the
+A gem leveraging FFI (foreign function interface), natto combines the
 [Ruby programming language](http://www.ruby-lang.org/) with 
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
 and morphological analyzer for the Japanese language.
