@@ -2,16 +2,20 @@
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
-A package leveraging FFI (foreign function interface), natto combines the
+A package leveraging FFI (foreign function interface), `natto` combines the
 [Ruby programming language](http://www.ruby-lang.org/) with 
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
 and morphological analyzer for the Japanese language.
-No compilation is necessary, as natto is _not_ a C extension. natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well. natto will also run on Windows, Unix/Linux, and Mac.
+
+-  No compilation is necessary, as `natto` is _not_ a C extension.
+-  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
+-  It will also run on Windows, Unix/Linux, and Mac.
+
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
 
 
 ## Requirements
-natto requires the following:
+`natto` requires the following:
 
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
 -  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
@@ -23,11 +27,11 @@ natto requires the following:
 -  Ruby _1.9 or greater_
 
 ## Installation on *NIX/Mac
-Install natto with the following gem command:
+Install `natto` with the following gem command:
 
     gem install natto
 
-This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the `mecab` library.
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which `natto` uses to bind to the `mecab` library.
 
 ## Installation on Windows 
 However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit that enables your Windows Ruby installation to build many of the native C/C++ extensions available, including `ffi`.
@@ -106,7 +110,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 
 ## Learn more 
-- You can read more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
+- You can read more about `natto` on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
 
 ## Contributing to natto
 -  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
