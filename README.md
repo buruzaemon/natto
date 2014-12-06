@@ -2,16 +2,19 @@
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
-natto combines the [Ruby programming language](http://www.ruby-lang.org/) with [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech and morphological analyzer for the Japanese language.
-
-natto is a gem bridging Ruby and MeCab using FFI (foreign function interface). No compilation is necessary, as natto is _not_ a C extension. natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well. natto will also run on Windows, Unix/Linux, and Mac.
-
+A package leveraging FFI (foreign function interface), natto combines the
+[Ruby programming language](http://www.ruby-lang.org/) with 
+[MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
+and morphological analyzer for the Japanese language.
+No compilation is necessary, as natto is _not_ a C extension. natto will run on CRuby (mri/yarv) and JRuby (jvm) equally well. natto will also run on Windows, Unix/Linux, and Mac.
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
+
 
 ## Requirements
 natto requires the following:
 
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
+-  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.9 or greater_
 
@@ -33,25 +36,29 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
         gem install natto
 
+6. If you are on a 64-bit Windows and you use a 64-bit Ruby or JRuby, then you might want to [build a 64-bit version of libmecab.dll](https://bitbucket.org/buruzaemon/natto/wiki/64-Bit-Windows).
+
+
 ## Configuration
--  natto will try to locate the `mecab` library based upon its runtime environment.
--  In case of `LoadError`, please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
+-  No explicit configuration should be necessary. `natto` will try to locate the `mecab` library based upon its runtime environment.
+    - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
+    - On Mac OS and \*nix, it will query `mecab-config --libs` 
+-  If `natto` cannot find the mecab library, a `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
+    - e.g., for Mac OS X
 
-e.g., for Mac OS X
+            export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
 
-    export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
+    - e.g., for bash on UNIX/Linux
 
-e.g., for bash on UNIX/Linux
+            export MECAB_PATH=/usr/local/lib/libmecab.so
 
-    export MECAB_PATH=/usr/local/lib/libmecab.so
+    - e.g., on Windows
 
-e.g., on Windows
+            set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
 
-    set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+    - e.g., from within a Ruby program
 
-e.g., from within a Ruby program
-
-    ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
+            ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
     require 'natto'
