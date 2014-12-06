@@ -7,9 +7,10 @@ A package leveraging FFI (foreign function interface), `natto` combines the
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
 and morphological analyzer for the Japanese language.
 
--  No compilation is necessary, as `natto` is _not_ a C extension.
+-  No compiler is necessary, as `natto` is _not_ a C extension.
 -  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
--  It will also run on Windows, Unix/Linux, and Mac.
+-  It will also run on Windows, Unix/Linux, and Mac OS.
+-  `natto` provides a naturally Ruby-esque interface to MeCab.
 
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
 
