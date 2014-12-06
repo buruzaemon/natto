@@ -2,25 +2,25 @@
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
-A package leveraging FFI (foreign function interface), `natto` combines the
+A package leveraging FFI (foreign function interface), natto combines the
 [Ruby programming language](http://www.ruby-lang.org/) with 
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
 and morphological analyzer for the Japanese language.
 
--  No compiler is necessary, as `natto` is _not_ a C extension.
+-  No compiler is necessary, as natto is _not_ a C extension.
 -  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
 -  It will also run on Windows, Unix/Linux, and Mac OS.
--  `natto` provides a naturally Ruby-esque interface to MeCab.
+-  natto provides a naturally Ruby-esque interface to MeCab.
 
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
 
 
 ## Requirements
-`natto` requires the following:
+natto requires the following:
 
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
 -  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
--  `libmecab-devel` if you are on Linux, since `natto` uses `mecab-config`
+-  `libmecab-devel` if you are on Linux, since natto uses `mecab-config`
 
         $ sudo apt-get install libmecab-dev
 
@@ -28,20 +28,20 @@ You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/n
 -  Ruby _1.9 or greater_
 
 ## Installation on *NIX/Mac
-Install `natto` with the following gem command:
+Install natto with the following gem command:
 
     gem install natto
 
-This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which `natto` uses to bind to the `mecab` library.
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the `mecab` library.
 
 ## Installation on Windows 
-However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit that enables your Windows Ruby installation to build many of the native C/C++ extensions available, including `ffi`.
+However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit that enables your Windows Ruby installation to build many of the native C/C++ extensions available, including ffi.
 
 1. Download the latest release for RubyInstaller for Windows platforms and the corresponding DevKit from the [RubyInstaller for Windows downloads page](http://rubyinstaller.org/downloads/).
 2. After installing RubyInstaller for Windows, double-click on the DevKit-tdm installer `.exe`, and expand the contents to an appropriate location, for example `C:\devkit`.
 3. Open a command window under `C:\devkit`, and execute: `ruby dk.rb init`. This will locate all known ruby installations, and add them to `C:\devkit\config.yml`.
-4. Next, execute: `ruby dk.rb install`, which will add the DevKit to all of the installed rubies listed in your `C:\devkit\config.yml`. Now you should be able to install and build the `ffi` rubygem correctly on your Windows-installed ruby. 
-5. Install `natto` with: 
+4. Next, execute: `ruby dk.rb install`, which will add the DevKit to all of the installed rubies listed in your `C:\devkit\config.yml`. Now you should be able to install and build the ffi rubygem correctly on your Windows-installed ruby. 
+5. Install natto with: 
 
         gem install natto
 
@@ -111,7 +111,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 
 ## Learn more 
-- You can read more about `natto` on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
+- You can read more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
 
 ## Contributing to natto
 -  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
