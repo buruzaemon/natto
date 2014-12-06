@@ -15,6 +15,10 @@ natto requires the following:
 
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
 -  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
+-  `libmecab-devel` if you are on Linux, since `natto` uses `mecab-config`
+
+        $ sudo apt-get install libmecab-dev
+
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.9 or greater_
 
@@ -40,7 +44,8 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 
 ## Configuration
--  No explicit configuration should be necessary. `natto` will try to locate the `mecab` library based upon its runtime environment.
+-  No explicit configuration should be necessary!
+-  `natto` will try to locate the `mecab` library based upon its runtime environment.
     - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
     - On Mac OS and \*nix, it will query `mecab-config --libs` 
 -  If `natto` cannot find the mecab library, a `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
