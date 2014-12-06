@@ -50,10 +50,10 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 ## Configuration
 -  No explicit configuration should be necessary!
--  `natto` will try to locate the `mecab` library based upon its runtime environment.
+-  natto will try to locate the `mecab` library based upon its runtime environment.
     - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
     - On Mac OS and \*nix, it will query `mecab-config --libs` 
--  If `natto` cannot find the mecab library, a `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
+-  If natto cannot find the mecab library, a `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
     - e.g., for Mac OS X
 
             export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
