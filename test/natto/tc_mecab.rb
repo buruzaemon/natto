@@ -4,6 +4,7 @@ require 'rbconfig'
 class TestMeCab < MiniTest::Unit::TestCase
   def setup
     @m = Natto::MeCab.new
+    @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
@@ -22,6 +23,7 @@ class TestMeCab < MiniTest::Unit::TestCase
 
   def teardown
     @m          = nil
+    @m_f        = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
@@ -287,6 +289,22 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected, actual)
   end
 
+  def test_parse_tonodes_with_nodeformatting
+    expected = `#{@test_cmd} | mecab -F"%pl\t%f[7]..."`.split("EOS\n").join.split('...')
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    actual = []
+    @m_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
+   
+    expected.each_with_index do |f,i|
+      sl, y = f.split("\t").map{|e| e.strip}
+      asl, ay = actual[i].feature.split('...').first.split("\t").map{|e| e.strip}
+      assert_equal(sl, asl)
+      assert_equal(y, ay)
+    end
+  end
+
+
   def test_parse_nbest_tostr
     expected = `#{@test_cmd} | mecab -N2`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
@@ -379,32 +397,8 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[1].strip, n2)
   end
   
-  def test_parse_as_strings
-    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = @mn.parse_as_strings(@test_str)
-    actual.delete_if {|e| e =~ /^(EOS|\t)/ }
-    
-    assert_equal(expected, actual)
-  end
-
-  def test_parse_as_nodes
-    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = @mn.parse_as_nodes(@test_str).reject {|n| !n.is_nor? }    
-  
-    expected.each_with_index do |f,i|
-      a = actual[i]
-      assert_equal(f.strip, "#{a.surface}\t#{a.feature}")
-    end
-  end
-
   def test_argument_error
-    [ :parse, :parse_as_nodes, :parse_as_strings ].each do |m|
+    [ :parse ].each do |m|
       assert_raises ArgumentError do
         @mn.send(m, nil) 
       end
@@ -412,7 +406,7 @@ class TestMeCab < MiniTest::Unit::TestCase
   end
 end 
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

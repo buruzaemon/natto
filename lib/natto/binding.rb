@@ -19,27 +19,11 @@ module Natto
       base.extend(ClassMethods)
     end
 
-    # Returns the name of the `mecab` library based on 
-    # the runtime environment. The value of the environment
-    # parameter `MECAB_PATH` is checked before this
-    # function is invoked, and in the case of Windows, a
-    # `LoadError` will be raised if `MECAB_PATH`
-    # is _not_ set to the full path of the `mecab`
-    # library.
-    # @return name of the `mecab` library
-    # @raise [LoadError] if MECAB_PATH environment variable is not set in Windows
-    # <br/>
-    # e.g., for bash on UNIX/Linux
-    #
-    #     export MECAB_PATH=/usr/local/lib/libmecab.so
-    #
-    # e.g., on Windows
-    #
-    #     set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
-    #
-    # e.g., from within a Ruby program
-    #
-    #     ENV['MECAB_PATH']='usr/local/lib/libmecab.so'
+    # Returns the file path to the `mecab` library based on 
+    # the runtime environment.
+    # 
+    # @return file path to the `mecab` library
+    # @raise [LoadError] if the library cannot be located
     def self.find_library
       host_os = RbConfig::CONFIG['host_os']
 
@@ -185,7 +169,7 @@ module Natto
   end
 end
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

@@ -44,16 +44,19 @@ module Natto
   #     nm = Natto::MeCab.new
   #
   #     sysdic = nm.dicts.first
-  #
-  #     puts sysdic.filename
-  #     => "/usr/local/lib/mecab/dic/ipadic/sys.dic"
+  #    
+  #     # display the real path to the mecab lib
+  #     puts sysdic.filepath
+  #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
   #
   #     puts sysdic.charset
-  #     => "utf8"
+  #     => utf8
   # 
   #     puts sysdic.is_sysdic?
   #     => true
   class DictionaryInfo < MeCabStruct
+    attr_reader :filepath
+
     # System dictionary.
     SYS_DIC = 0
     # User dictionary.
@@ -83,17 +86,31 @@ module Natto
       end
     end
 
+    # Initializes this dictionary info instance.
+    # Sets the `DictionaryInfo` filepath value.
+    #
+    # @param [FFI::Pointer]
+    def initialize(ptr)
+      super(ptr)
+
+      @filepath = File.realpath(self[:filename])
+    end
+
     # Returns human-readable details for this `mecab` dictionary.
     # Overrides `Object#to_s`.
     #
     # - encoded object id
-    # - dictionary type
-    # - full-path dictionary filename
+    # - real file path to this dictionary
     # - dictionary charset
+    # - dictionary type
     #
-    # @return [String] encoded object id, type, dictionary filename, and charset
+    # @return [String] encoded object id, file path to dictionary, charset and
+    # type
     def to_s
-      %(#{super.chop} type="#{self.type}", filename="#{self.filename}", charset="#{self.charset}">)
+      [ super.chop,
+        "@filepath=\"#{@filepath}\",", 
+         "charset=#{self.charset},", 
+         "type=#{self.type}>" ].join(' ')
     end
     
     # Overrides `Object#inspect`.
@@ -173,23 +190,12 @@ module Natto
   #     よ       14396
   #     。       10194
   #
-  # It is also possible to use the `Symbol` for the
+  # While it is also possible to use the `Symbol` for the
   # `mecab` node member to index into the 
-  # `FFI::Struct` layout associative array like so:
-  #     
-  #     nm.parse('あいつ笑うと結構可愛い顔してんよ。') {|n| puts n[:feature] }
-  #     名詞,代名詞,一般,*,*,*,あいつ,アイツ,アイツ
-  #     動詞,自立,*,*,五段・ワ行促音便,基本形,笑う,ワラウ,ワラウ
-  #     助詞,接続助詞,*,*,*,*,と,ト,ト
-  #     副詞,一般,*,*,*,*,結構,ケッコウ,ケッコー
-  #     形容詞,自立,*,*,形容詞・イ段,基本形,可愛い,カワイイ,カワイイ
-  #     名詞,一般,*,*,*,*,顔,カオ,カオ
-  #     動詞,自立,*,*,サ変・スル,連用形,する,シ,シ
-  #     動詞,非自立,*,*,一段,体言接続特殊,てる,テン,テン
-  #     助詞,終助詞,*,*,*,*,よ,ヨ,ヨ
-  #     記号,句点,*,*,*,*,。,。,。
-  #     BOS/EOS,*,*,*,*,*,*,*,*
-  #
+  # `FFI::Struct` layout associative array, please use the attribute
+  # accessors. Especially in the case of `:surface` and `:feature`,
+  # `mecab` returns the raw bytes, so `natto` will convert that into
+  # a string using the default encoding.
   class MeCabNode < MeCabStruct
     attr_accessor :surface, :feature
     attr_reader   :pointer
@@ -294,7 +300,8 @@ module Natto
     end
   end
 end
-# Copyright (c) 2014, Brooke M. Fujita.
+
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

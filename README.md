@@ -53,7 +53,8 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 -  natto will try to locate the `mecab` library based upon its runtime environment.
     - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
     - On Mac OS and \*nix, it will query `mecab-config --libs` 
--  If natto cannot find the mecab library, a `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
+-  `LoadError` will be raised if natto cannot find the `mecab` library.
+    - Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
     - e.g., for Mac OS X
 
             export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
@@ -76,23 +77,24 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     nm = Natto::MeCab.new
     => #<Natto::MeCab:0x28d30748 
          @tagger=#<FFI::Pointer address=0x28a97d50>, \
+         @filepath="/usr/local/lib/libmecab.so", \
          @options={}, \
          @dicts=[#<Natto::DictionaryInfo:0x28d3061c \
-                 type="0", \
-                 filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-                 charset="utf8">], \
-         @version="0.996">
+                 @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
+                 charset=utf8, \
+                 type=0>] \
+         @version=0.996>
 
     puts nm.version
-    => "0.996" 
+    => 0.996 
 
     sysdic = nm.dicts.first
 
-    puts sysdic.filename
-    => "/usr/local/lib/mecab/dic/ipadic/sys.dic"
+    puts sysdic.filepath
+    => /usr/local/lib/mecab/dic/ipadic/sys.dic
 
     puts sysdic.charset
-    => "utf8" 
+    => utf8 
     
     nm.parse('ピンチの時には必ずヒーローが現れる。') do |n|
       puts "#{n.surface}\t#{n.feature}"
@@ -126,4 +128,4 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 Please see the {file:CHANGELOG} for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2011, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.
+Copyright &copy; 2014-2015, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.

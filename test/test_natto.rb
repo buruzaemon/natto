@@ -13,7 +13,7 @@ require 'natto'
   require File.join(File.expand_path('.'), tc)
 end
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
