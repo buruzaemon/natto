@@ -116,7 +116,7 @@ module Natto
 
       opt_str  = self.class.build_options_str(@options)
       @tagger  = self.mecab_new2(opt_str)
-      @filepath = (File.realpath(ENV['MECAB_PATH']) || self.class.find_library)
+      @filepath = File.realpath(ENV['MECAB_PATH'] || self.class.find_library)
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @tagger.address == 0x0
 
       self.mecab_set_theta(@tagger, @options[:theta]) if @options[:theta]
