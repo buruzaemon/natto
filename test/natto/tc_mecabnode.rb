@@ -41,7 +41,7 @@ class TestMeCabNode < MiniTest::Unit::TestCase
 
     actual = {}
     @nodes.each do |n|
-      actual[n.surface]=n.feature if (n.is_nor? || n.is_unk?)
+      actual[n.surface]=n.feature if n.surface and (n.is_nor? || n.is_unk?)
     end
     
     assert_equal(expected, actual)
