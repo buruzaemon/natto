@@ -27,10 +27,10 @@
 # `Natto`.
 module Natto
   # Version string for this Rubygem.
-  VERSION = "0.9.6"
+  VERSION = "0.9.7"
 end
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

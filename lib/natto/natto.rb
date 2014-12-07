@@ -17,12 +17,13 @@ module Natto
   #     nm = Natto::MeCab.new('-Ochasen')
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @tagger=#<FFI::Pointer address=0x28afb980>, \
+  #          @filepath="/usr/local/lib/libmecab.so"       \
   #          @options={:output_format_type=>"chasen"},   \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
-  #                    type="0", \
-  #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-  #                    charset="utf8">], \
-  #          @version="0.996">
+  #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
+  #                    charset=utf8 \
+  #                    type=0>], \
+  #          @version=0.996>
   #
   #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
   #       puts "#{n.surface}\t#{n.feature}" 
@@ -47,7 +48,7 @@ module Natto
     include Natto::Binding
     include Natto::OptionParse
 
-    attr_reader :tagger, :options, :dicts, :version
+    attr_reader :tagger, :filepath, :options, :dicts, :version
 
     # Initializes the wrapped `mecab` instance with the
     # given `options`.
@@ -83,12 +84,13 @@ module Natto
     #     nm = Natto::MeCab.new(:node_format=>'%m¥t%f[7]¥n')
     #     => #<Natto::MeCab:0x28d2ae10 
     #          @tagger=#<FFI::Pointer address=0x28a97980>, \
+    #          @filepath="/usr/local/lib/libmecab.so",     \
     #          @options={:node_format=>"%m¥t%f[7]¥n"},     \
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c  \
-    #                    type="0", \
-    #                    filename="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
-    #                    charset="utf8">], \
-    #          @version="0.996">
+    #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
+    #                    charset=utf8, \
+    #                    type=0>] \
+    #          @version=0.996>
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
     #     才能    サイノウ
@@ -112,8 +114,9 @@ module Natto
       @options = self.class.parse_mecab_options(options) 
       @dicts = []
 
-      opt_str = self.class.build_options_str(@options)
-      @tagger = self.mecab_new2(opt_str)
+      opt_str  = self.class.build_options_str(@options)
+      @tagger  = self.mecab_new2(opt_str)
+      @filepath = (File.realpath(ENV['MECAB_PATH']) || self.class.find_library)
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @tagger.address == 0x0
 
       self.mecab_set_theta(@tagger, @options[:theta]) if @options[:theta]
@@ -123,69 +126,81 @@ module Natto
        
       # Set mecab parsing implementations for N-best and regular parsing,
       # for both parsing as string and yielding a node object
-      # N-Best parsing implementations
       if @options[:nbest] && @options[:nbest] > 1
+        # N-Best parsing implementations
         self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
-        @parse_tostr = lambda do |str| 
-          return self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], str) || 
+
+        @parse_tostr = lambda do |text| 
+          retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
+          retval.force_encoding(Encoding.default_external)
         end 
-        @parse_tonodes = lambda do |str| 
-          nodes = []
-          if @options[:nbest] && @options[:nbest] > 1
-            self.mecab_nbest_init(@tagger, str) 
-            n = self.mecab_nbest_next_tonode(@tagger)
-            raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
+
+        @parse_tonodes = lambda do |text| 
+          self.mecab_nbest_init(@tagger, text) 
+          n = self.mecab_nbest_next_tonode(@tagger)
+          raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
+            
+          Enumerator.new do |y|
             nlen = @options[:nbest]
             nlen.times do |i|
-              s = str.bytes.to_a
+              s = text.bytes.to_a
               while n && n.address != 0x0
                 mn = Natto::MeCabNode.new(n)
-                s = s.drop_while {|e| (e==0xa || e==0x20)}
-                if !s.empty?
-                  sarr = []
-                  mn.length.times { sarr << s.shift }
-                  surf = sarr.pack('C*')
-                  #mn.surface = self.class.force_enc(surf)
-                  mn.surface = surf.force_encoding(Encoding.default_external)
+                # ignore BOS nodes, since mecab does so
+                if !mn.is_bos?
+                  s = s.drop_while {|e| (e==0xa || e==0x20)}
+                  if !s.empty?
+                    sarr = []
+                    mn.length.times { sarr << s.shift }
+                    surf = sarr.pack('C*')
+                    mn.surface = surf.force_encoding(Encoding.default_external)
+                  end
+                  if @options[:output_format_type] || @options[:node_format]
+                    mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
+                  end
+                  y.yield mn
                 end
-                if @options[:output_format_type] || @options[:node_format]
-                  mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
-                end
-                nodes << mn if !mn.is_bos?
                 n = mn.next
               end
               n = self.mecab_nbest_next_tonode(@tagger)
             end
           end
-          return nodes
         end
       else
         # default parsing implementations
-        @parse_tostr = lambda do |str|
-          return self.mecab_sparse_tostr(@tagger, str) || 
+        @parse_tostr = lambda do |text|
+          retval = self.mecab_sparse_tostr(@tagger, text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
+          retval.force_encoding(Encoding.default_external)
         end
-        @parse_tonodes = lambda do |str| 
-          nodes = []
-          n = self.mecab_sparse_tonode(@tagger, str) 
+
+        @parse_tonodes = lambda do |text| 
+          n = self.mecab_sparse_tonode(@tagger, text) 
           raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
-          mn = Natto::MeCabNode.new(n)
-          n = mn.next if mn.next.address!=0x0
-          s = str.bytes.to_a
-          while n && n.address!=0x0
+          
+          Enumerator.new do |y|
             mn = Natto::MeCabNode.new(n)
-            s = s.drop_while {|e| (e==0xa || e==0x20)}
-            if !s.empty?
-              sarr = []
-              mn.length.times { sarr << s.shift }
-              surf = sarr.pack('C*')
-              mn.surface = surf.force_encoding(Encoding.default_external)
+            n = mn.next if mn.next.address!=0x0
+            s = text.bytes.to_a
+            while n && n.address!=0x0
+              mn = Natto::MeCabNode.new(n)
+              s = s.drop_while {|e| (e==0xa || e==0x20)}
+              if !s.empty?
+                sarr = []
+                mn.length.times { sarr << s.shift }
+                surf = sarr.pack('C*')
+                mn.surface = surf.force_encoding(Encoding.default_external)
+              end
+              # TODO file issue for this bug!
+              #      and write some tests for this case
+              if @options[:output_format_type] || @options[:node_format]
+                mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
+              end
+              y.yield mn
+              n = mn.next
             end
-            nodes << mn 
-            n = mn.next
           end
-          return nodes
         end
       end
 
@@ -199,24 +214,25 @@ module Natto
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@tagger))
     end
     
-    # Parses the given string `str`. If a block is passed to this method,
+    # Parses the given string `text`. If a block is passed to this method,
     # then node parsing will be used and each node yielded to the given block.
     #
-    # @param [String] str
+    # @param [String] text
     # @return parsing result from `mecab`
-    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
-    # @raise [ArgumentError] if the given string `str` argument is `nil`
+    # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
+    # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
-    def parse(str)
-      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
+    def parse(text)
+      raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       if block_given?
-        nodes = @parse_tonodes.call(str)
-        nodes.each {|n| yield n }
+        @parse_tonodes.call(text).each {|n| yield n }
       else
-        @parse_tostr.call(str).force_encoding(Encoding.default_external)
+        @parse_tostr.call(text)
       end
     end
 
+    # TODO remove this method in next release
+    # DEPRECATED: use parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` nodes.
     # @param [String] str
@@ -225,10 +241,14 @@ module Natto
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     # @see MeCabNode
     def parse_as_nodes(str)
+      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tonodes.call(str)
     end
 
+    # TODO remove this method in next release
+    # DEPRECATED: use parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` result strings.
     # @param [String] str
@@ -236,19 +256,25 @@ module Natto
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     def parse_as_strings(str)
+      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
-      @parse_tostr.call(str).force_encoding(Encoding.default_external).lines.to_a
+      @parse_tostr.call(str).lines.to_a
     end
 
-    # DEPRECATED: use parse_as_nodes instead.
+    # TODO remove this method in next release
+    # DEPRECATED: use parse instead.
     def readnodes(str)
-      $stdout.puts 'DEPRECATED: use parse_as_nodes instead'
+      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts '            This method will be removed in the next release!'
       parse_as_nodes(str)
     end
 
-    # DEPRECATED: use parse_as_strings instead.
+    # TODO remove this method in next release
+    # DEPRECATED: use parse instead.
     def readlines(str)
-      $stdout.puts 'DEPRECATED: use parse_as_strings instead'
+      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts '            This method will be removed in the next release!'
       parse_as_strings(str)
     end
 
@@ -257,18 +283,25 @@ module Natto
     #
     # - encoded object id
     # - underlying FFI pointer to the `mecab` tagger
+    # - real file path to `mecab` library
     # - options hash
     # - list of dictionaries
     # - MeCab version
     #
-    # @return [String] encoded object id, underlying FFI pointer, options hash, list of dictionaries, and MeCab version
+    # @return [String] encoded object id, underlying FFI pointer, file path to `mecab` library, options hash, list of dictionaries and MeCab version
     def to_s
-      %(#{super.chop} @tagger=#{@tagger}, @options=#{@options.inspect}, @dicts=#{@dicts.to_s}, @version="#{@version.to_s}">)
+      [ super.chop,
+        "@tagger=#{@tagger},", 
+        "@filepath=\"#{@filepath}\",",
+        "@options=#{@options.inspect},", 
+        "@dicts=#{@dicts.to_s},", 
+        "@version=#{@version.to_s}>" ].join(' ')
     end
 
     # Overrides `Object#inspect`.
     # 
-    # @return [String] encoded object id, FFI pointer, options hash, list of dictionaries, and MeCab version
+    # @return [String] encoded object id, FFI pointer, options hash,
+    # list of dictionaries, and MeCab version
     # @see #to_s
     def inspect
       self.to_s
@@ -294,7 +327,7 @@ module Natto
   class MeCabError < RuntimeError; end
 end
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

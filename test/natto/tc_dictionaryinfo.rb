@@ -52,10 +52,12 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
     out = `mecab -u #{@testdic} -D`.lines.to_a
 
     @sysdic_filename = out[0].split("\t")[1].strip
+    @sysdic_filepath = File.realpath(@sysdic_filename)
     @sysdic_charset  = out[2].split("\t")[1].strip
     @sysdic_type     = out[3].split("\t")[1].strip.to_i
 
     @usrdic_filename = out[8].split("\t")[1].strip
+    @usrdic_filepath = File.realpath(@usrdic_filename)
     @usrdic_charset  = out[10].split("\t")[1].strip
     @usrdic_type     = out[11].split("\t")[1].strip.to_i
   end
@@ -93,8 +95,8 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
   end
 
   def test_to_s
-    assert(@dicts.first.to_s.include?("type=\"#{@sysdic_type}\", filename=\"#{@sysdic_filename}\", charset=\"#{@sysdic_charset}\""))
-    assert(@dicts.last.to_s.include?("type=\"#{@usrdic_type}\", filename=\"#{@usrdic_filename}\", charset=\"#{@usrdic_charset}\""))
+    assert(@dicts.first.to_s.include?("@filepath=\"#{@sysdic_filepath}\", charset=#{@sysdic_charset}, type=#{@sysdic_type}")) 
+    assert(@dicts.last.to_s.include?("@filepath=\"#{@usrdic_filepath}\", charset=#{@usrdic_charset}, type=#{@usrdic_type}"))
   end
 
   # Note: Object#type is deprecated in 1.9.n, but comes with a warning
@@ -131,7 +133,7 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
   end
 end
 
-# Copyright (c) 2014, Brooke M. Fujita.
+# Copyright (c) 2014-2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
