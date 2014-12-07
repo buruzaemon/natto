@@ -9,7 +9,7 @@ and morphological analyzer for the Japanese language.
 
 -  No compiler is necessary, as natto is _not_ a C extension.
 -  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
--  It will also run on Windows, Unix/Linux, and Mac OS.
+-  It will work with MeCab installations on Windows, Unix/Linux or Mac OS.
 -  natto provides a naturally Ruby-esque interface to MeCab.
 
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
