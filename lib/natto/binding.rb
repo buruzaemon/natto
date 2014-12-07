@@ -25,6 +25,8 @@ module Natto
     # @return file path to the `mecab` library
     # @raise [LoadError] if the library cannot be located
     def self.find_library
+      return File.realpath(ENV[MECAB_PATH]) if ENV[MECAB_PATH]
+
       host_os = RbConfig::CONFIG['host_os']
 
       if host_os =~ /mswin|mingw/i
@@ -62,7 +64,7 @@ module Natto
       end
     end
 
-    ffi_lib(ENV[MECAB_PATH] || find_library)
+    ffi_lib find_library
 
     # new interface
     attach_function :mecab_model_new2, [:string], :pointer
