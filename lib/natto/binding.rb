@@ -89,6 +89,10 @@ module Natto
     # @private
     module ClassMethods
 
+      def find_library
+        Natto::Binding.find_library
+      end
+
       def mecab_model_new2(options_str)
         Natto::Binding.mecab_model_new2(options_str)
       end
