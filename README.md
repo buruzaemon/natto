@@ -76,7 +76,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     nm = Natto::MeCab.new
     => #<Natto::MeCab:0x28d30748 
          @tagger=#<FFI::Pointer address=0x28a97d50>, \
-         @filepath="/usr/local/lib/libmecab.so", \
+         @libpath="/usr/local/lib/libmecab.so", \
          @options={}, \
          @dicts=[#<Natto::DictionaryInfo:0x28d3061c \
                  @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
