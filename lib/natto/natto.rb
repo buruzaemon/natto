@@ -17,7 +17,7 @@ module Natto
   #     nm = Natto::MeCab.new('-Ochasen')
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @tagger=#<FFI::Pointer address=0x28afb980>, \
-  #          @filepath="/usr/local/lib/libmecab.so"       \
+  #          @libpath="/usr/local/lib/libmecab.so"       \
   #          @options={:output_format_type=>"chasen"},   \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
   #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
@@ -48,7 +48,7 @@ module Natto
     include Natto::Binding
     include Natto::OptionParse
 
-    attr_reader :tagger, :filepath, :options, :dicts, :version
+    attr_reader :tagger, :libpath, :options, :dicts, :version
 
     # Initializes the wrapped `mecab` instance with the
     # given `options`.
@@ -84,7 +84,7 @@ module Natto
     #     nm = Natto::MeCab.new(:node_format=>'%m¥t%f[7]¥n')
     #     => #<Natto::MeCab:0x28d2ae10 
     #          @tagger=#<FFI::Pointer address=0x28a97980>, \
-    #          @filepath="/usr/local/lib/libmecab.so",     \
+    #          @libpath="/usr/local/lib/libmecab.so",     \
     #          @options={:node_format=>"%m¥t%f[7]¥n"},     \
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c  \
     #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
@@ -116,7 +116,7 @@ module Natto
 
       opt_str  = self.class.build_options_str(@options)
       @tagger  = self.class.mecab_new2(opt_str)
-      @filepath = self.class.find_library
+      @libpath = self.class.find_library
       raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @tagger.address == 0x0
 
       self.mecab_set_theta(@tagger, @options[:theta]) if @options[:theta]
@@ -192,8 +192,6 @@ module Natto
                 surf = sarr.pack('C*')
                 mn.surface = surf.force_encoding(Encoding.default_external)
               end
-              # TODO file issue for this bug!
-              #      and write some tests for this case
               if @options[:output_format_type] || @options[:node_format]
                 mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
               end
@@ -292,7 +290,7 @@ module Natto
     def to_s
       [ super.chop,
         "@tagger=#{@tagger},", 
-        "@filepath=\"#{@filepath}\",",
+        "@libpath=\"#{@libpath}\",",
         "@options=#{@options.inspect},", 
         "@dicts=#{@dicts.to_s},", 
         "@version=#{@version.to_s}>" ].join(' ')
