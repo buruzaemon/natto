@@ -27,7 +27,7 @@ natto requires the following:
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.9 or greater_
 
-## Installation on *NIX/Mac OS
+## Installation on *nix and Mac OS
 Install natto with the following gem command:
 
     gem install natto
@@ -86,6 +86,9 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
     puts nm.version
     => 0.996 
+
+    puts nm.libpath
+    => /usr/local/lib/libmecab.so 
 
     sysdic = nm.dicts.first
 
