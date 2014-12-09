@@ -19,13 +19,13 @@ module Natto
       base.extend(ClassMethods)
     end
 
-    # Returns the file path to the `mecab` library based on 
+    # Returns the absolute file path to the `mecab` library based on 
     # the runtime environment.
     # 
     # @return file path to the `mecab` library
     # @raise [LoadError] if the library cannot be located
     def self.find_library
-      return File.realpath(ENV[MECAB_PATH]) if ENV[MECAB_PATH]
+      return File.absolute_path(ENV[MECAB_PATH]) if ENV[MECAB_PATH]
 
       host_os = RbConfig::CONFIG['host_os']
 
@@ -37,7 +37,7 @@ module Natto
             base = r['mecabrc'].split('etc').first
           end
           lib = File.join(base, 'bin/libmecab.dll')
-          File.realpath(lib)
+          File.absolute_path(lib)
         rescue
           raise LoadError, "Please set #{MECAB_PATH} to the full path to libmecab.dll"
         end
@@ -57,7 +57,7 @@ module Natto
             base = toks[0][2..-1]
             lib  = toks[1][2..-1]
           end
-          File.realpath(File.join(base, "lib#{lib}.#{ext}"))
+          File.absolute_path(File.join(base, "lib#{lib}.#{ext}"))
         rescue
           raise LoadError, "Please set #{MECAB_PATH} to the full path to libmecab.#{ext}"
         end
