@@ -27,7 +27,7 @@ natto requires the following:
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.9 or greater_
 
-## Installation on *NIX/Mac
+## Installation on *NIX/Mac OS
 Install natto with the following gem command:
 
     gem install natto
