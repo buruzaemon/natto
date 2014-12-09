@@ -93,7 +93,7 @@ module Natto
     def initialize(ptr)
       super(ptr)
 
-      @filepath = File.realpath(self[:filename])
+      @filepath = File.absolute_path(self[:filename])
     end
 
     # Returns human-readable details for this `mecab` dictionary.
