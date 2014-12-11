@@ -9,7 +9,9 @@ class TestMeCab < MiniTest::Unit::TestCase
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
     @mn_y = Natto::MeCab.new '-N2 -Oyomi' 
-    @ver = `mecab -v`.strip.split.last
+    @e    = Natto::MeCab.new
+    @e_f  = Natto::MeCab.new '-F%f[1]'
+    @ver  = `mecab -v`.strip.split.last
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
     
@@ -304,7 +306,6 @@ class TestMeCab < MiniTest::Unit::TestCase
     end
   end
 
-
   def test_parse_nbest_tostr
     expected = `#{@test_cmd} | mecab -N2`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
@@ -396,9 +397,41 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[0].strip, n1)
     assert_equal(expected[1].strip, n2)
   end
+
+  def test_enum_parse_default
+    expected = `#{@test_cmd} | mecab`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    enum = @e.enum_parse(@test_str)
+
+    assert_equal(expected[0].split.first, enum.next.surface)
+    assert_equal(expected[1].split.first, enum.next.surface)
+    assert_equal(expected[2].split.first, enum.next.surface)
+    assert_equal(expected[3].split.first, enum.next.surface)
+    assert_equal(expected[4].split.first, enum.next.surface)
+    assert_equal(expected[5].split.first, enum.next.surface)
+    assert_equal(expected[6].split.first, enum.next.surface)
+  end
   
+  def test_enum_parse_with_format
+    expected = `#{@test_cmd} | mecab -F%f[1]\\n`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    enum = @e_f.enum_parse(@test_str)
+
+    assert_equal(expected[0].strip, enum.next.feature)
+    assert_equal(expected[1].strip, enum.next.feature)
+    assert_equal(expected[2].strip, enum.next.feature)
+    assert_equal(expected[3].strip, enum.next.feature)
+    assert_equal(expected[4].strip, enum.next.feature)
+    assert_equal(expected[5].strip, enum.next.feature)
+    assert_equal(expected[6].strip, enum.next.feature)
+  end
+
   def test_argument_error
-    [ :parse ].each do |m|
+    [ :parse, :enum_parse ].each do |m|
       assert_raises ArgumentError do
         @mn.send(m, nil) 
       end
