@@ -137,11 +137,11 @@ module Natto
         end 
 
         @parse_tonodes = lambda do |text| 
-          self.mecab_nbest_init(@tagger, text) 
-          n = self.mecab_nbest_next_tonode(@tagger)
-          raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
-            
           Enumerator.new do |y|
+            self.mecab_nbest_init(@tagger, text) 
+            n = self.mecab_nbest_next_tonode(@tagger)
+            raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
+
             nlen = @options[:nbest]
             nlen.times do |i|
               s = text.bytes.to_a
@@ -176,10 +176,10 @@ module Natto
         end
 
         @parse_tonodes = lambda do |text| 
-          n = self.mecab_sparse_tonode(@tagger, text) 
-          raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
-          
           Enumerator.new do |y|
+            n = self.mecab_sparse_tonode(@tagger, text) 
+            raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
+          
             mn = Natto::MeCabNode.new(n)
             n = mn.next if mn.next.address!=0x0
             s = text.bytes.to_a
@@ -229,8 +229,21 @@ module Natto
       end
     end
 
+    # Parses the given string `text`, returning an enumeration of 
+    # MeCab nodes.
+    #
+    # @param [String] text
+    # @return [Enumerator] of MeCabNode instances
+    # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
+    # @raise [ArgumentError] if the given string `text` argument is `nil`
+    # @see MeCabNode
+    def enumerate(text)
+      raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
+      @parse_tonodes.call(text)
+    end
+
     # TODO remove this method in next release
-    # DEPRECATED: use parse instead, this convenience method is useless.
+    # DEPRECATED: use enumerate instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` nodes.
     # @param [String] str
@@ -239,14 +252,14 @@ module Natto
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     # @see MeCabNode
     def parse_as_nodes(str)
-      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts 'DEPRECATED: use enumerate instead'
       $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tonodes.call(str)
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use parse instead, this convenience method is useless.
+    # DEPRECATED: use enumerate instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` result strings.
     # @param [String] str
@@ -254,24 +267,24 @@ module Natto
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     def parse_as_strings(str)
-      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts 'DEPRECATED: use enumerate instead'
       $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tostr.call(str).lines.to_a
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use parse instead.
+    # DEPRECATED: use enumerate instead.
     def readnodes(str)
-      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts 'DEPRECATED: use enumerate instead'
       $stderr.puts '            This method will be removed in the next release!'
       parse_as_nodes(str)
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use parse instead.
+    # DEPRECATED: use enumerate instead.
     def readlines(str)
-      $stderr.puts 'DEPRECATED: use parse instead'
+      $stderr.puts 'DEPRECATED: use enumerate instead'
       $stderr.puts '            This method will be removed in the next release!'
       parse_as_strings(str)
     end
