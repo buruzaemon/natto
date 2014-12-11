@@ -52,12 +52,14 @@ class TestDictionaryInfo < MiniTest::Unit::TestCase
     out = `mecab -u #{@testdic} -D`.lines.to_a
 
     @sysdic_filename = out[0].split("\t")[1].strip
-    @sysdic_filepath = File.realpath(@sysdic_filename)
+    @sysdic_filepath = File.absolute_path(@sysdic_filename)
     @sysdic_charset  = out[2].split("\t")[1].strip
     @sysdic_type     = out[3].split("\t")[1].strip.to_i
 
     @usrdic_filename = out[8].split("\t")[1].strip
-    @usrdic_filepath = File.realpath(@usrdic_filename)
+    @usrdic_filepath = File.absolute_path(@usrdic_filename)
+    :q
+    :q
     @usrdic_charset  = out[10].split("\t")[1].strip
     @usrdic_type     = out[11].split("\t")[1].strip.to_i
   end
