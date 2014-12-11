@@ -237,13 +237,13 @@ module Natto
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
-    def enumerate(text)
+    def enum_parse(text)
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       @parse_tonodes.call(text)
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use enumerate instead, this convenience method is useless.
+    # DEPRECATED: use enum_parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` nodes.
     # @param [String] str
@@ -252,14 +252,14 @@ module Natto
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     # @see MeCabNode
     def parse_as_nodes(str)
-      $stderr.puts 'DEPRECATED: use enumerate instead'
+      $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tonodes.call(str)
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use enumerate instead, this convenience method is useless.
+    # DEPRECATED: use enum_parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` result strings.
     # @param [String] str
@@ -267,24 +267,24 @@ module Natto
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
     # @raise [ArgumentError] if the given string `str` argument is `nil`
     def parse_as_strings(str)
-      $stderr.puts 'DEPRECATED: use enumerate instead'
+      $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
       raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
       @parse_tostr.call(str).lines.to_a
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use enumerate instead.
+    # DEPRECATED: use enum_parse instead.
     def readnodes(str)
-      $stderr.puts 'DEPRECATED: use enumerate instead'
+      $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
       parse_as_nodes(str)
     end
 
     # TODO remove this method in next release
-    # DEPRECATED: use enumerate instead.
+    # DEPRECATED: use enum_parse instead.
     def readlines(str)
-      $stderr.puts 'DEPRECATED: use enumerate instead'
+      $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
       parse_as_strings(str)
     end
