@@ -17,8 +17,10 @@ class TestMeCab < MiniTest::Unit::TestCase
     
     if @host_os =~ /mswin|mingw/i
       @test_cmd = 'type "test\\natto\\test_sjis"'
+      @br       = '\\n'
     else
       @test_cmd = 'cat "test/natto/test_utf8"'
+      @br       = '\n'
     end
     @test_str = `#{@test_cmd}`
   end
@@ -415,7 +417,7 @@ class TestMeCab < MiniTest::Unit::TestCase
   end
   
   def test_enum_parse_with_format
-    expected = `#{@test_cmd} | mecab -F"%f[1]\n"`.lines.to_a
+    expected = `#{@test_cmd} | mecab -F"%f[1]#{@br}"`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
