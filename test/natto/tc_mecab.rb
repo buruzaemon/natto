@@ -3,7 +3,7 @@ require 'rbconfig'
 
 class TestMeCab < MiniTest::Unit::TestCase
   def setup
-    @m = Natto::MeCab.new
+    @m = Natto::MeCab.new()
     @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
@@ -415,7 +415,7 @@ class TestMeCab < MiniTest::Unit::TestCase
   end
   
   def test_enum_parse_with_format
-    expected = `#{@test_cmd} | mecab -F%f[1]\\n`.lines.to_a
+    expected = `#{@test_cmd} | mecab -F"%f[1]\n"`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
