@@ -54,7 +54,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     - On Mac OS and \*nix, it will query `mecab-config --libs` 
 -   ***If natto cannot find the `mecab` library***, `LoadError` will be raised. 
     - Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
-    - e.g., for Mac OS X
+    - e.g., for Mac OS
 
             export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
 
