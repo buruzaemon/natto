@@ -47,8 +47,17 @@ module Natto
   class MeCab
     include Natto::Binding
     include Natto::OptionParse
-
-    attr_reader :tagger, :libpath, :options, :dicts, :version
+ 
+    # @return [FFI:Pointer] pointer to MeCab tagger.
+    attr_reader :tagger
+    # @return [String] absolute filepath to MeCab library.
+    attr_reader :libpath
+    # @return [Hash] MeCab options as key-value pairs.
+    attr_reader :options
+    # @return [Array] array of `DictionaryInfo` objects.
+    attr_reader :dicts
+    # @return [String] `MeCab` versions.
+    attr_reader :version
 
     # Initializes the wrapped `mecab` instance with the
     # given `options`.
@@ -108,7 +117,7 @@ module Natto
     #     。      。
     #     EOS
     #
-    # @param [Hash or String]
+    # @param [Hash, String] options MeCab options for tagger
     # @raise [MeCabError] if `mecab` cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
@@ -212,11 +221,12 @@ module Natto
       ObjectSpace.define_finalizer(self, self.class.create_free_proc(@tagger))
     end
     
-    # Parses the given string `text`. If a block is passed to this method,
-    # then node parsing will be used and each node yielded to the given block.
+    # Parses the given `text`, returning the MeCab output as a single string. 
+    # If a block is passed to this method, then node parsing will be used
+    # and each node yielded to the given block.
     #
     # @param [String] text
-    # @return parsing result from `mecab`
+    # @return [String] parsing result from `mecab`
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
@@ -229,8 +239,8 @@ module Natto
       end
     end
 
-    # Parses the given string `text`, returning an enumeration of 
-    # MeCab nodes.
+    # Parses the given string `text`, returning an Enumerator that may be
+    # used to iterate over the resulting MeCab nodes.
     #
     # @param [String] text
     # @return [Enumerator] of MeCabNode instances
@@ -242,7 +252,7 @@ module Natto
       @parse_tonodes.call(text)
     end
 
-    # TODO remove this method in next release
+    # @deprecated
     # DEPRECATED: use enum_parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` nodes.
@@ -258,7 +268,7 @@ module Natto
       @parse_tonodes.call(str)
     end
 
-    # TODO remove this method in next release
+    # @deprecated
     # DEPRECATED: use enum_parse instead, this convenience method is useless.
     # Parses the given string `str`, and returns
     # a list of `mecab` result strings.
@@ -273,16 +283,20 @@ module Natto
       @parse_tostr.call(str).lines.to_a
     end
 
-    # TODO remove this method in next release
-    # DEPRECATED: use enum_parse instead.
+    # @deprecated
+    # DEPRECATED: use enum_parse instead, this convenience method is useless.
+    # @param [String] str
+    # @return [Array] of parsed `mecab` nodes.
     def readnodes(str)
       $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
       parse_as_nodes(str)
     end
 
-    # TODO remove this method in next release
-    # DEPRECATED: use enum_parse instead.
+    # @deprecated
+    # DEPRECATED: use enum_parse instead, this convenience method is useless.
+    # @param [String] str
+    # @return [Array] of parsed `mecab` result strings.
     def readlines(str)
       $stderr.puts 'DEPRECATED: use enum_parse instead'
       $stderr.puts '            This method will be removed in the next release!'
