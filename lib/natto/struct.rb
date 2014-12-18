@@ -55,6 +55,7 @@ module Natto
   #     puts sysdic.is_sysdic?
   #     => true
   class DictionaryInfo < MeCabStruct
+    # @return [String] Absolute filepath to MeCab dictionary.
     attr_reader :filepath
 
     # System dictionary.
@@ -89,7 +90,7 @@ module Natto
     # Initializes this dictionary info instance.
     # Sets the `DictionaryInfo` filepath value.
     #
-    # @param [FFI::Pointer]
+    # @param [FFI::Pointer] ptr pointer to MeCab dictionary
     def initialize(ptr)
       super(ptr)
 
@@ -197,7 +198,11 @@ module Natto
   # `mecab` returns the raw bytes, so `natto` will convert that into
   # a string using the default encoding.
   class MeCabNode < MeCabStruct
-    attr_accessor :surface, :feature
+    # @return [String] surface morpheme surface value.
+    attr_accessor :surface
+    # @return [String] corresponding feature value.
+    attr_accessor :feature
+    # @return [FFI::Pointer] pointer to MeCab node struct.
     attr_reader   :pointer
 
     # Normal `mecab` node defined in the dictionary, c.f. `stat`.
@@ -237,7 +242,7 @@ module Natto
     # Initializes this node instance.
     # Sets the `MeCab` feature value for this node.
     #
-    # @param [FFI::Pointer]
+    # @param [FFI::Pointer] ptr pointer to MeCab node
     def initialize(ptr)
       super(ptr)
       @pointer = ptr
