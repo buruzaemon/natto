@@ -1,10 +1,10 @@
 ## CHANGELOG
 
 - __2014/12/nn__: 0.9.7 release.
-    - Issue nn: adding automatic discovery for mecab library; no need to explicitly set MECAB_PATH!
-    - Issue nn: refactored node-parsing to use Enumerator instead of materializing every node and stuffing into array
+    - Issue 14: adding automatic discovery for mecab library; no need to explicitly set MECAB_PATH!
+    - Issue 15: refactored node-parsing to use Enumerator instead of materializing every node and stuffing into array
     - Issue 17: adding filepath to MeCab and DictionaryInfo 
-    - Issue nn: bug-fix for node-formatting during default node parse
+    - Issue 18: bug-fix for node-formatting during default node parse
     - Deprecating parse_as_nodes and parse_as_strings; please use parse instead!
 	- CAUTION: parse_as_nodes, parse_as_strings, readnodes and readlines will be removed in the following release!
 	- Enhancements to to_s methods for both MeCab and DictionaryInfo
