@@ -10,7 +10,7 @@ module Natto
     extend FFI::Library
 
     # String name for the environment variable used by 
-    # `Natto` to indicate the exact name / full path
+    # `Natto` to indicate the absolute pathname
     # to the `mecab` library.
     MECAB_PATH = 'MECAB_PATH'.freeze
     
@@ -19,10 +19,10 @@ module Natto
       base.extend(ClassMethods)
     end
 
-    # Returns the absolute file path to the `mecab` library based on 
+    # Returns the absolute pathname to the `mecab` library based on 
     # the runtime environment.
     # 
-    # @return file path to the `mecab` library
+    # @return [String] absolute pathname to the `mecab` library
     # @raise [LoadError] if the library cannot be located
     def self.find_library
       return File.absolute_path(ENV[MECAB_PATH]) if ENV[MECAB_PATH]
