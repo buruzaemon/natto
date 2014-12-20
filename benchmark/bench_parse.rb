@@ -17,8 +17,7 @@ def run(n)
 end
 
 def benchmark(text)
-#  n = 10
-  n = 10000
+  n = 10
   puts("text: #{text}")
   Benchmark.bmbm(10) do |job|
     job.report("MeCab") do
@@ -36,7 +35,7 @@ def benchmark(text)
   puts
 end
 
-#benchmark("私の名前は中野です。")
-#benchmark("すもももももももものうち")
-#benchmark("MeCabは 京都大学情報学研究科−日本電信電話株式会社コミュニケーション科学基礎研究所 共同研究ユニットプロジェクトを通じて開発されたオープンソース 形態素解析エンジンです. 言語, 辞書,コーパスに依存しない汎用的な設計を 基本方針としています. パラメータの推定に Conditional Random Fields (CRF) を用 いており, ChaSenが採用している 隠れマルコフモデルに比べ性能が向上しています。また、平均的に ChaSen, Juman, KAKASIより高速に動作します. ちなみに和布蕪(めかぶ)は, 作者の好物です.")
+benchmark("私の名前は中野です。")
+benchmark("すもももももももものうち")
+benchmark("MeCabは 京都大学情報学研究科−日本電信電話株式会社コミュニケーション科学基礎研究所 共同研究ユニットプロジェクトを通じて開発されたオープンソース 形態素解析エンジンです. 言語, 辞書,コーパスに依存しない汎用的な設計を 基本方針としています. パラメータの推定に Conditional Random Fields (CRF) を用 いており, ChaSenが採用している 隠れマルコフモデルに比べ性能が向上しています。また、平均的に ChaSen, Juman, KAKASIより高速に動作します. ちなみに和布蕪(めかぶ)は, 作者の好物です.")
 benchmark("太郎はこの本を二郎を見た女性に渡した。")

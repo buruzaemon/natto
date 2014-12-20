@@ -21,11 +21,8 @@ natto requires the following:
 -  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
 -  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
 -  `libmecab-devel` if you are on Linux, since natto uses `mecab-config`
-
-        $ sudo apt-get install libmecab-dev
-
--  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 -  Ruby _1.9 or greater_
+-  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 
 ## Installation on *nix and Mac OS
 Install natto with the following gem command:
@@ -49,10 +46,10 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 
 ## Configuration
--  ***No explicit configuration should be necessary!*** natto will try to locate the `mecab` library based upon its runtime environment.
+-  ***No explicit configuration should be necessary, as natto will try to locate the `mecab` library based upon its runtime environment.***
     - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
     - On Mac OS and \*nix, it will query `mecab-config --libs` 
--   ***If natto cannot find the `mecab` library***, `LoadError` will be raised. 
+-   ***But if natto cannot find the `mecab` library, `LoadError` will be raised.***
     - Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
     - e.g., for Mac OS
 
@@ -71,8 +68,17 @@ However, if you are using a CRuby on Windows, then you will first need to instal
             ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
+
+
+    # Quick Start
+    # -----------
+    #  
+    # No explicit configuration should be necessary!
+    #
     require 'natto'
 
+    # first, create an instance of Natto::MeCab
+    #
     nm = Natto::MeCab.new
     => #<Natto::MeCab:0x28d30748 
          @tagger=#<FFI::Pointer address=0x28a97d50>, \
@@ -83,36 +89,130 @@ However, if you are using a CRuby on Windows, then you will first need to instal
                  charset=utf8, \
                  type=0>] \
          @version=0.996>
-
+    
+    # display MeCab version
+    #
     puts nm.version
     => 0.996 
 
+    # display full pathname to MeCab library
+    #
     puts nm.libpath
     => /usr/local/lib/libmecab.so 
 
+    # reference to MeCab system dictionary
+    #
     sysdic = nm.dicts.first
 
+    # display full pathname to system dictionary file
+    #
     puts sysdic.filepath
     => /usr/local/lib/mecab/dic/ipadic/sys.dic
 
+    # what charset (encoding) is the system dictionary?
+    #
     puts sysdic.charset
     => utf8 
-    
-    nm.parse('ピンチの時には必ずヒーローが現れる。') do |n|
-      puts "#{n.surface}\t#{n.feature}"
-    end
-    ピンチ      名詞,一般,*,*,*,*,ピンチ,ピンチ,ピンチ
-    の          助詞,連体化,*,*,*,*,の,ノ,ノ
-    時          名詞,非自立,副詞可能,*,*,*,時,トキ,トキ 
-    に          助詞,格助詞,一般,*,*,*,に,一般ニ,ニ
-    は          助詞,係助詞,*,*,*,*,は,ハ,ワ
-    必ず        副詞,助詞類接続,*,*,*,*,必ず,カナラズ,カナラズ
-    ヒーロー    名詞,一般,*,*,*,*,ヒーロー,ヒーローー,ヒーロー
-    が          助詞,格助詞,一般,*,*,*,が,ガ,ガ
-    現れる      動詞,自立,*,*,一段,基本形,現れる,アラワレル,アラワレル
-    。         記号,句点,*,*,*,*,。,。,。句点
-               BOS/EOS,*,*,*,*,*,*,*,*
+  
+    # parse text and send output to stdout
+    #
+    puts nm.parse('俺の名前は星野豊だ！！そこんとこヨロシク！')
+    俺      名詞,代名詞,一般,*,*,*,俺,オレ,オレ
+    の      助詞,連体化,*,*,*,*,の,ノ,ノ
+    名前    名詞,一般,*,*,*,*,名前,ナマエ,ナマエ
+    は      助詞,係助詞,*,*,*,*,は,ハ,ワ
+    星野    名詞,固有名詞,人名,姓,*,*,星野,ホシノ,ホシノ
+    豊      名詞,固有名詞,人名,名,*,*,豊,ユタカ,ユタカ
+    だ      助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ
+    ！      記号,一般,*,*,*,*,！,！,！
+    ！      記号,一般,*,*,*,*,！,！,！
+    そこ    名詞,代名詞,一般,*,*,*,そこ,ソコ,ソコ
+    ん      助詞,特殊,*,*,*,*,ん,ン,ン
+    とこ    名詞,一般,*,*,*,*,とこ,トコ,トコ
+    ヨロシク        感動詞,*,*,*,*,*,ヨロシク,ヨロシク,ヨロシク
+    ！      記号,一般,*,*,*,*,！,！,！
+    EOS
 
+    # parse more text and use a block to:
+    # - iterate the resulting MeCab nodes
+    # - output morpheme surface and part-of-speech ID
+    #
+    # * ignore any end-of-sentence nodes
+    #
+    nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
+      puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
+    end
+    世界    part-of-speech id: 38
+    チャンプ        part-of-speech id: 38
+    目指し  part-of-speech id: 31
+    て      part-of-speech id: 18
+    ん      part-of-speech id: 63
+    だ      part-of-speech id: 25
+    な      part-of-speech id: 17
+    これ    part-of-speech id: 59
+    がっ    part-of-speech id: 32
+    !!      part-of-speech id: 36
+    夢      part-of-speech id: 38
+    な      part-of-speech id: 25
+    の      part-of-speech id: 17
+    、      part-of-speech id: 9
+    俺      part-of-speech id: 59
+    のっ    part-of-speech id: 31
+    !!      part-of-speech id: 36
+
+    # for more complex parsing, such as that for natural 
+    # language processing tasks, it is far more efficient
+    # to iterate over MeCab nodes using an Enumerator
+    # 
+    # this example uses the node-format option to customize
+    # the resulting morpheme feature to extract:
+    # - surface
+    # - part-of-speech
+    # - reading
+    #
+    # * again, ignore any end-of-sentence nodes
+    #
+    nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
+
+    enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
+    => #<Enumerator: #<Enumerator::Generator:0x00000002ff3898>:each>
+
+    enum.next
+    => #<Natto::MeCabNode:0x000000032eed68 \
+         @pointer=#<FFI::Pointer address=0x000000005ffb48>, \
+         stat=0, \
+         @surface="この", \
+         @feature="この   連体詞  コノ">
+
+    enum.peek
+    => #<Natto::MeCabNode:0x00000002fe2110a \
+         @pointer=#<FFI::Pointer address=0x000000005ffdb8>, \
+         stat=0, \
+         @surface="星", \
+         @feature="星       名詞    ホシ"> 
+    
+    enum.rewind
+
+    enum.each { |n| puts n.feature }
+    この    連体詞  コノ
+    星      名詞    ホシ
+    の      助詞    ノ
+    一等    名詞    イットウ
+    賞      名詞    ショウ
+    に      助詞    ニ
+    なり    動詞    ナリ
+    たい    助動詞  タイ
+    の      助詞    ノ
+    卓球    名詞    タッキュウ
+    で      助詞    デ
+    俺      名詞    オレ
+    は      助詞    ハ
+    、      記号    、
+    そん    名詞    ソン
+    だけ    助詞    ダケ
+    ！      記号    ！
+
+   
 
 ## Learn more 
 - You can read more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
