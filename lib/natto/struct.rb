@@ -194,8 +194,8 @@ module Natto
   # While it is also possible to use the `Symbol` for the
   # `mecab` node member to index into the 
   # `FFI::Struct` layout associative array, please use the attribute
-  # accessors. Especially in the case of `:surface` and `:feature`,
-  # `mecab` returns the raw bytes, so `natto` will convert that into
+  # accessors. In the case of `:surface` and `:feature`, `mecab` 
+  # returns the raw bytes, so `natto` will convert that into
   # a string using the default encoding.
   class MeCabNode < MeCabStruct
     # @return [String] surface morpheme surface value.

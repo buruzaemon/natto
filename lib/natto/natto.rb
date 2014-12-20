@@ -11,7 +11,6 @@ module Natto
   #
   # ## Usage
   #
-  #     require 'rubygems' if RUBY_VERSION.to_f < 1.9
   #     require 'natto'
   #
   #     nm = Natto::MeCab.new('-Ochasen')
@@ -54,7 +53,7 @@ module Natto
     attr_reader :libpath
     # @return [Hash] MeCab options as key-value pairs.
     attr_reader :options
-    # @return [Array] array of `DictionaryInfo` objects.
+    # @return [Array] listing of all of dictionaries referenced.
     attr_reader :dicts
     # @return [String] `MeCab` versions.
     attr_reader :version
@@ -239,14 +238,23 @@ module Natto
       end
     end
 
-    # Parses the given string `text`, returning an Enumerator that may be
-    # used to iterate over the resulting MeCab nodes.
+    # Parses the given string `text`, returning an
+    # {http://www.ruby-doc.org/core-2.1.5/Enumerator.html Enumerator} that may be
+    # used to iterate over the resulting {MeCabNode} objects. This is more 
+    # efficient than parsing to a simple string, since each node's
+    # information will not be materialized all at once as with it is with
+    # string output.
+    #
+    # MeCab nodes contain much more detailed information about
+    # the morpheme. Node-formatting  may also be used to customize
+    # the resulting node's `feature` attribute.
     #
     # @param [String] text
     # @return [Enumerator] of MeCabNode instances
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
+    # @see http://www.ruby-doc.org/core-2.1.5/Enumerator.html
     def enum_parse(text)
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       @parse_tonodes.call(text)
@@ -313,7 +321,9 @@ module Natto
     # - list of dictionaries
     # - MeCab version
     #
-    # @return [String] encoded object id, underlying FFI pointer, file path to `mecab` library, options hash, list of dictionaries and MeCab version
+    # @return [String] encoded object id, underlying FFI pointer,
+    #   file path to `mecab` library, options hash,
+    #   list of dictionaries and MeCab version
     def to_s
       [ super.chop,
         "@tagger=#{@tagger},", 
@@ -326,7 +336,7 @@ module Natto
     # Overrides `Object#inspect`.
     # 
     # @return [String] encoded object id, FFI pointer, options hash,
-    # list of dictionaries, and MeCab version
+    #   list of dictionaries, and MeCab version
     # @see #to_s
     def inspect
       self.to_s
