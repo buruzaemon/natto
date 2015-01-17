@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.license = 'BSD'
   s.summary = 'A gem leveraging FFI (foreign function interface), natto combines the Ruby programming language with MeCab, the part-of-speech and morphological analyzer for the Japanese language.'
   s.description = <<END_DESC
-No compiler is necessary, as natto is not a C extension. It will run on CRuby (mri/yarv) and JRuby (jvm) equally well. It will also run on Windows, Unix/Linux, and Mac OS. natto provides a naturally Ruby-esque interface to MeCab.
+No compiler is necessary, as natto is not a C extension. It will run on CRuby (mri/yarv) and JRuby (jvm) equally well. It will also run on Windows, Unix/Linux, and OS X. natto provides a naturally Ruby-esque interface to MeCab.
 END_DESC
   s.author = 'Brooke M. Fujita'
   s.email = 'buruzaemon@gmail.com'
@@ -33,7 +33,7 @@ END_DESC
   ]
 end
 
-# Copyright (c) 2014-2015, Brooke M. Fujita.
+# Copyright (c) 2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
