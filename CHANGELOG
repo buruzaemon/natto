@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+- __2015/01/dd__: 0.9.8 release.
+    - Improved documentation.
+    - Minor refactoring to Natto::MeCabNode#to_s
+    - Updating LICENSE for year 2015. 
+
 - __2014/12/20__: 0.9.7 release.
     - Issue 14: [adding automatic discovery for mecab library; no need to
 	explicitly set

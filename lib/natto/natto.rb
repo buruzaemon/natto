@@ -13,35 +13,93 @@ module Natto
   #
   #     require 'natto'
   #
-  #     nm = Natto::MeCab.new('-Ochasen')
+  #     text = '凡人にしか見えねえ風景ってのがあるんだよ。'
+  #
+  #     nm = Natto::MeCab.new
   #     => #<Natto::MeCab:0x28d3bdc8 \
   #          @tagger=#<FFI::Pointer address=0x28afb980>, \
   #          @libpath="/usr/local/lib/libmecab.so"       \
-  #          @options={:output_format_type=>"chasen"},   \
+  #          @options={},                                \
   #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
   #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-  #                    charset=utf8 \
-  #                    type=0>], \
+  #                    charset=utf8,                     \
+  #                    type=0>],                         \
   #          @version=0.996>
   #
-  #     nm.parse('凡人にしか見えねえ風景ってのがあるんだよ。') do |n| 
-  #       puts "#{n.surface}\t#{n.feature}" 
+  #     # print entire MeCab result to stdout
+  #     #
+  #     puts nm.parse(text)
+  #     凡人    名詞,一般,*,*,*,*,凡人,ボンジン,ボンジン
+  #     に      助詞,格助詞,一般,*,*,*,に,ニ,ニ
+  #     しか    助詞,係助詞,*,*,*,*,しか,シカ,シカ
+  #     見え    動詞,自立,*,*,一段,未然形,見える,ミエ,ミエ
+  #     ねえ    助動詞,*,*,*,特殊・ナイ,音便基本形,ない,ネエ,ネー
+  #     風景    名詞,一般,*,*,*,*,風景,フウケイ,フーケイ
+  #     って    助詞,格助詞,連語,*,*,*,って,ッテ,ッテ
+  #     の      名詞,非自立,一般,*,*,*,の,ノ,ノ
+  #     が      助詞,格助詞,一般,*,*,*,が,ガ,ガ
+  #     ある    動詞,自立,*,*,五段・ラ行,基本形,ある,アル,アル
+  #     ん      名詞,非自立,一般,*,*,*,ん,ン,ン
+  #     だ      助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ
+  #     よ      助詞,終助詞,*,*,*,*,よ,ヨ,ヨ
+  #     。      記号,句点,*,*,*,*,。,。,。
+  #     EOS
+  #
+  #     # pass a block to iterate over each MeCabNode instance
+  #     #
+  #     nm.parse(text) do |n| 
+  #       puts "#{n.surface},#{n.feature}" if !n.is_eos?
   #     end 
-  #     凡人   名詞,一般,*,*,*,*,凡人,ボンジン,ボンジン
-  #     に     助詞,格助詞,一般,*,*,*,に,ニ,ニ 
-  #     しか   助詞,係助詞,*,*,*,*,しか,シカ,シカ 
-  #     見え   動詞,自立,*,*,一段,未然形,見える,ミエ,ミエ
-  #     ねえ   助動詞,*,*,*,特殊・ナイ,音便基本形,ない,ネエ,ネー 
-  #     風景   名詞,一般,*,*,*,*,風景,フウケイ,フーケイ
-  #     って   助詞,格助詞,連語,*,*,*,って,ッテ,ッテ
-  #     の     名詞,非自立,一般,*,*,*,の,ノ,ノ 
-  #     が     助詞,格助詞,一般,*,*,*,が,ガ,ガ
-  #     ある   動詞,自立,*,*,五段・ラ行,基本形,ある,アル,アル 
-  #     ん     名詞,非自立,一般,*,*,*,ん,ン,ン
-  #     だ     助動詞,*,*,*一般,特殊・ダ,基本形,だ,ダ,ダ
-  #     よ     助詞,終助詞,*,*,*,*,よ,ã¨,ヨ
-  #     。     記号,句点,*,*,*,*,。,。,。
-  #            BOS/EOS,*,*,*,*,*,*,*,*BOS
+  #     凡人,名詞,一般,*,*,*,*,凡人,ボンジン,ボンジン 
+  #     に,助詞,格助詞,一般,*,*,*,に,ニ,ニ 
+  #     しか,助詞,係助詞,*,*,*,*,しか,シカ,シカ 
+  #     見え,動詞,自立,*,*,一段,未然形,見える,ミエ,ミエ 
+  #     ねえ,助動詞,*,*,*,特殊・ナイ,音便基本形,ない,ネエ,ネー 
+  #     風景,名詞,一般,*,*,*,*,風景,フウケイ,フーケイ 
+  #     って,助詞,格助詞,連語,*,*,*,って,ッテ,ッテ 
+  #     の,名詞,非自立,一般,*,*,*,の,ノ,ノ 
+  #     が,助詞,格助詞,一般,*,*,*,が,ガ,ガ 
+  #     ある,動詞,自立,*,*,五段・ラ行,基本形,ある,アル,アル 
+  #     ん,名詞,非自立,一般,*,*,*,ん,ン,ン 
+  #     だ,助動詞,*,*,*,特殊・ダ,基本形,だ,ダ,ダ 
+  #     よ,助詞,終助詞,*,*,*,*,よ,ヨ,ヨ 
+  #     。,記号,句点,*,*,*,*,。,。,。 
+  #
+  #
+  #     # customize MeCabNode feature attribute with node-formatting
+  #     # %m   ... morpheme surface
+  #     # %F,  ... comma-delimited ChaSen feature values
+  #     #          reading (index 7) 
+  #     #          part-of-speech (index 0) 
+  #     # %h   ... part-of-speech ID (IPADIC)
+  #     #
+  #     nm = Natto::MeCab.new('-F%m,%F,[7,0],%h')
+  #     
+  #     # Enumerator effectively iterates the MeCabNodes
+  #     #
+  #     enum = nm.enum_parse(text)
+  #     => #<Enumerator: #<Enumerator::Generator:0x29cc5f8>:each>
+  #
+  #     # output the feature attribute of each MeCabNode
+  #     # only output normal nodes, ignoring any end-of-sentence 
+  #     # or unknown nodes 
+  #     #
+  #     enum.map.with_index {|n,i| puts "#{i}: #{n.feature}" if n.is_nor?} 
+  #     0: 凡人,ボンジン,名詞,38
+  #     1: に,ニ,助詞,13
+  #     2: しか,シカ,助詞,16
+  #     3: 見え,ミエ,動詞,31
+  #     4: ねえ,ネー,助動詞,25
+  #     5: 風景,フーケイ,名詞,38
+  #     6: って,ッテ,助詞,15
+  #     7: の,ノ,名詞,63
+  #     8: が,ガ,助詞,13
+  #     9: ある,アル,動詞,31
+  #     10: ん,ン,名詞,63
+  #     11: だ,ダ,助動詞,25
+  #     12: よ,ヨ,助詞,17
+  #     13: 。,。,記号,7
+  #
   #
   class MeCab
     include Natto::Binding
@@ -89,15 +147,15 @@ module Natto
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
-    #     nm = Natto::MeCab.new(:node_format=>'%m¥t%f[7]¥n')
+    #     nm = Natto::MeCab.new(node_format: '%m¥t%f[7]¥n')
     #     => #<Natto::MeCab:0x28d2ae10 
     #          @tagger=#<FFI::Pointer address=0x28a97980>, \
-    #          @libpath="/usr/local/lib/libmecab.so",     \
+    #          @libpath="/usr/local/lib/libmecab.so",      \
     #          @options={:node_format=>"%m¥t%f[7]¥n"},     \
     #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c  \
     #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
-    #                    charset=utf8, \
-    #                    type=0>] \
+    #                    charset=utf8,                     \
+    #                    type=0>]                          \
     #          @version=0.996>
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
@@ -121,6 +179,7 @@ module Natto
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
       @dicts = []
+      # TODO invoke function for enhancing MeCabNode after this point
 
       opt_str  = self.class.build_options_str(@options)
       @tagger  = self.class.mecab_new2(opt_str)
@@ -362,7 +421,7 @@ module Natto
   class MeCabError < RuntimeError; end
 end
 
-# Copyright (c) 2014-2015, Brooke M. Fujita.
+# Copyright (c) 2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

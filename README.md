@@ -9,7 +9,7 @@ and morphological analyzer for the Japanese language.
 
 -  No compiler is necessary, as natto is _not_ a C extension.
 -  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
--  It will work with MeCab installations on Windows, Unix/Linux or Mac OS.
+-  It will work with MeCab installations on Windows, Unix/Linux or OS X.
 -  natto provides a naturally Ruby-esque interface to MeCab.
 
 You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
@@ -24,7 +24,7 @@ natto requires the following:
 -  Ruby _1.9 or greater_
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
 
-## Installation on *nix and Mac OS
+## Installation on *nix and OS X
 Install natto with the following gem command:
 
     gem install natto
@@ -48,10 +48,10 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 ## Configuration
 -  ***No explicit configuration should be necessary, as natto will try to locate the `mecab` library based upon its runtime environment.***
     - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
-    - On Mac OS and \*nix, it will query `mecab-config --libs` 
+    - On OS X and \*nix, it will query `mecab-config --libs` 
 -   ***But if natto cannot find the `mecab` library, `LoadError` will be raised.***
     - Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
-    - e.g., for Mac OS
+    - e.g., for OS X
 
             export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
 
@@ -134,7 +134,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     EOS
 
     # parse more text and use a block to:
-    # - iterate the resulting MeCab nodes
+    # - iterate over the resulting MeCabNode instances
     # - output morpheme surface and part-of-speech ID
     #
     # * ignore any end-of-sentence nodes
@@ -164,13 +164,11 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     # language processing tasks, it is far more efficient
     # to iterate over MeCab nodes using an Enumerator
     # 
-    # this example uses the node-format option to customize
-    # the resulting morpheme feature to extract:
-    # - surface
-    # - part-of-speech
-    # - reading
-    #
-    # * again, ignore any end-of-sentence nodes
+    # this example uses the -F node-format option to customize
+    # the resulting MeCabNode feature attribute to extract:
+    # - %m    ... surface
+    # - %f[0] ... part-of-speech
+    # - %f[7] ... reading
     #
     nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
 
@@ -193,7 +191,8 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     
     enum.rewind
 
-    enum.each { |n| puts n.feature }
+    # again, ignore any end-of-sentence nodes
+    enum.each { |n| puts n.feature if !n.is_eos? }
     この    連体詞  コノ
     星      名詞    ホシ
     の      助詞    ノ
@@ -230,4 +229,4 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 Please see the {file:CHANGELOG} for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2014-2015, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.
+Copyright &copy; 2015, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.

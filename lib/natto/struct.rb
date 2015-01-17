@@ -49,9 +49,11 @@ module Natto
   #     puts sysdic.filepath
   #     => /usr/local/lib/mecab/dic/ipadic/sys.dic
   #
+  #     # what charset (encoding) is the system dictionary?
   #     puts sysdic.charset
   #     => utf8
   # 
+  #     # is this really the system dictionary?
   #     puts sysdic.is_sysdic?
   #     => true
   class DictionaryInfo < MeCabStruct
@@ -60,8 +62,10 @@ module Natto
 
     # System dictionary.
     SYS_DIC = 0
+
     # User dictionary.
     USR_DIC = 1
+
     # Unknown dictionary.
     UNK_DIC = 2
 
@@ -263,7 +267,11 @@ module Natto
     #
     # @return [String] encoded object id, underlying FFI pointer, stat, surface, and feature 
     def to_s
-      %(#{super.chop} @pointer=#{@pointer}, stat=#{self[:stat]}, @surface="#{self.surface}", @feature="#{self.feature}">)
+       [ super.chop,
+         "@pointer=#{@pointer},",
+         "stat=#{self[:stat]},", 
+         "@surface=\"#{self.surface}\",",
+         "@feature=\"#{self.feature}\">" ].join(' ')
     end
 
     # Overrides `Object#inspect`.
@@ -303,10 +311,13 @@ module Natto
     def is_eon?
       self.stat == EON_NODE
     end
+
+
   end
+
 end
 
-# Copyright (c) 2014-2015, Brooke M. Fujita.
+# Copyright (c) 2015, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
