@@ -1,7 +1,8 @@
 ## CHANGELOG
 
-- __2015/01/dd__: 0.9.8 release.
-    - Improved documentation.
+- __2015/02/10__: 0.9.8 release.
+    - Migrated natto code home from Bitbucket to GitHub.
+    - Improved documentation following said migration.
     - Minor refactoring to Natto::MeCabNode#to_s
     - Updating LICENSE for year 2015. 
 

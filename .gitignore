@@ -1,0 +1,7 @@
+*.gem
+*.swp
+.yardoc*
+.rbenv-version
+Gemfile.lock
+/doc/
+/pkg/

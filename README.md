@@ -12,7 +12,7 @@ and morphological analyzer for the Japanese language.
 -  It will work with MeCab installations on Windows, Unix/Linux or OS X.
 -  natto provides a naturally Ruby-esque interface to MeCab.
 
-You can learn more about [natto at bitbucket](https://bitbucket.org/buruzaemon/natto/).
+You can learn more about [natto at GitHub](https://github.com/buruzaemon/natto).
 
 
 ## Requirements
@@ -42,7 +42,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
         gem install natto
 
-6. If you are on a 64-bit Windows and you use a 64-bit Ruby or JRuby, then you might want to [build a 64-bit version of libmecab.dll](https://bitbucket.org/buruzaemon/natto/wiki/64-Bit-Windows).
+6. If you are on a 64-bit Windows and you use a 64-bit Ruby or JRuby, then you might want to [build a 64-bit version of libmecab.dll](https://github.com/buruzaemon/natto/wiki/64-Bit-Windows).
 
 
 ## Configuration
@@ -214,11 +214,11 @@ However, if you are using a CRuby on Windows, then you will first need to instal
    
 
 ## Learn more 
-- You can read more about natto on the [project Wiki](https://bitbucket.org/buruzaemon/natto/wiki/Home).
+- You can read more about natto on the [project Wiki](https://github.com/buruzaemon/natto/wiki).
 
 ## Contributing to natto
--  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at bitbucket](https://bitbucket.org/buruzaemon/natto/src/) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
--  [Browse the issue tracker](https://bitbucket.org/buruzaemon/natto/issues/) to make sure someone already hasn't requested it and/or contributed it.
+-  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at GitHub](https://github.com/buruzaemon/natto) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+-  [Browse the issue tracker](https://github.com/buruzaemon/natto/issues) to make sure someone already hasn't requested it and/or contributed it.
 -  Fork the project.
 -  Start a feature/bugfix branch.
 -  Commit and push until you are happy with your contribution.

@@ -13,7 +13,7 @@ No compiler is necessary, as natto is not a C extension. It will run on CRuby (m
 END_DESC
   s.author = 'Brooke M. Fujita'
   s.email = 'buruzaemon@gmail.com'
-  s.homepage = 'https://bitbucket.org/buruzaemon/natto'
+  s.homepage = 'https://github.com/buruzaemon/natto'
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.9'
   s.require_path = 'lib'
