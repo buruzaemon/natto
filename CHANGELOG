@@ -3,7 +3,7 @@
 - __2015/02/10__: 0.9.8 release.
     - Migrated natto code home from Bitbucket to GitHub.
     - Improved documentation following said migration.
-    - Minor refactoring to Natto::MeCabNode#to_s
+    - Minor refactoring to Natto::MeCabNode#to_s.
     - Updating LICENSE for year 2015. 
 
 - __2014/12/20__: 0.9.7 release.
