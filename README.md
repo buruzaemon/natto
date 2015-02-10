@@ -217,7 +217,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 - You can read more about natto on the [project Wiki](https://github.com/buruzaemon/natto/wiki).
 
 ## Contributing to natto
--  Use [mercurial](http://mercurial.selenic.com/) and [check out the latest code at GitHub](https://github.com/buruzaemon/natto) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
+-  Use [git](http://git-scm.com/) and [check out the latest code at GitHub](https://github.com/buruzaemon/natto) to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
 -  [Browse the issue tracker](https://github.com/buruzaemon/natto/issues) to make sure someone already hasn't requested it and/or contributed it.
 -  Fork the project.
 -  Start a feature/bugfix branch.
