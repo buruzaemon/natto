@@ -67,9 +67,9 @@ module Natto
     ffi_lib find_library
 
     # new interface
-    attach_function :mecab_model_new2, [:string], :pointer
-    attach_function :mecab_model_destroy, [:pointer], :void
-    attach_function :mecab_model_dictionary_info, [:pointer], :pointer
+    #attach_function :mecab_model_new2, [:string], :pointer
+    #attach_function :mecab_model_destroy, [:pointer], :void
+    #attach_function :mecab_model_dictionary_info, [:pointer], :pointer
 
     # old interface
     attach_function :mecab_new2, [:string], :pointer
@@ -95,17 +95,17 @@ module Natto
         Natto::Binding.find_library
       end
 
-      def mecab_model_new2(options_str)
-        Natto::Binding.mecab_model_new2(options_str)
-      end
-      
-      def mecab_model_destroy(m_ptr)
-        Natto::Binding.mecab_model_destroy(m_ptr)
-      end
+      #def mecab_model_new2(options_str)
+      #  Natto::Binding.mecab_model_new2(options_str)
+      #end
+      #
+      #def mecab_model_destroy(m_ptr)
+      #  Natto::Binding.mecab_model_destroy(m_ptr)
+      #end
 
-      def mecab_model_dictionary_info(m_ptr)
-        Natto::Binding.mecab_model_dictionary_info(m_ptr)
-      end
+      #def mecab_model_dictionary_info(m_ptr)
+      #  Natto::Binding.mecab_model_dictionary_info(m_ptr)
+      #end
       
       # ----------------------------------------
       def mecab_new2(options_str)
