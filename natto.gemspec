@@ -31,6 +31,7 @@ END_DESC
     'CHANGELOG',
     '.yardopts'
   ]
+  s.add_development_dependency 'rake'
 end
 
 # Copyright (c) 2015, Brooke M. Fujita.
