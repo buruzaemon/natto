@@ -1,0 +1,16 @@
+before_install:
+  - sudo apt-get update -qq
+  - wget http://ftp.sjtu.edu.cn/ubuntu/pool/universe/m/mecab/libmecab2_0.996-1.1_amd64.deb
+  - sudo dpkg -i  libmecab2_0.996-1.1_amd64.deb
+  - wget http://ftp.sjtu.edu.cn/ubuntu/pool/universe/m/mecab/libmecab-dev_0.996-1.1_amd64.deb
+  - sudo dpkg -i libmecab-dev_0.996-1.1_amd64.deb
+  - wget http://ftp.sjtu.edu.cn/ubuntu/pool/universe/m/mecab/mecab-utils_0.996-1.1_amd64.deb
+  - sudo dpkg -i mecab-utils_0.996-1.1_amd64.deb
+  - sudo apt-get install -y mecab-ipadic-utf8
+language: ruby
+rvm:
+  - "1.9.3"
+  - "2.0.0"
+  - "2.1.5"
+  - "2.2.0"
+  - jruby-19mode # JRuby in 1.9 mode
