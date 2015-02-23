@@ -11,7 +11,7 @@ install:
   - wget --no-check-certificate https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz && tar zxf mecab-ipadic-2.7.0-20070801.tar.gz
   - pushd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && sudo make install && popd
   - sudo ldconfig
-  - bundle install ffi
+  - gem install ffi
   
 language: ruby
 rvm:
