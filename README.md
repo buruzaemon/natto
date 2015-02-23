@@ -1,4 +1,4 @@
-# natto
+# natto [![Build Status](https://travis-ci.org/buruzaemon/natto.svg?branch=master)](https://travis-ci.org/buruzaemon/natto) 
 A Tasty Ruby Binding with MeCab
 
 ## What is natto?
