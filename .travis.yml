@@ -11,12 +11,12 @@ install:
   - wget --no-check-certificate https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz && tar zxf mecab-ipadic-2.7.0-20070801.tar.gz
   - pushd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && sudo make install && popd
   - sudo ldconfig
-  - gem install ffi minitest
+  - gem install ffi
   
 language: ruby
 rvm:
   - "1.9.3"
   - "2.0.0"
   - "2.1.5"
-  - "2.2.0"
+  #- "2.2.0"
   #- jruby-19mode # JRuby in 1.9 mode
