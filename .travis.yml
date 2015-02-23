@@ -1,6 +1,17 @@
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y mecab libmecab-dev mecab-ipadic-utf8
+  - uname -a
+
+install:  
+  # mecab
+  - wget http://mecab.googlecode.com/files/mecab-0.996.tar.gz && tar xf mecab-0.996.tar.gz
+  - pushd mecab-0.996 && ./configure --enable-utf8-only && make && sudo make install && popd
+  - sudo ldconfig
+  # mecab-ipadic
+  - wget http://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz && tar xf mecab-ipadic-2.7.0-20070801.tar.gz
+  - pushd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && sudo make install && popd
+  - sudo ldconfig
+  
 language: ruby
 rvm:
   - "1.9.3"
