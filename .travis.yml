@@ -12,6 +12,7 @@ install:
   - pushd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && sudo make install && popd
   - sudo ldconfig
   - gem install ffi
+  - gem install minitest
   
 language: ruby
 rvm:
