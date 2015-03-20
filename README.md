@@ -46,12 +46,12 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 
 ## Automatic Configuration
-***No explicit configuration should be necessary, as natto will try to locate the `mecab` library based upon its runtime environment.***
+No explicit configuration should be necessary, as natto will try to locate the MeCab library based upon its runtime environment.
 - On OS X and \*nix, it will query `mecab-config --libs` 
 - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
 
 ## Explicit configuration via `MECAB_PATH` and `MECAB_CHARSET`
-***If natto cannot find the `mecab` library, `LoadError` will be raised.*** Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
+If natto cannot find the MeCab library, `LoadError` will be raised. Please set the `MECAB_PATH` environment variable to the exact name/path to your MeCab library.
 
 - e.g., for OS X
 
@@ -74,7 +74,6 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 Here's a very quick guide to using natto.
 
 Instantiate a reference to the MeCab library, and display some details:
-
 
     require 'natto'
 
@@ -129,38 +128,39 @@ Parse Japanese text and send the MeCab result as a single string to stdout:
 
 ----
 
-If a block is passed to `parse`, you can iterate over
-the list of resulting `MeCabNode` instances to access 
-more detailed information about each morpheme. 
+If a block is passed to `parse`, you can iterate over the list of resulting `MeCabNode`
+instances to access more detailed information about each morpheme. 
 
-In this example, the following attributes and methods
-for `MeCabNode` are used:
-
+In this example, the following attributes and methods for `MeCabNode` are used:
 - `surface` - the morpheme surface
-- `posid` - node part-of-speech ID (dictionary-dependent) 
+- `posid` - node part-of-speech ID (dictionary-dependent)
 - `is_eos?` - is this `MeCabNode` an end-of-sentence node?
 
+This iterates over the morpheme nodes in the given text,
+and outputs a formatted, tab-delimited line with the
+morpheme surface and part-of-speech ID, ignoring any end-of-sentence
+nodes:
 
-        nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
-          puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
-        end
-        世界    part-of-speech id: 38
-        チャンプ        part-of-speech id: 38
-        目指し  part-of-speech id: 31
-        て      part-of-speech id: 18
-        ん      part-of-speech id: 63
-        だ      part-of-speech id: 25
-        な      part-of-speech id: 17
-        これ    part-of-speech id: 59
-        がっ    part-of-speech id: 32
-        !!      part-of-speech id: 36
-        夢      part-of-speech id: 38
-        な      part-of-speech id: 25
-        の      part-of-speech id: 17
-        、      part-of-speech id: 9
-        俺      part-of-speech id: 59
-        のっ    part-of-speech id: 31
-        !!      part-of-speech id: 36
+    nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
+      puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
+    end
+    世界    part-of-speech id: 38
+    チャンプ        part-of-speech id: 38
+    目指し  part-of-speech id: 31
+    て      part-of-speech id: 18
+    ん      part-of-speech id: 63
+    だ      part-of-speech id: 25
+    な      part-of-speech id: 17
+    これ    part-of-speech id: 59
+    がっ    part-of-speech id: 32
+    !!      part-of-speech id: 36
+    夢      part-of-speech id: 38
+    な      part-of-speech id: 25
+    の      part-of-speech id: 17
+    、      part-of-speech id: 9
+    俺      part-of-speech id: 59
+    のっ    part-of-speech id: 31
+    !!      part-of-speech id: 36
 
 ----
 
@@ -178,46 +178,49 @@ the resulting `MeCabNode` feature attribute to extract:
 - `%f[0]` - node part-of-speech
 - `%f[7]` - reading
 
-        nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
+Note that we can move the `Enumerator` both forwards and backwards, rewind it
+back to the beginning, and then iterate over it.
+
+    nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
     
-        enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
-        => #<Enumerator: #<Enumerator::Generator:0x00000002ff3898>:each>
+    enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
+    => #<Enumerator: #<Enumerator::Generator:0x00000002ff3898>:each>
     
-        enum.next
-        => #<Natto::MeCabNode:0x000000032eed68 \
-             @pointer=#<FFI::Pointer address=0x000000005ffb48>, \
-             stat=0, \
-             @surface="この", \
-             @feature="この   連体詞  コノ">
+    enum.next
+    => #<Natto::MeCabNode:0x000000032eed68 \
+         @pointer=#<FFI::Pointer address=0x000000005ffb48>, \
+         stat=0, \
+         @surface="この", \
+         @feature="この   連体詞  コノ">
     
-        enum.peek
-        => #<Natto::MeCabNode:0x00000002fe2110a \
-             @pointer=#<FFI::Pointer address=0x000000005ffdb8>, \
-             stat=0, \
-             @surface="星", \
-             @feature="星       名詞    ホシ"> 
+    enum.peek
+    => #<Natto::MeCabNode:0x00000002fe2110a \
+         @pointer=#<FFI::Pointer address=0x000000005ffdb8>, \
+         stat=0, \
+         @surface="星", \
+         @feature="星       名詞    ホシ"> 
         
-        enum.rewind
+    enum.rewind
     
-        # again, ignore any end-of-sentence nodes
-        enum.each { |n| puts n.feature if !n.is_eos? }
-        この    連体詞  コノ
-        星      名詞    ホシ
-        の      助詞    ノ
-        一等    名詞    イットウ
-        賞      名詞    ショウ
-        に      助詞    ニ
-        なり    動詞    ナリ
-        たい    助動詞  タイ
-        の      助詞    ノ
-        卓球    名詞    タッキュウ
-        で      助詞    デ
-        俺      名詞    オレ
-        は      助詞    ハ
-        、      記号    、
-        そん    名詞    ソン
-        だけ    助詞    ダケ
-        ！      記号    ！
+    # again, ignore any end-of-sentence nodes
+    enum.each { |n| puts n.feature if !n.is_eos? }
+    この    連体詞  コノ
+    星      名詞    ホシ
+    の      助詞    ノ
+    一等    名詞    イットウ
+    賞      名詞    ショウ
+    に      助詞    ニ
+    なり    動詞    ナリ
+    たい    助動詞  タイ
+    の      助詞    ノ
+    卓球    名詞    タッキュウ
+    で      助詞    デ
+    俺      名詞    オレ
+    は      助詞    ハ
+    、      記号    、
+    そん    名詞    ソン
+    だけ    助詞    ダケ
+    ！      記号    ！
 
 
 ## Learn more 
