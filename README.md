@@ -7,10 +7,10 @@ A gem leveraging FFI (foreign function interface), natto combines the
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
 and morphological analyzer for the Japanese language.
 
--  No compiler is necessary, as natto is _not_ a C extension.
--  It will run on CRuby (mri/yarv) and JRuby (jvm) equally well.
--  It will work with MeCab installations on Windows, Unix/Linux or OS X.
 -  natto provides a naturally Ruby-esque interface to MeCab.
+-  It runs on both CRuby (mri/yarv) and JRuby (jvm).
+-  It works with MeCab installations on Windows, Unix/Linux and OS X.
+-  No compiler is necessary, as natto is _not_ a C extension.
 
 You can learn more about [natto at GitHub](https://github.com/buruzaemon/natto).
 
@@ -45,34 +45,37 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 6. If you are on a 64-bit Windows and you use a 64-bit Ruby or JRuby, then you might want to [build a 64-bit version of libmecab.dll](https://github.com/buruzaemon/natto/wiki/64-Bit-Windows).
 
 
-## Configuration
--  ***No explicit configuration should be necessary, as natto will try to locate the `mecab` library based upon its runtime environment.***
-    - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
-    - On OS X and \*nix, it will query `mecab-config --libs` 
--   ***But if natto cannot find the `mecab` library, `LoadError` will be raised.***
-    - Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
-    - e.g., for OS X
+## Automatic Configuration
+***No explicit configuration should be necessary, as natto will try to locate the `mecab` library based upon its runtime environment.***
+- On OS X and \*nix, it will query `mecab-config --libs` 
+- On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
 
-            export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
+## Explicit configuration via `MECAB_PATH` and `MECAB_CHARSET`
+***If natto cannot find the `mecab` library, `LoadError` will be raised.*** Please set the `MECAB_PATH` environment variable to the exact name/path to your `mecab` library.
 
-    - e.g., for bash on UNIX/Linux
+- e.g., for OS X
 
-            export MECAB_PATH=/usr/local/lib/libmecab.so
+    export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
 
-    - e.g., on Windows
+- e.g., for bash on UNIX/Linux
 
-            set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+    export MECAB_PATH=/usr/local/lib/libmecab.so
 
-    - e.g., from within a Ruby program
+- e.g., on Windows
 
-            ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
+    set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+
+- e.g., from within a Ruby program
+
+    ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
 
+Here's a very quick guide to using natto.
 
-    # Quick Start
-    # -----------
-    #  
+Instantiate a reference to the MeCab library, and display some details:
+
+
     # No explicit configuration should be necessary!
     #
     require 'natto'
@@ -95,6 +98,11 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     puts nm.version
     => 0.996 
 
+----
+
+Display details about the mecab system dictionary used:
+
+
     # display full pathname to MeCab library
     #
     puts nm.libpath
@@ -113,9 +121,11 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     #
     puts sysdic.charset
     => utf8 
-  
-    # parse text and send output to stdout
-    #
+ 
+----
+
+Parse Japanese text and send the MeCab result as a single string to stdout:
+
     puts nm.parse('俺の名前は星野豊だ！！そこんとこヨロシク！')
     俺      名詞,代名詞,一般,*,*,*,俺,オレ,オレ
     の      助詞,連体化,*,*,*,*,の,ノ,ノ
@@ -133,12 +143,19 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     ！      記号,一般,*,*,*,*,！,！,！
     EOS
 
-    # parse more text and use a block to:
-    # - iterate over the resulting MeCabNode instances
-    # - output morpheme surface and part-of-speech ID
-    #
-    # * ignore any end-of-sentence nodes
-    #
+----
+
+If a block is passed to `parse`, you can iterate over
+the list of resulting `MeCabNode` instances to access 
+more detailed information about each morpheme. 
+
+In this example, the following attributes and methods
+for `MeCabNode` are used:
+
+- `surface` - the morpheme surface
+- `posid` - node part-of-speech ID (dictionary-dependent) 
+- `is_eos?` - is this `MeCabNode` an end-of-sentence node?
+
     nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
       puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
     end
@@ -160,16 +177,22 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     のっ    part-of-speech id: 31
     !!      part-of-speech id: 36
 
-    # for more complex parsing, such as that for natural 
-    # language processing tasks, it is far more efficient
-    # to iterate over MeCab nodes using an Enumerator
-    # 
-    # this example uses the -F node-format option to customize
-    # the resulting MeCabNode feature attribute to extract:
-    # - %m    ... surface
-    # - %f[0] ... part-of-speech
-    # - %f[7] ... reading
-    #
+----
+
+For more complex parsing, such as that for natural language
+processing tasks, it is far more efficient to use `enum_parse` to
+obtain an [`Enumerator`](http://ruby-doc.org/core-2.1.5/Enumerator.html)
+to iterate over the resulting `MeCabNode` instances. An `Enumerator`
+yields each `MeCabNode` instance without first materializing all
+instances at once, thus being more efficient.
+
+This example uses the `-F` node-format option to customize
+the resulting `MeCabNode` feature attribute to extract:
+
+- `%m` - morpheme surface
+- `%f[0]` - node part-of-speech
+- `%f[7]` - reading
+
     nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
 
     enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
@@ -211,7 +234,6 @@ However, if you are using a CRuby on Windows, then you will first need to instal
     だけ    助詞    ダケ
     ！      記号    ！
 
-   
 
 ## Learn more 
 - You can read more about natto on the [project Wiki](https://github.com/buruzaemon/natto/wiki).
