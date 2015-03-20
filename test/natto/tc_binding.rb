@@ -34,7 +34,23 @@ class TestNattoBinding < MiniTest::Unit::TestCase
        :mecab_nbest_sparse_tostr, 
        :mecab_nbest_next_tonode,
        :mecab_format_node,
-       :mecab_dictionary_info 
+       :mecab_dictionary_info,
+       :mecab_lattice_new,
+       :mecab_lattice_destroy,
+       :mecab_lattice_clear,
+       :mecab_lattice_is_available,
+       :mecab_lattice_get_bos_node,
+       :mecab_lattice_set_sentence,
+       :mecab_lattice_get_size,
+       :mecab_lattice_set_z,
+       :mecab_lattice_set_theta,
+       :mecab_lattice_next,
+       :mecab_lattice_set_request_type,
+       :mecab_lattice_tostr,
+       :mecab_lattice_nbest_tostr,
+       :mecab_lattice_set_boundary_constraint,
+       :mecab_parse_lattice,
+       :mecab_lattice_strerror
     ].each do |f|
       assert(@klass.respond_to? f)
     end

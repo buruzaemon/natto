@@ -66,12 +66,7 @@ module Natto
 
     ffi_lib find_library
 
-    # new interface
-    #attach_function :mecab_model_new2, [:string], :pointer
-    #attach_function :mecab_model_destroy, [:pointer], :void
-    #attach_function :mecab_model_dictionary_info, [:pointer], :pointer
-
-    # old interface
+    # C interface
     attach_function :mecab_new2, [:string], :pointer
     attach_function :mecab_version, [], :string
     attach_function :mecab_strerror, [:pointer],:string
@@ -88,6 +83,23 @@ module Natto
     attach_function :mecab_format_node, [:pointer, :pointer], :string
     attach_function :mecab_dictionary_info, [:pointer], :pointer
 
+    attach_function :mecab_lattice_new, [], :pointer
+    attach_function :mecab_lattice_destroy, [:pointer], :void
+    attach_function :mecab_lattice_clear, [:pointer], :void
+    attach_function :mecab_lattice_is_available, [:pointer], :int
+    attach_function :mecab_lattice_get_bos_node, [:pointer], :pointer
+    attach_function :mecab_lattice_set_sentence, [:pointer, :string], :void
+    attach_function :mecab_lattice_get_size, [:pointer], :int
+    attach_function :mecab_lattice_set_z, [:pointer, :float], :void
+    attach_function :mecab_lattice_set_theta, [:pointer, :float], :void
+    attach_function :mecab_lattice_next, [:pointer], :int
+    attach_function :mecab_lattice_set_request_type, [:pointer, :int], :void
+    attach_function :mecab_lattice_tostr, [:pointer], :string
+    attach_function :mecab_lattice_nbest_tostr, [:pointer, :int], :string
+    attach_function :mecab_lattice_set_boundary_constraint, [:pointer, :int, :int], :void
+    attach_function :mecab_parse_lattice, [:pointer, :pointer], :int
+    attach_function :mecab_lattice_strerror, [:pointer], :string
+
     # @private
     module ClassMethods
 
@@ -95,18 +107,6 @@ module Natto
         Natto::Binding.find_library
       end
 
-      #def mecab_model_new2(options_str)
-      #  Natto::Binding.mecab_model_new2(options_str)
-      #end
-      #
-      #def mecab_model_destroy(m_ptr)
-      #  Natto::Binding.mecab_model_destroy(m_ptr)
-      #end
-
-      #def mecab_model_dictionary_info(m_ptr)
-      #  Natto::Binding.mecab_model_dictionary_info(m_ptr)
-      #end
-      
       # ----------------------------------------
       def mecab_new2(options_str)
         Natto::Binding.mecab_new2(options_str)
@@ -170,6 +170,70 @@ module Natto
       
       def mecab_dictionary_info(m_ptr)
         Natto::Binding.mecab_dictionary_info(m_ptr)
+      end
+      
+      def mecab_lattice_new()
+        Natto::Binding.mecab_lattice_new()
+      end
+
+      def mecab_lattice_destroy(l_ptr)
+        Natto::Binding.mecab_lattice_destroy(l_ptr)
+      end
+    
+      def mecab_lattice_clear(l_ptr)
+        Natto::Binding.mecab_lattice_clear(l_ptr)
+      end
+    
+      def mecab_lattice_is_available(l_ptr)
+        Natto::Binding.mecab_lattice_is_available(l_ptr)
+      end
+
+      def mecab_lattice_get_bos_node(l_ptr)
+        Natto::Binding.mecab_lattice_get_bos_node(l_ptr)
+      end
+    
+      def mecab_lattice_set_sentence(l_ptr, str)
+        Natto::Binding.mecab_lattice_set_sentence(l_ptr, str)
+      end
+
+      def mecab_lattice_get_size(l_ptr)
+        Natto::Binding.mecab_lattice_get_size(l_ptr)
+      end
+    
+      def mecab_lattice_set_z(l_ptr, z)
+        Natto::Binding.mecab_lattice_set_z(l_ptr, z)
+      end
+
+      def mecab_lattice_set_theta(l_ptr, t)
+        Natto::Binding.mecab_lattice_set_theta(l_ptr, t)
+      end
+
+      def mecab_lattice_next(l_ptr)
+        Natto::Binding.mecab_lattice_next(l_ptr)
+      end
+ 
+      def mecab_lattice_set_request_type(l_ptr, rtype)
+        Natto::Binding.mecab_lattice_set_request_type(l_ptr, rtype)
+      end
+
+      def mecab_lattice_tostr(l_ptr)
+        Natto::Binding.mecab_lattice_tostr(l_ptr)
+      end
+
+      def mecab_lattice_nbest_tostr(l_ptr, n)
+        Natto::Binding.mecab_lattice_nbest_tostr(l_ptr, n)
+      end
+
+      def mecab_lattice_set_boundary_constraint(l_ptr, pos, btype)
+        Natto::Binding.mecab_lattice_set_boundary_constraint(l_ptr, pos, btype)
+      end
+
+      def mecab_parse_lattice(m_ptr, l_ptr)
+        Natto::Binding.mecab_parse_lattice(m_ptr, l_ptr)
+      end
+
+      def mecab_lattice_strerror(l_ptr)
+        Natto::Binding.mecab_lattice_strerror(l_ptr)
       end
     end
   end
