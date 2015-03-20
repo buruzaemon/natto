@@ -141,26 +141,26 @@ for `MeCabNode` are used:
 - `is_eos?` - is this `MeCabNode` an end-of-sentence node?
 
 
-    nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
-      puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
-    end
-    世界    part-of-speech id: 38
-    チャンプ        part-of-speech id: 38
-    目指し  part-of-speech id: 31
-    て      part-of-speech id: 18
-    ん      part-of-speech id: 63
-    だ      part-of-speech id: 25
-    な      part-of-speech id: 17
-    これ    part-of-speech id: 59
-    がっ    part-of-speech id: 32
-    !!      part-of-speech id: 36
-    夢      part-of-speech id: 38
-    な      part-of-speech id: 25
-    の      part-of-speech id: 17
-    、      part-of-speech id: 9
-    俺      part-of-speech id: 59
-    のっ    part-of-speech id: 31
-    !!      part-of-speech id: 36
+        nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
+          puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
+        end
+        世界    part-of-speech id: 38
+        チャンプ        part-of-speech id: 38
+        目指し  part-of-speech id: 31
+        て      part-of-speech id: 18
+        ん      part-of-speech id: 63
+        だ      part-of-speech id: 25
+        な      part-of-speech id: 17
+        これ    part-of-speech id: 59
+        がっ    part-of-speech id: 32
+        !!      part-of-speech id: 36
+        夢      part-of-speech id: 38
+        な      part-of-speech id: 25
+        の      part-of-speech id: 17
+        、      part-of-speech id: 9
+        俺      part-of-speech id: 59
+        のっ    part-of-speech id: 31
+        !!      part-of-speech id: 36
 
 ----
 
@@ -178,47 +178,46 @@ the resulting `MeCabNode` feature attribute to extract:
 - `%f[0]` - node part-of-speech
 - `%f[7]` - reading
 
-
-    nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
-
-    enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
-    => #<Enumerator: #<Enumerator::Generator:0x00000002ff3898>:each>
-
-    enum.next
-    => #<Natto::MeCabNode:0x000000032eed68 \
-         @pointer=#<FFI::Pointer address=0x000000005ffb48>, \
-         stat=0, \
-         @surface="この", \
-         @feature="この   連体詞  コノ">
-
-    enum.peek
-    => #<Natto::MeCabNode:0x00000002fe2110a \
-         @pointer=#<FFI::Pointer address=0x000000005ffdb8>, \
-         stat=0, \
-         @surface="星", \
-         @feature="星       名詞    ホシ"> 
+        nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
     
-    enum.rewind
-
-    # again, ignore any end-of-sentence nodes
-    enum.each { |n| puts n.feature if !n.is_eos? }
-    この    連体詞  コノ
-    星      名詞    ホシ
-    の      助詞    ノ
-    一等    名詞    イットウ
-    賞      名詞    ショウ
-    に      助詞    ニ
-    なり    動詞    ナリ
-    たい    助動詞  タイ
-    の      助詞    ノ
-    卓球    名詞    タッキュウ
-    で      助詞    デ
-    俺      名詞    オレ
-    は      助詞    ハ
-    、      記号    、
-    そん    名詞    ソン
-    だけ    助詞    ダケ
-    ！      記号    ！
+        enum = nm.enum_parse('この星の一等賞になりたいの卓球で俺は、そんだけ！')
+        => #<Enumerator: #<Enumerator::Generator:0x00000002ff3898>:each>
+    
+        enum.next
+        => #<Natto::MeCabNode:0x000000032eed68 \
+             @pointer=#<FFI::Pointer address=0x000000005ffb48>, \
+             stat=0, \
+             @surface="この", \
+             @feature="この   連体詞  コノ">
+    
+        enum.peek
+        => #<Natto::MeCabNode:0x00000002fe2110a \
+             @pointer=#<FFI::Pointer address=0x000000005ffdb8>, \
+             stat=0, \
+             @surface="星", \
+             @feature="星       名詞    ホシ"> 
+        
+        enum.rewind
+    
+        # again, ignore any end-of-sentence nodes
+        enum.each { |n| puts n.feature if !n.is_eos? }
+        この    連体詞  コノ
+        星      名詞    ホシ
+        の      助詞    ノ
+        一等    名詞    イットウ
+        賞      名詞    ショウ
+        に      助詞    ニ
+        なり    動詞    ナリ
+        たい    助動詞  タイ
+        の      助詞    ノ
+        卓球    名詞    タッキュウ
+        で      助詞    デ
+        俺      名詞    オレ
+        は      助詞    ハ
+        、      記号    、
+        そん    名詞    ソン
+        だけ    助詞    ダケ
+        ！      記号    ！
 
 
 ## Learn more 
