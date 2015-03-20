@@ -29,7 +29,7 @@ Install natto with the following gem command:
 
     gem install natto
 
-This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the `mecab` library.
+This will automatically install the [ffi](http://rubygems.org/gems/ffi) rubygem, which natto uses to bind to the MeCab library.
 
 ## Installation on Windows 
 However, if you are using a CRuby on Windows, then you will first need to install the [RubyInstaller Development Kit (DevKit)](https://github.com/oneclick/rubyinstaller/wiki/Development-Kit), a MSYS/MinGW based toolkit that enables your Windows Ruby installation to build many of the native C/C++ extensions available, including ffi.
@@ -55,19 +55,19 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 - e.g., for OS X
 
-    export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
+        export MECAB_PATH=/usr/local/Cellar/mecab/0.996/lib/libmecab.dylib 
 
 - e.g., for bash on UNIX/Linux
 
-    export MECAB_PATH=/usr/local/lib/libmecab.so
+        export MECAB_PATH=/usr/local/lib/libmecab.so
 
 - e.g., on Windows
 
-    set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
+        set MECAB_PATH=C:\Program Files\MeCab\bin\libmecab.dll
 
 - e.g., from within a Ruby program
 
-    ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
+        ENV['MECAB_PATH']='/usr/local/lib/libmecab.so'
 
 ## Usage
 
@@ -76,12 +76,8 @@ Here's a very quick guide to using natto.
 Instantiate a reference to the MeCab library, and display some details:
 
 
-    # No explicit configuration should be necessary!
-    #
     require 'natto'
 
-    # first, create an instance of Natto::MeCab
-    #
     nm = Natto::MeCab.new
     => #<Natto::MeCab:0x28d30748 
          @tagger=#<FFI::Pointer address=0x28a97d50>, \
@@ -93,32 +89,20 @@ Instantiate a reference to the MeCab library, and display some details:
                  type=0>] \
          @version=0.996>
     
-    # display MeCab version
-    #
     puts nm.version
     => 0.996 
 
 ----
 
-Display details about the mecab system dictionary used:
+Display details about the system dictionary used by MeCab:
 
-
-    # display full pathname to MeCab library
-    #
     puts nm.libpath
     => /usr/local/lib/libmecab.so 
 
-    # reference to MeCab system dictionary
-    #
     sysdic = nm.dicts.first
-
-    # display full pathname to system dictionary file
-    #
     puts sysdic.filepath
     => /usr/local/lib/mecab/dic/ipadic/sys.dic
 
-    # what charset (encoding) is the system dictionary?
-    #
     puts sysdic.charset
     => utf8 
  
@@ -156,6 +140,7 @@ for `MeCabNode` are used:
 - `posid` - node part-of-speech ID (dictionary-dependent) 
 - `is_eos?` - is this `MeCabNode` an end-of-sentence node?
 
+
     nm.parse('世界チャンプ目指してんだなこれがっ!!夢なの、俺のっ!!') do |n|
       puts "#{n.surface}\tpart-of-speech id: #{n.posid}" if !n.is_eos?
     end
@@ -192,6 +177,7 @@ the resulting `MeCabNode` feature attribute to extract:
 - `%m` - morpheme surface
 - `%f[0]` - node part-of-speech
 - `%f[7]` - reading
+
 
     nm = Natto::MeCab.new('-F%m\t%f[0]\t%f[7]')
 
