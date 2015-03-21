@@ -197,13 +197,13 @@ module Natto
         # N-Best parsing implementations
         self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
 
-        @parse_tostr = lambda do |text| 
+        @parse_tostr = ->(text) {
           retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
           retval.force_encoding(Encoding.default_external)
-        end 
+        } 
 
-        @parse_tonodes = lambda do |text| 
+        @parse_tonodes = ->(text) { 
           Enumerator.new do |y|
             self.mecab_nbest_init(@tagger, text) 
             n = self.mecab_nbest_next_tonode(@tagger)
@@ -233,16 +233,16 @@ module Natto
               n = self.mecab_nbest_next_tonode(@tagger)
             end
           end
-        end
+        }
       else
         # default parsing implementations
-        @parse_tostr = lambda do |text|
+        @parse_tostr = ->(text) {
           retval = self.mecab_sparse_tostr(@tagger, text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
           retval.force_encoding(Encoding.default_external)
-        end
+        }
 
-        @parse_tonodes = lambda do |text| 
+        @parse_tonodes = ->(text) { 
           Enumerator.new do |y|
             n = self.mecab_sparse_tonode(@tagger, text) 
             raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
@@ -266,7 +266,7 @@ module Natto
               n = mn.next
             end
           end
-        end
+        }
       end
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@tagger))
