@@ -203,11 +203,13 @@ module Natto
       self.mecab_set_all_morphs(@tagger, 1) if @options[:all_morphs]
       self.mecab_set_partial(@tagger, 1) if @options[:partial]
        
-      # Set for parsing to string; for parsing to nodes,
-      # and for boundary constraing parsing to string; and to nodes.
+      # Define lambda for each major parsing type: _tostr, _tonode,
+      # boundary constraint _tostr, boundary constraint _node;
+      # and each parsing type will support both normal and N-best
+      # options
       @parse_tostr = ->(text) {
         if @options[:nbest] && @options[:nbest] > 1
-          self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
+          #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
           retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
         else
@@ -222,7 +224,7 @@ module Natto
         Enumerator.new do |y|
           if @options[:nbest] && @options[:nbest] > 1
             nlen = @options[:nbest]
-            self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
+            #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
             self.mecab_nbest_init(@tagger, text) 
             nptr = self.mecab_nbest_next_tonode(@tagger)
           else

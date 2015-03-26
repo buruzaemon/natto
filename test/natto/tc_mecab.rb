@@ -1,5 +1,6 @@
 # coding: utf-8
 require 'rbconfig'
+require 'yaml'
 
 class TestMeCab < MiniTest::Unit::TestCase
   def setup
@@ -23,6 +24,9 @@ class TestMeCab < MiniTest::Unit::TestCase
       @br       = '\n'
     end
     @test_str = `#{@test_cmd}`
+
+    # boundary constraint parse setup
+    @yml = YAML.load(File.read('test/natto/test_utf8.yml', encoding: Encoding::UTF_8))
   end
 
   def teardown
@@ -269,6 +273,14 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected, actual)
   end
 
+  def test_argument_error
+    [ :parse, :enum_parse ].each do |m|
+      assert_raises ArgumentError do
+        @mn.send(m, nil) 
+      end
+    end
+  end
+
   def test_parse_tostr_default
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -432,12 +444,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[6].strip, enum.next.feature)
   end
 
-  def test_argument_error
-    [ :parse, :enum_parse ].each do |m|
-      assert_raises ArgumentError do
-        @mn.send(m, nil) 
-      end
-    end
+  def test_bcparse_tostr_default
   end
 end 
 
