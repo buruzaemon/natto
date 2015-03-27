@@ -1,0 +1,39 @@
+test1:
+    text: にわにはにわにわとりがいる。
+    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
+    expected: 
+        - にわ
+        - に
+        - はにわ
+        - にわとり
+        - が
+        - いる
+        - 。
+        - EOS
+test2:
+    text: 123 ABCおよび１２３　ＡＢＣ
+    pattern: !ruby/regexp '/\p{Number}{3}\p{Space}+\p{Alphabetic}{3}/'
+    expected: 
+        - 123 ABC 
+        - および
+        - １２３　ＡＢＣ
+        - EOS
+test3:
+    text: 初心
+    pattern: 初心
+    expected:
+        - ショシン 
+        - EOS
+        - ウブ 
+        - EOS
+test4:
+    text: にわにはにわにわとりがいる。
+    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
+    expected: 
+        - にわ 1
+        - に 0
+        - はにわ 0
+        - にわとり 0
+        - が 0
+        - いる 0
+        - 。 0

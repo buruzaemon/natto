@@ -105,6 +105,18 @@ module Natto
     include Natto::Binding
     include Natto::OptionParse
  
+    MECAB_LATTICE_ONE_BEST = 1
+    MECAB_LATTICE_NBEST = 2
+    MECAB_LATTICE_PARTIAL = 4
+    MECAB_LATTICE_MARGINAL_PROB = 8
+    MECAB_LATTICE_ALTERNATIVE = 16
+    MECAB_LATTICE_ALL_MORPHS = 32
+    MECAB_LATTICE_ALLOCATE_SENTENCE = 64
+
+    MECAB_ANY_BOUNDARY = 0
+    MECAB_TOKEN_BOUNDARY = 1
+    MECAB_INSIDE_TOKEN = 2
+
     # @return [FFI:Pointer] pointer to MeCab tagger.
     attr_reader :tagger
     # @return [String] absolute filepath to MeCab library.
@@ -191,31 +203,151 @@ module Natto
       self.mecab_set_all_morphs(@tagger, 1) if @options[:all_morphs]
       self.mecab_set_partial(@tagger, 1) if @options[:partial]
        
-      # Set mecab parsing implementations for N-best and regular parsing,
-      # for both parsing as string and yielding a node object
-      if @options[:nbest] && @options[:nbest] > 1
-        # N-Best parsing implementations
-        self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
-
-        @parse_tostr = lambda do |text| 
+      # Define lambda for each major parsing type: _tostr, _tonode,
+      # boundary constraint _tostr, boundary constraint _node;
+      # and each parsing type will support both normal and N-best
+      # options
+      @parse_tostr = ->(text) {
+        if @options[:nbest] && @options[:nbest] > 1
+          #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
           retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-          retval.force_encoding(Encoding.default_external)
-        end 
+        else
+          retval = self.mecab_sparse_tostr(@tagger, text) || 
+                raise(MeCabError.new(self.mecab_strerror(@tagger))) 
+        end
 
-        @parse_tonodes = lambda do |text| 
-          Enumerator.new do |y|
-            self.mecab_nbest_init(@tagger, text) 
-            n = self.mecab_nbest_next_tonode(@tagger)
-            raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
+        retval.force_encoding(Encoding.default_external)
+      } 
 
+      @parse_tonodes = ->(text) { 
+        Enumerator.new do |y|
+          if @options[:nbest] && @options[:nbest] > 1
             nlen = @options[:nbest]
-            nlen.times do |i|
-              s = text.bytes.to_a
-              while n && n.address != 0x0
-                mn = Natto::MeCabNode.new(n)
-                # ignore BOS nodes, since mecab does so
-                if !mn.is_bos?
+            #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
+            self.mecab_nbest_init(@tagger, text) 
+            nptr = self.mecab_nbest_next_tonode(@tagger)
+          else
+            nlen = 1
+            nptr = self.mecab_sparse_tonode(@tagger, text) 
+          end
+          raise(MeCabError.new(self.mecab_strerror(@tagger))) if nptr.nil? || nptr.address==0x0
+
+          nlen.times do
+            s = text.bytes.to_a
+            while nptr && nptr.address != 0x0
+              mn = Natto::MeCabNode.new(nptr)
+              # ignore BOS nodes, since mecab does so
+              if !mn.is_bos?
+                s = s.drop_while {|e| (e==0xa || e==0x20)}
+                if !s.empty?
+                  sarr = []
+                  mn.length.times { sarr << s.shift }
+                  surf = sarr.pack('C*')
+                  mn.surface = surf.force_encoding(Encoding.default_external)
+                end
+                if @options[:output_format_type] || @options[:node_format]
+                  mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
+                end
+                y.yield mn
+              end
+              nptr = mn.next
+            end
+            if nlen > 1
+              nptr = self.mecab_nbest_next_tonode(@tagger)
+            end
+          end
+        end
+      }
+      
+      @bcparse_tostr = ->(text, boundary_constraints=/./) {
+        begin
+          lattice = self.mecab_lattice_new()
+          raise MeCabError.new("Could not create Lattice") if lattice.address == 0x0
+
+          if @options[:nbest] && @options[:nbest] > 1
+            n = @options[:nbest]
+            self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_NBEST)
+          else
+            n = 1
+            self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_ONE_BEST)
+          end
+
+          self.mecab_lattice_set_sentence(lattice, text)
+
+          tokens = tokenize(text, boundary_constraints)
+          bpos = 0
+          tokens.each do |token|
+            c = token.first
+
+            self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
+            bpos += 1
+
+            mark = token.last ? MECAB_INSIDE_TOKEN : MECAB_ANY_BOUNDARY
+            (c-1).times do
+              self.mecab_lattice_set_boundary_constraint(lattice, bpos, mark)
+              bpos += 1
+            end
+          end
+
+          self.mecab_parse_lattice(@tagger, lattice)
+          
+          if n > 1
+            retval = self.mecab_lattice_nbest_tostr(lattice, n)
+          else
+            retval = self.mecab_lattice_tostr(lattice)
+          end
+          retval.force_encoding(Encoding.default_external)
+        rescue
+          raise(MeCabError.new(self.mecab_lattice_strerror(lattice))) 
+        ensure
+          if lattice.address != 0x0
+            self.mecab_lattice_destroy(lattice)
+          end
+        end
+      }
+        
+      @bcparse_tonodes = ->(text, boundary_constraints=/./) {
+        Enumerator.new do |y|
+          begin
+            lattice = self.mecab_lattice_new()
+            raise MeCabError.new("Could not create Lattice") if lattice.address == 0x0
+
+            if @options[:nbest] && @options[:nbest] > 1
+              n = @options[:nbest]
+              self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_NBEST)
+            else
+              n = 1
+              self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_ONE_BEST)
+            end
+
+            self.mecab_lattice_set_sentence(lattice, text)
+
+            tokens = tokenize(text, boundary_constraints)
+            bpos = 0
+            tokens.each do |token|
+              c = token.first
+
+              self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
+              bpos += 1
+
+              mark = token.last ? MECAB_INSIDE_TOKEN : MECAB_ANY_BOUNDARY
+              (c-1).times do
+                self.mecab_lattice_set_boundary_constraint(lattice, bpos, mark)
+                bpos += 1
+              end
+            end
+
+            self.mecab_parse_lattice(@tagger, lattice)
+
+            n.times do
+              check = self.mecab_lattice_next(lattice)
+              if check
+                nptr = self.mecab_lattice_get_bos_node(lattice)
+          
+                s = text.bytes.to_a
+                while nptr && nptr.address!=0x0
+                  mn = Natto::MeCabNode.new(nptr)
                   s = s.drop_while {|e| (e==0xa || e==0x20)}
                   if !s.empty?
                     sarr = []
@@ -224,50 +356,22 @@ module Natto
                     mn.surface = surf.force_encoding(Encoding.default_external)
                   end
                   if @options[:output_format_type] || @options[:node_format]
-                    mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
+                    mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
                   end
                   y.yield mn
+                  nptr = mn.next
                 end
-                n = mn.next
               end
-              n = self.mecab_nbest_next_tonode(@tagger)
+            end
+          rescue
+            raise(MeCabError.new(self.mecab_lattice_strerror(lattice))) 
+          ensure
+            if lattice.address != 0x0
+              self.mecab_lattice_destroy(lattice)
             end
           end
         end
-      else
-        # default parsing implementations
-        @parse_tostr = lambda do |text|
-          retval = self.mecab_sparse_tostr(@tagger, text) || 
-                raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-          retval.force_encoding(Encoding.default_external)
-        end
-
-        @parse_tonodes = lambda do |text| 
-          Enumerator.new do |y|
-            n = self.mecab_sparse_tonode(@tagger, text) 
-            raise(MeCabError.new(self.mecab_strerror(@tagger))) if n.nil? || n.address==0x0
-          
-            mn = Natto::MeCabNode.new(n)
-            n = mn.next if mn.next.address!=0x0
-            s = text.bytes.to_a
-            while n && n.address!=0x0
-              mn = Natto::MeCabNode.new(n)
-              s = s.drop_while {|e| (e==0xa || e==0x20)}
-              if !s.empty?
-                sarr = []
-                mn.length.times { sarr << s.shift }
-                surf = sarr.pack('C*')
-                mn.surface = surf.force_encoding(Encoding.default_external)
-              end
-              if @options[:output_format_type] || @options[:node_format]
-                mn.feature = self.mecab_format_node(@tagger, n).force_encoding(Encoding.default_external)
-              end
-              y.yield mn
-              n = mn.next
-            end
-          end
-        end
-      end
+      }
 
       @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@tagger))
       while @dicts.last.next.address != 0x0
@@ -284,16 +388,25 @@ module Natto
     # and each node yielded to the given block.
     #
     # @param [String] text
+    # @param [Hash] options
     # @return [String] parsing result from `mecab`
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
-    def parse(text)
+    def parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
-      if block_given?
-        @parse_tonodes.call(text).each {|n| yield n }
+      if options[:boundary_constraints]
+        if block_given?
+          @bcparse_tonodes.call(text, options[:boundary_constraints]).each {|n| yield n }
+        else
+          @bcparse_tostr.call(text, options[:boundary_constraints])
+        end
       else
-        @parse_tostr.call(text)
+        if block_given?
+          @parse_tonodes.call(text).each {|n| yield n }
+        else
+          @parse_tostr.call(text)
+        end
       end
     end
 
@@ -301,7 +414,7 @@ module Natto
     # {http://www.ruby-doc.org/core-2.1.5/Enumerator.html Enumerator} that may be
     # used to iterate over the resulting {MeCabNode} objects. This is more 
     # efficient than parsing to a simple string, since each node's
-    # information will not be materialized all at once as with it is with
+    # information will not be materialized all at once as it is with
     # string output.
     #
     # MeCab nodes contain much more detailed information about
@@ -309,65 +422,15 @@ module Natto
     # the resulting node's `feature` attribute.
     #
     # @param [String] text
+    # @param [Hash] options
     # @return [Enumerator] of MeCabNode instances
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
     # @see http://www.ruby-doc.org/core-2.1.5/Enumerator.html
-    def enum_parse(text)
+    def enum_parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       @parse_tonodes.call(text)
-    end
-
-    # @deprecated
-    # DEPRECATED: use enum_parse instead, this convenience method is useless.
-    # Parses the given string `str`, and returns
-    # a list of `mecab` nodes.
-    # @param [String] str
-    # @return [Array] of parsed `mecab` nodes.
-    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
-    # @raise [ArgumentError] if the given string `str` argument is `nil`
-    # @see MeCabNode
-    def parse_as_nodes(str)
-      $stderr.puts 'DEPRECATED: use enum_parse instead'
-      $stderr.puts '            This method will be removed in the next release!'
-      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
-      @parse_tonodes.call(str)
-    end
-
-    # @deprecated
-    # DEPRECATED: use enum_parse instead, this convenience method is useless.
-    # Parses the given string `str`, and returns
-    # a list of `mecab` result strings.
-    # @param [String] str
-    # @return [Array] of parsed `mecab` result strings.
-    # @raise [MeCabError] if the `mecab` tagger cannot parse the given string `str`
-    # @raise [ArgumentError] if the given string `str` argument is `nil`
-    def parse_as_strings(str)
-      $stderr.puts 'DEPRECATED: use enum_parse instead'
-      $stderr.puts '            This method will be removed in the next release!'
-      raise ArgumentError.new 'String to parse cannot be nil' if str.nil?
-      @parse_tostr.call(str).lines.to_a
-    end
-
-    # @deprecated
-    # DEPRECATED: use enum_parse instead, this convenience method is useless.
-    # @param [String] str
-    # @return [Array] of parsed `mecab` nodes.
-    def readnodes(str)
-      $stderr.puts 'DEPRECATED: use enum_parse instead'
-      $stderr.puts '            This method will be removed in the next release!'
-      parse_as_nodes(str)
-    end
-
-    # @deprecated
-    # DEPRECATED: use enum_parse instead, this convenience method is useless.
-    # @param [String] str
-    # @return [Array] of parsed `mecab` result strings.
-    def readlines(str)
-      $stderr.puts 'DEPRECATED: use enum_parse instead'
-      $stderr.puts '            This method will be removed in the next release!'
-      parse_as_strings(str)
     end
 
     # Returns human-readable details for the wrapped `mecab` tagger.
@@ -413,6 +476,29 @@ module Natto
       Proc.new do
         self.mecab_destroy(ptr)
       end
+    end
+
+    private
+
+    def tokenize(text, pattern)
+      matches = text.scan(pattern)
+      
+      acc =[]
+      tmp = text
+      matches.each_with_index do |m,i|
+        bef, mat, aft = tmp.partition(m)
+        unless bef.empty?
+          acc << [bef.bytes.count, false]
+        end
+        unless mat.empty?
+          acc << [mat.bytes.count, true]
+        end
+        if i==matches.size-1 and !aft.empty?
+          acc << [aft.bytes.count, false]
+        end
+        tmp = aft
+      end
+      acc
     end
   end
 

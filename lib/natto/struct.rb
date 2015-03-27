@@ -311,10 +311,7 @@ module Natto
     def is_eon?
       self.stat == EON_NODE
     end
-
-
   end
-
 end
 
 # Copyright (c) 2015, Brooke M. Fujita.

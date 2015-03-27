@@ -1,5 +1,7 @@
 *.gem
 *.swp
+*.bat
+*.lnk
 .yardoc*
 .rbenv-version
 Gemfile.lock

@@ -1,5 +1,9 @@
 ## CHANGELOG
 
+- __2015/03/dd__: 0.9.9 release.
+    - Issue 21: Implemented boundary constraint parsing.
+    - Issue 26: Removing deprecated methods parse_as_nodes, parse_as_strings, readnodes and readlines.
+
 - __2015/02/10__: 0.9.8 release.
     - Migrated natto code home from Bitbucket to GitHub.
     - Improved documentation following said migration.
@@ -7,16 +11,10 @@
     - Updating LICENSE for year 2015. 
 
 - __2014/12/20__: 0.9.7 release.
-    - Issue 14: [adding automatic discovery for mecab library; no need to
-	explicitly set
-	MECAB_PATH!](https://bitbucket.org/buruzaemon/natto/issue/14/automatic-discovery-of-libmecab-path-and)
-    - Issue 15: [refactored node-parsing to use Enumerator instead of
-	materializing every node and stuffing into
-	array](https://bitbucket.org/buruzaemon/natto/issue/15/use-enumerator-when-parsing-mecab-nodes)
-    - Issue 17: [adding filepath to MeCab and
-	DictionaryInfo](https://bitbucket.org/buruzaemon/natto/issue/17/use-filerealpath-value-for-all-file-paths)
-    - Issue 18: [bug-fix for node-formatting during default node
-	parse](https://bitbucket.org/buruzaemon/natto/issue/18/no-node-formatting-when-using-default-node)
+    - Issue 14: adding automatic discovery for mecab library; no need to explicitly set MECAB_PATH
+    - Issue 15: refactored node-parsing to use Enumerator instead of materializing every node and stuffing into array
+    - Issue 17: adding filepath to MeCab and DictionaryInfo
+    - Issue 18: bug-fix for node-formatting during default node parse
     - Deprecating parse_as_nodes and parse_as_strings; please use parse instead!
     - CAUTION: parse_as_nodes, parse_as_strings, readnodes and readlines will be removed in the following release!
     - Enhancements to to_s methods for both MeCab and DictionaryInfo
@@ -36,8 +34,8 @@
     - Removing automatic library load for Cygwin platform (does not compile) 
 
 - __2012/09/16__: 0.9.5 release.
-    - Fixed [Issue 9: trimされていない文字列のparse](https://bitbucket.org/buruzaemon/natto/issue/9/trim-parse) 
-    - Fixed [Issue 10: BUG Segmentation Fault](https://bitbucket.org/buruzaemon/natto/issue/10/bug-segmentation-fault) 
+    - Fixed Issue 9: trimされていない文字列のparse
+    - Fixed Issue 10: BUG Segmentation Fault
     - Adding parse_as_nodes to allow for method-chaining on list of parsed nodes
     - Adding parse_as_strings to allow for method-chaining on list of string output
     - Deprecating both readnodes and readlines (badly named methods, see parse_as_nodes and parse_as_strings, respectively)
