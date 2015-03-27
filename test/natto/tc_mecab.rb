@@ -27,8 +27,19 @@ class TestMeCab < MiniTest::Unit::TestCase
     @test_str   = `#{@test_cmd}`
 
     # boundary constraint parse setup
-    @yml = YAML.load(File.read('test/natto/test_utf8.yml',
-                               mode: "rb:utf-8:#{Encoding.default_external}"))
+    yml = YAML.load(File.read('test/natto/test_utf8.yml'))
+    @yml1 = { text: yml['test1']['text'].encode(Encoding.default_external),
+              pattern: yml['test1']['pattern'].encode(Encoding.default_external),
+              expected: yml['test1']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml2 = { text: yml['test2']['text'].encode(Encoding.default_external),
+              pattern: yml['test2']['pattern'].encode(Encoding.default_external),
+              expected: yml['test2']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml3 = { text: yml['test3']['text'].encode(Encoding.default_external),
+              pattern: yml['test3']['pattern'].encode(Encoding.default_external),
+              expected: yml['test3']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml4 = { text: yml['test4']['text'].encode(Encoding.default_external),
+              pattern: yml['test4']['pattern'].encode(Encoding.default_external),
+              expected: yml['test4']['expected'].map {|e| e.encode(Encoding.default_external)} }
   end
 
   def teardown
@@ -44,7 +55,10 @@ class TestMeCab < MiniTest::Unit::TestCase
     @arch       = nil
     @test_cmd   = nil
     @test_str   = nil
-    @yml        = nil
+    @yml1       = nil
+    @yml2       = nil
+    @yml3       = nil
+    @yml4       = nil
   end
  
   def test_parse_mecab_options
@@ -450,31 +464,28 @@ class TestMeCab < MiniTest::Unit::TestCase
 
   def test_bcparse_tostr
     # simple string pattern
-    test1 = @yml['test1']
-    text  = test1['text']
-    patt  = test1['pattern']
-    expected = test1['expected']
-    actual = @m.parse(text, boundary_constraints: patt).lines.to_a
+    text  = @yml1[:text]
+    patt  = @yml1[:pattern]
+    expected = @yml1[:expected]
+    actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
     actual.each_with_index do |l,i|
       assert_match(expected[i], l)
     end
 
     # complex Unicode character properties pattern
-    test2 = @yml['test2']
-    text  = test2['text']
-    patt  = test2['pattern']
-    expected = test2['expected']
-    actual = @m.parse(text, boundary_constraints: patt).lines.to_a
+    text  = @yml2[:text]
+    patt  = @yml2[:pattern]
+    expected = @yml2[:expected]
+    actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
     actual.each_with_index do |l,i|
       assert_match(expected[i], l)
     end
 
     # N-best
-    test3 = @yml['test3']
-    text  = test3['text']
-    patt  = test3['pattern']
-    expected = test3['expected']
-    actual = @mn.parse(text, boundary_constraints: patt).lines.to_a
+    text  = @yml3[:text]
+    patt  = @yml3[:pattern]
+    expected = @yml3[:expected]
+    actual = @mn.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
     actual.each_with_index do |l,i|
       assert_match(expected[i], l)
     end
@@ -482,45 +493,41 @@ class TestMeCab < MiniTest::Unit::TestCase
 
   def test_bcparse_tonode
     # simple string pattern
-    test1 = @yml['test1']
-    text  = test1['text']
-    patt  = test1['pattern']
-    expected = test1['expected']
+    text  = @yml1[:text]
+    patt  = @yml1[:pattern]
+    expected = @yml1[:expected]
     actual = []
-    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_match(expected[i], l.surface)
     end
 
     # complex Unicode character properties pattern
-    test2 = @yml['test2']
-    text  = test2['text']
-    patt  = test2['pattern']
-    expected = test2['expected']
+    text  = @yml2[:text]
+    patt  = @yml2[:pattern]
+    expected = @yml2[:expected]
     actual = []
-    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_match(expected[i], l.surface)
     end
     
     # N-best
-    test3 = @yml['test3']
-    text  = test3['text']
-    patt  = test3['pattern']
-    expected = test3['expected']
+    text  = @yml3[:text]
+    patt  = @yml3[:pattern]
+    expected = @yml3[:expected]
     actual = []
-    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_match(expected[i], l.feature)
     end
     
     # w/ output formatting
-    test4 = @yml['test4']
-    text  = test4['text']
-    patt  = test4['pattern']
-    expected = test4['expected']
+    text  = @yml4[:text]
+    patt  = @yml4[:pattern]
+    expected = @yml4[:expected]
     actual = []
-    @m_s.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    @m_s.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_equal(expected[i], l.feature)
     end

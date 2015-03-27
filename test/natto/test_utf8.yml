@@ -1,6 +1,6 @@
 test1:
     text: にわにはにわにわとりがいる。
-    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
+    pattern: 'にわとり|にわ|はにわ'
     expected: 
         - にわ
         - に
@@ -12,7 +12,7 @@ test1:
         - EOS
 test2:
     text: 123 ABCおよび１２３　ＡＢＣ
-    pattern: !ruby/regexp '/\p{Number}{3}\p{Space}+\p{Alphabetic}{3}/'
+    pattern: '\p{Number}{3}\p{Space}+\p{Alphabetic}{3}'
     expected: 
         - 123 ABC 
         - および
@@ -28,7 +28,7 @@ test3:
         - EOS
 test4:
     text: にわにはにわにわとりがいる。
-    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
+    pattern: 'にわとり|にわ|はにわ'
     expected: 
         - にわ 1
         - に 0
