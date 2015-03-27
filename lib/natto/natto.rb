@@ -465,16 +465,16 @@ module Natto
     end
 
     # Returns a `Proc` that will properly free resources
-    # when this `MeCab` instance is garbage collected.
+    # when this `Tagger` instance is garbage collected.
     # The `Proc` returned is registered to be invoked
-    # after the `MeCab` instance  owning `ptr` 
+    # after the `Tagger` instance  owning `tptr` 
     # has been destroyed.
     #
-    # @param [FFI::Pointer] ptr
+    # @param [FFI::Pointer] tptr
     # @return [Proc] to release `mecab` resources properly
-    def self.create_free_proc(ptr)
+    def self.create_free_proc(tptr)
       Proc.new do
-        self.mecab_destroy(ptr)
+        self.mecab_destroy(tptr)
       end
     end
 
