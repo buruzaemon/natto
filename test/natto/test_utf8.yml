@@ -1,6 +1,6 @@
-text1:
+test1:
     text: にわにはにわにわとりがいる。
-    pattern: にわとり|にわ|はにわ
+    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
     expected: 
         - にわ
         - に
@@ -10,33 +10,15 @@ text1:
         - いる
         - 。
         - EOS
-text2:
-    text: 123 ABCは１つの形態素として扱う。
-    pattern: '[\d]{2,}[\s]+[A-Z]{2,3}'
-    expected:
-        - 123 ABC
-        - は
-        - １つ
-        - の
-        - 形態素
-        - として
-        - 扱う
-        - 。
+test2:
+    text: 123 ABCおよび１２３　ＡＢＣ
+    pattern: !ruby/regexp '/\p{Number}{3}\p{Space}+\p{Alphabetic}{3}/'
+    expected: 
+        - 123 ABC 
+        - および
+        - １２３　ＡＢＣ
         - EOS
-text3:
-    text: １２３　ABCは１つの形態素として扱う。
-    pattern: '[\d]{2,}[\s]+[A-Z]{2,3}'
-    expected:
-        - １２３　ABC
-        - は
-        - １つ
-        - の
-        - 形態素
-        - として
-        - 扱う
-        - 。
-        - EOS
-text4:
+test3:
     text: 初心
     pattern: 初心
     expected:
@@ -44,9 +26,9 @@ text4:
         - EOS
         - ウブ 
         - EOS
-text5:
+test4:
     text: にわにはにわにわとりがいる。
-    pattern: にわとり|にわ|はにわ
+    pattern: !ruby/regexp '/にわとり|にわ|はにわ/'
     expected: 
         - にわ 1
         - に 0
@@ -55,44 +37,3 @@ text5:
         - が 0
         - いる 0
         - 。 0
-text6:
-    text: にわにはにわにわとりがいる。
-    pattern: にわとり|にわ|はにわ
-    expected: 
-        - にわ 名詞 一般 1 
-        - に 助詞 格助詞 0
-        - はにわ 名詞 一般 0
-        - にわとり 名詞 一般 0
-        - が 助詞 格助詞 0
-        - いる 動詞 自立 0
-        - 。 記号 句点 0
-        - にわ 名詞 固有名詞 1 
-        - に 助詞 格助詞 0
-        - はにわ 名詞 一般 0
-        - にわとり 名詞 一般 0
-        - が 助詞 格助詞 0
-        - いる 動詞 自立 0
-        - 。 記号 句点 0
-text7:
-    text: 123 ABCおよび１２３　ＡＢＣ
-    pattern: '[\d]{3}[\s]+[A-ZＡ-Ｚ]{3}'
-    tokens: 
-        - 123 ABC 
-        - および
-        - １２３　ＡＢＣ
-    matches:
-        - True
-        - False
-        - True
-text8:
-    text: 123 ABCおよび１２３　ＡＢＣ
-    pattern: '[\d]{3}[\s]+[A-ZＡ-Ｚ]{3}'
-    
-    tokens: 
-        - 123 ABC 
-        - および
-        - １２３　ＡＢＣ
-    matches:
-        - True
-        - False
-        - True

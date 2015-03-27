@@ -6,6 +6,7 @@ class TestMeCab < MiniTest::Unit::TestCase
   def setup
     @m = Natto::MeCab.new()
     @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
+    @m_s = Natto::MeCab.new '-F%m\s%s'
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
@@ -23,15 +24,17 @@ class TestMeCab < MiniTest::Unit::TestCase
       @test_cmd = 'cat "test/natto/test_utf8"'
       @br       = '\n'
     end
-    @test_str = `#{@test_cmd}`
+    @test_str   = `#{@test_cmd}`
 
     # boundary constraint parse setup
-    @yml = YAML.load(File.read('test/natto/test_utf8.yml', encoding: Encoding::UTF_8))
+    @yml = YAML.load(File.read('test/natto/test_utf8.yml',
+                               mode: "rb:utf-8:#{Encoding.default_external}"))
   end
 
   def teardown
     @m          = nil
     @m_f        = nil
+    @m_s        = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
@@ -41,6 +44,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @arch       = nil
     @test_cmd   = nil
     @test_str   = nil
+    @yml        = nil
   end
  
   def test_parse_mecab_options
@@ -444,7 +448,82 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[6].strip, enum.next.feature)
   end
 
-  def test_bcparse_tostr_default
+  def test_bcparse_tostr
+    # simple string pattern
+    test1 = @yml['test1']
+    text  = test1['text']
+    patt  = test1['pattern']
+    expected = test1['expected']
+    actual = @m.parse(text, boundary_constraints: patt).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+
+    # complex Unicode character properties pattern
+    test2 = @yml['test2']
+    text  = test2['text']
+    patt  = test2['pattern']
+    expected = test2['expected']
+    actual = @m.parse(text, boundary_constraints: patt).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+
+    # N-best
+    test3 = @yml['test3']
+    text  = test3['text']
+    patt  = test3['pattern']
+    expected = test3['expected']
+    actual = @mn.parse(text, boundary_constraints: patt).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+  end
+
+  def test_bcparse_tonode
+    # simple string pattern
+    test1 = @yml['test1']
+    text  = test1['text']
+    patt  = test1['pattern']
+    expected = test1['expected']
+    actual = []
+    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l.surface)
+    end
+
+    # complex Unicode character properties pattern
+    test2 = @yml['test2']
+    text  = test2['text']
+    patt  = test2['pattern']
+    expected = test2['expected']
+    actual = []
+    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l.surface)
+    end
+    
+    # N-best
+    test3 = @yml['test3']
+    text  = test3['text']
+    patt  = test3['pattern']
+    expected = test3['expected']
+    actual = []
+    @m.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l.feature)
+    end
+    
+    # w/ output formatting
+    test4 = @yml['test4']
+    text  = test4['text']
+    patt  = test4['pattern']
+    expected = test4['expected']
+    actual = []
+    @m_s.parse(text, boundary_constraints: patt) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_equal(expected[i], l.feature)
+    end
   end
 end 
 
