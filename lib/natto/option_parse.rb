@@ -97,7 +97,7 @@ module Natto
       # Returns a string-representation of the options to
       # be passed in the construction of the `mecab` tagger.
       #
-      # @param [Hash] options 
+      # @param options[Hash] options for MeCab
       # @return [String] representation of the options to the `mecab` tagger
       def build_options_str(options={})
         opt = []

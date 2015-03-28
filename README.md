@@ -4,7 +4,7 @@ A Tasty Ruby Binding with MeCab
 ## What is natto?
 A gem leveraging FFI (foreign function interface), natto combines the
 [Ruby programming language](http://www.ruby-lang.org/) with 
-[MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html), the part-of-speech
+[MeCab](http://taku910.github.io/mecab/), the part-of-speech
 and morphological analyzer for the Japanese language.
 
 -  natto provides a naturally Ruby-esque interface to MeCab.
@@ -18,8 +18,8 @@ You can learn more about [natto at GitHub](https://github.com/buruzaemon/natto).
 ## Requirements
 natto requires the following:
 
--  [MeCab _0.996_](http://code.google.com/p/mecab/downloads/list)
--  A system dictionary, like [mecab-ipadic](https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz) or [mecab-jumandic](https://mecab.googlecode.com/files/mecab-jumandic-5.1-20070304.tar.gz)
+-  [MeCab _0.996_](http://taku910.github.io/mecab/#download)
+-  A system dictionary, like mecab-ipadic (recommended), mecab-jumandic or unidic, all available on the [MeCab downloads page](http://taku910.github.io/mecab/#download)
 -  `libmecab-devel` if you are on Linux, since natto uses `mecab-config`
 -  Ruby _1.9 or greater_
 -  [ffi _1.9.0 or greater_](http://rubygems.org/gems/ffi)
@@ -166,7 +166,7 @@ nodes:
 
 For more complex parsing, such as that for natural language
 processing tasks, it is far more efficient to use `enum_parse` to
-obtain an [`Enumerator`](http://ruby-doc.org/core-2.1.5/Enumerator.html)
+obtain an [`Enumerator`](http://ruby-doc.org/core-2.2.0/Enumerator.html)
 to iterate over the resulting `MeCabNode` instances. An `Enumerator`
 yields each `MeCabNode` instance without first materializing all
 instances at once, thus being more efficient.

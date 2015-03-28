@@ -6,12 +6,12 @@ module Natto
   require 'ffi'
 
   # `MeCabStruct` is a general base class for `FFI::Struct` objects in
-  # the `Natto` module. Please refer to
-  # [`mecab.h`](http://code.google.com/p/mecab/source/browse/trunk/mecab/src/mecab.h)
+  # the `Natto` module. Please refer to `mecab.h` in the source code
+  # distribution.
   class MeCabStruct < FFI::Struct
     # Provides accessor methods for the members of the `mecab` struct.
     #
-    # @param [String] attr_name
+    # @param attr_name [String] attribute name
     # @return member values for the `mecab` struct
     # @raise [NoMethodError] if `attr_name` is not a member of this `mecab` struct 
     def method_missing(attr_name)
@@ -94,7 +94,7 @@ module Natto
     # Initializes this dictionary info instance.
     # Sets the `DictionaryInfo` filepath value.
     #
-    # @param [FFI::Pointer] ptr pointer to MeCab dictionary
+    # @param ptr [FFI::Pointer] pointer to MeCab dictionary
     def initialize(ptr)
       super(ptr)
 
@@ -246,10 +246,10 @@ module Natto
     # Initializes this node instance.
     # Sets the `MeCab` feature value for this node.
     #
-    # @param [FFI::Pointer] ptr pointer to MeCab node
-    def initialize(ptr)
-      super(ptr)
-      @pointer = ptr
+    # @param nptr [FFI::Pointer] pointer to MeCab node
+    def initialize(nptr)
+      super(nptr)
+      @pointer = nptr
 
       if self[:feature]
         @feature = self[:feature].force_encoding(Encoding.default_external)
