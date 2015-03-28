@@ -4,8 +4,8 @@ require 'natto/option_parse'
 require 'natto/struct'
 
 module Natto 
-  # `MeCab` is a wrapper class for the `mecab` tagger.
-  # Options to the `mecab` tagger are passed in as a string
+  # `MeCab` is a wrapper class for the MeCab `Tagger`.
+  # Options to the MeCab `Tagger` are passed in as a string
   # (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
@@ -125,10 +125,10 @@ module Natto
     attr_reader :options
     # @return [Array] listing of all of dictionaries referenced.
     attr_reader :dicts
-    # @return [String] `MeCab` versions.
+    # @return [String] `MeCab` version.
     attr_reader :version
 
-    # Initializes the wrapped `mecab` instance with the
+    # Initializes the wrapped `Tagger` instance with the
     # given `options`.
     # 
     # Options supported are:
@@ -186,7 +186,7 @@ module Natto
     #     。      。
     #     EOS
     #
-    # @param [Hash, String] options MeCab options for tagger
+    # @param options [Hash, String] the MeCab options for tagger
     # @raise [MeCabError] if `mecab` cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
@@ -387,8 +387,17 @@ module Natto
     # If a block is passed to this method, then node parsing will be used
     # and each node yielded to the given block.
     #
-    # @param [String] text
-    # @param [Hash] options
+    # Boundary constraint parsing is available via passing in the
+    # `boundary_constraints` key in the `options` hash. Boundary constraints
+    # parsing provides hints to MeCab on where the morpheme boundaries in the
+    # given `text` are located. `boundary_constraints` value may be either a
+    # `Regexp` or `String`; please see 
+    # {http://ruby-doc.org/core-2.2.0/String.html#method-i-scan String#scan}.
+    # The boundary constraint parsed output will be returned as a single
+    # string, unless a block is passed to this method for node parsing.
+    #
+    # @param text [String] the Japanese text to parse
+    # @param options [Hash] only the `boundary_constraints` key is available
     # @return [String] parsing result from `mecab`
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
@@ -421,13 +430,20 @@ module Natto
     # the morpheme. Node-formatting  may also be used to customize
     # the resulting node's `feature` attribute.
     #
-    # @param [String] text
-    # @param [Hash] options
+    # Boundary constraint parsing is available via passing in the
+    # `boundary_constraints` key in the `options` hash. Boundary constraints
+    # parsing provides hints to MeCab on where the morpheme boundaries in the
+    # given `text` are located. `boundary_constraints` value may be either a
+    # `Regexp` or `String`; please see 
+    # [String#scan](http://ruby-doc.org/core-2.2.0/String.html#method-i-scan String#scan).
+    #
+    # @param text [String] the Japanese text to parse
+    # @param options [Hash] only the `boundary_constraints` key is available
     # @return [Enumerator] of MeCabNode instances
     # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
-    # @see http://www.ruby-doc.org/core-2.1.5/Enumerator.html
+    # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
     def enum_parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       @parse_tonodes.call(text)
@@ -470,7 +486,7 @@ module Natto
     # after the `Tagger` instance  owning `tptr` 
     # has been destroyed.
     #
-    # @param [FFI::Pointer] tptr
+    # @param tptr [FFI::Pointer] pointer to `Tagger`
     # @return [Proc] to release `mecab` resources properly
     def self.create_free_proc(tptr)
       Proc.new do
@@ -480,6 +496,7 @@ module Natto
 
     private
 
+    # @private
     def tokenize(text, pattern)
       matches = text.scan(pattern)
       

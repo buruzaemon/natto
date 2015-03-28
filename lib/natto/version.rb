@@ -1,16 +1,16 @@
 # coding: utf-8
 
 # `Natto` is the namespace for objects that provide
-# a binding to the `mecab` tagger and related resources.
+# a binding to MeCab and an API for the `Tagger`,
+# `Node` and `Lattice` objects.
 #
-# `Natto::MeCab` is a wrapper class for the `mecab` 
-# tagger.
+# `Natto::MeCab` is a wrapper class for the MeCab `Tagger`.
 #
 # `Natto::MeCabStruct` is a base class for a `mecab`
 # struct.
 #
 # `Natto::MeCabNode` is a wrapper for the struct representing
-# a `mecab`-parsed node.
+# a MeCab `Node`.
 #
 # `Natto::DictionaryInfo` is a wrapper for the struct 
 # representing a `Natto::MeCab` instance's related 
@@ -27,7 +27,7 @@
 # `Natto`.
 module Natto
   # Version string for this Rubygem.
-  VERSION = "0.9.8"
+  VERSION = "0.9.9"
 end
 
 # Copyright (c) 2015, Brooke M. Fujita.
