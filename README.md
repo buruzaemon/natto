@@ -132,6 +132,7 @@ If a block is passed to `parse`, you can iterate over the list of resulting `MeC
 instances to access more detailed information about each morpheme. 
 
 In this example, the following attributes and methods for `MeCabNode` are used:
+
 - `surface` - the morpheme surface
 - `posid` - node part-of-speech ID (dictionary-dependent)
 - `is_eos?` - is this `MeCabNode` an end-of-sentence node?

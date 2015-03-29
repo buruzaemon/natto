@@ -96,6 +96,7 @@ module Natto
     attach_function :mecab_lattice_set_request_type, [:pointer, :int], :void
     attach_function :mecab_lattice_tostr, [:pointer], :string
     attach_function :mecab_lattice_nbest_tostr, [:pointer, :int], :string
+    attach_function :mecab_lattice_get_boundary_constraint, [:pointer, :int], :int
     attach_function :mecab_lattice_set_boundary_constraint, [:pointer, :int, :int], :void
     attach_function :mecab_parse_lattice, [:pointer, :pointer], :int
     attach_function :mecab_lattice_strerror, [:pointer], :string
@@ -222,6 +223,10 @@ module Natto
 
       def mecab_lattice_nbest_tostr(lptr, n)
         Natto::Binding.mecab_lattice_nbest_tostr(lptr, n)
+      end
+
+      def mecab_lattice_get_boundary_constraint(lptr, pos)
+        Natto::Binding.mecab_lattice_get_boundary_constraint(lptr, pos)
       end
 
       def mecab_lattice_set_boundary_constraint(lptr, pos, btype)
