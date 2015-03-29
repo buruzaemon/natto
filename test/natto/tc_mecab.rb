@@ -7,6 +7,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m = Natto::MeCab.new()
     @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
     @m_s = Natto::MeCab.new '-F%m\s%s'
+    @m_t = Natto::MeCab.new '-t 0.666'
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
@@ -46,6 +47,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m          = nil
     @m_f        = nil
     @m_s        = nil
+    @m_t        = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
@@ -430,6 +432,30 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[1].strip, n2)
   end
 
+  def test_parse_tostr_theta
+    expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    actual = @m_t.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_tonode_theta
+    expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    actual = []
+    @m_t.parse(@test_str) do |n|
+      actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
+    end
+
+    assert_equal(expected, actual)
+  end
+
   def test_enum_parse_default
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
@@ -530,6 +556,29 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m_s.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_equal(expected[i], l.feature)
+    end
+  end
+  
+  def test_bcparse_tostr_theta
+    # simple string pattern
+    text  = @yml1[:text]
+    patt  = @yml1[:pattern]
+    expected = @yml1[:expected]
+    actual = @m_t.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+  end
+
+  def test_bcparse_tonode_theta
+    # simple string pattern
+    text  = @yml1[:text]
+    patt  = @yml1[:pattern]
+    expected = @yml1[:expected]
+    actual = []
+    @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l.surface)
     end
   end
 end 
