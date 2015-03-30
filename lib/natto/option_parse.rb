@@ -104,7 +104,7 @@ module Natto
         SUPPORTED_OPTS.values.each do |k|
           if options.has_key? k
             key = k.to_s.gsub('_', '-')  
-            if %w( all-morphs allocate-sentence ).include? key
+            if %w( all-morphs allocate-sentence partial ).include? key
               opt << "--#{key}" if options[k]==true
             else
               opt << "--#{key}=#{options[k]}"
