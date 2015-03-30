@@ -183,12 +183,14 @@ class TestOptionParse < MiniTest::Unit::TestCase
   end
 
   def test_build_options_str
-    assert_equal('--rcfile=/some/file', @klass.build_options_str(:rcfile=>"/some/file"))
-    assert_equal('--dicdir=/some/other/file', @klass.build_options_str(:dicdir=>"/some/other/file"))
-    assert_equal('--userdic=/yet/another/file', @klass.build_options_str(:userdic=>"/yet/another/file"))
-    assert_equal('--lattice-level=42', @klass.build_options_str(:lattice_level=>42))
-    assert_equal('--all-morphs', @klass.build_options_str(:all_morphs=>true))
+    assert_equal('--rcfile=/some/file', @klass.build_options_str(rcfile: "/some/file"))
+    assert_equal('--dicdir=/some/other/file', @klass.build_options_str(dicdir: "/some/other/file"))
+    assert_equal('--userdic=/yet/another/file', @klass.build_options_str(userdic: "/yet/another/file"))
+    assert_equal('--lattice-level=42', @klass.build_options_str(lattice_level: 42))
     assert_equal('--output-format-type=natto', @klass.build_options_str(:output_format_type=>"natto"))
+    assert_equal('--all-morphs', @klass.build_options_str(:all_morphs=>true))
+    assert_equal('--nbest=42', @klass.build_options_str(:nbest=>42))
+    assert_equal('--partial', @klass.build_options_str(:partial=>true))
     assert_equal('--node-format=%m\t%f[7]\n', @klass.build_options_str(:node_format=>'%m\t%f[7]\n'))
     assert_equal('--unk-format=%m\t%f[7]\n', @klass.build_options_str(:unk_format=>'%m\t%f[7]\n'))
     assert_equal('--bos-format=%m\t%f[7]\n', @klass.build_options_str(:bos_format=>'%m\t%f[7]\n'))
@@ -197,7 +199,6 @@ class TestOptionParse < MiniTest::Unit::TestCase
     assert_equal('--unk-feature=%m\t%f[7]\n', @klass.build_options_str(:unk_feature=>'%m\t%f[7]\n'))
     assert_equal('--input-buffer-size=102400',@klass.build_options_str(:input_buffer_size=>102400))
     assert_equal('--allocate-sentence', @klass.build_options_str(:allocate_sentence=>true))
-    assert_equal('--nbest=42', @klass.build_options_str(:nbest=>42))
     assert_equal('--theta=0.42', @klass.build_options_str(:theta=>0.42))
     assert_equal('--cost-factor=42', @klass.build_options_str(:cost_factor=>42))
   end
