@@ -8,6 +8,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
     @m_s = Natto::MeCab.new '-F%m\s%s'
     @m_t = Natto::MeCab.new '-t 0.666'
+    @m_p = Natto::MeCab.new '-p'
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
@@ -41,6 +42,11 @@ class TestMeCab < MiniTest::Unit::TestCase
     @yml4 = { text: yml['test4']['text'].encode(Encoding.default_external),
               pattern: yml['test4']['pattern'].encode(Encoding.default_external),
               expected: yml['test4']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml5 = { text: yml['test5']['text'].encode(Encoding.default_external),
+              expected: yml['test5']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml6 = { text: yml['test6']['text'].encode(Encoding.default_external),
+              options: yml['test6']['options'].encode(Encoding.default_external),
+              expected: yml['test6']['expected'].map {|e| e.encode(Encoding.default_external)} }
   end
 
   def teardown
@@ -48,6 +54,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m_f        = nil
     @m_s        = nil
     @m_t        = nil
+    @m_p        = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
@@ -127,9 +134,9 @@ class TestMeCab < MiniTest::Unit::TestCase
 
     [ '-p',
       '--partial',
-      {:partial=>true}
+      {partial: true}
     ].each do |opts|
-      assert_equal({:partial => true}, Natto::MeCab.parse_mecab_options(opts))
+      assert_equal({partial: true}, Natto::MeCab.parse_mecab_options(opts))
     end
    
     [ '-m',
@@ -486,6 +493,27 @@ class TestMeCab < MiniTest::Unit::TestCase
     assert_equal(expected[4].strip, enum.next.feature)
     assert_equal(expected[5].strip, enum.next.feature)
     assert_equal(expected[6].strip, enum.next.feature)
+  end
+
+  def test_parse_tostr_partial
+    text  = @yml5[:text]
+    expected = @yml5[:expected]
+    actual = @m_p.parse(text).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+  end
+
+  def test_parse_tonode_partial_output_formatting
+    text  = @yml6[:text]
+    options = @yml6[:options]
+    expected = @yml6[:expected]
+    nm = Natto::MeCab.new(options)
+    actual = []
+    nm.parse(text) {|n| actual << n.feature if !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
   end
 
   def test_bcparse_tostr

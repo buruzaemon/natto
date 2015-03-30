@@ -275,16 +275,10 @@ module Natto
           if @options[:theta]
             self.mecab_lattice_set_theta(lattice, @options[:theta])
           end
-          puts "... 1"
-          puts @options
 
           self.mecab_lattice_set_sentence(lattice, text)
-          puts "... 2"
 
           tokens = tokenize(text, boundary_constraints)
-          tokens.each do |t|
-            puts "#{t.first}, #{t.last}"
-          end
           bpos = 0
           tokens.each do |token|
             c = token.first
@@ -298,29 +292,19 @@ module Natto
               bpos += 1
             end
           end
-          puts "... 3"
-          puts "bpos? #{bpos}"
-          bpos.times do |i|
-            puts self.mecab_lattice_get_boundary_constraint(lattice, i)
-          end
-          puts "... 3.5"
 
           self.mecab_parse_lattice(@tagger, lattice)
-          puts "... 4"
           
           if n > 1
             retval = self.mecab_lattice_nbest_tostr(lattice, n)
           else
             retval = self.mecab_lattice_tostr(lattice)
-            puts "... 5"
           end
           retval.force_encoding(Encoding.default_external)
         rescue
-          puts "ZOMG"
           raise(MeCabError.new(self.mecab_lattice_strerror(lattice))) 
         ensure
           if lattice.address != 0x0
-            puts "clean up"
             self.mecab_lattice_destroy(lattice)
           end
         end
