@@ -1,9 +1,10 @@
 ## CHANGELOG
 
-- __2015/03/dd__: 0.9.9 release.
-    - Issue 21: Implemented boundary constraint parsing.
+- __2015/03/31__: 0.9.9 release.
+    - Issue 21/34: Implemented boundary constraint parsing.
     - Issue 26: Removing deprecated methods parse_as_nodes, parse_as_strings, readnodes and readlines.
-    - Updated documentation for new MeCab home at http://taku910.github.io/mecab/
+    - Issue 32: Fixed partial parsing.
+    - Updated documentation for new MeCab home at http://taku910.github.io/mecab/.
 
 - __2015/02/10__: 0.9.8 release.
     - Migrated natto code home from Bitbucket to GitHub.
