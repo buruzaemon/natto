@@ -592,6 +592,18 @@ class TestMeCab < MiniTest::Unit::TestCase
       assert_equal(expected[i], l.feature)
     end
   end
+
+  def test_bcparse_enum_parse
+    # simple string pattern
+    text  = @yml3[:text]
+    patt  = @yml3[:pattern]
+    expected = @yml3[:expected]
+    actual = []
+    @m.enum_parse(text, boundary_constraints: Regexp.new(patt)).to_a.keep_if {|n| !(n.is_bos? || n.is_eos?)}    
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l.surface)
+    end
+  end
   
   def test_bcparse_tostr_whitespace_included
     text  = @yml7[:text]

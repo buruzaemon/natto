@@ -45,6 +45,7 @@ module Natto
   #     。      記号,句点,*,*,*,*,。,。,。
   #     EOS
   #
+  #
   #     # pass a block to iterate over each MeCabNode instance
   #     #
   #     nm.parse(text) do |n| 
@@ -100,6 +101,36 @@ module Natto
   #     12: よ,ヨ,助詞,17
   #     13: 。,。,記号,7
   #
+  #
+  #     # Boundary constraint parsing with output formatting.
+  #     # %m   ... morpheme surface
+  #     # %F,  ... comma-delimited ChaSen feature values
+  #     #          part-of-speech (index 0) 
+  #     # %2   ... MeCab node status value (1 unknown)
+  #     #
+  #     nm = Natto::MeCab.new('-F%m,\s%f[0],\s%s')
+  #
+  #     enum = nm.enum_parse(text, boundary_constraint: /見えねえ風景/)
+  #     => #<Enumerator: #<Enumerator::Generator:0x00000801d7aa38>:each>
+  #
+  #     # output the feature attribute of each MeCabNode
+  #     # ignoring any beginning- or end-of-sentence nodes
+  #     #
+  #     enum.each do |n|
+  #       puts n.feature if !(n.is_bos? or n.is_eos?)
+  #     end
+  #     凡人, 名詞, 0
+  #     に, 助詞, 0
+  #     しか, 助詞, 0
+  #     見えねえ風景, 名詞, 1
+  #     って, 助詞, 0
+  #     の, 名詞, 0
+  #     が, 助詞, 0
+  #     ある, 動詞, 0
+  #     ん, 名詞, 0
+  #     だ, 助動詞, 0
+  #     よ, 助詞, 0
+  #     。, 記号, 0
   #
   class MeCab
     include Natto::Binding
@@ -454,7 +485,11 @@ module Natto
     # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
     def enum_parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
-      @parse_tonodes.call(text)
+      if options[:boundary_constraints]
+        @bcparse_tonodes.call(text, options[:boundary_constraints])
+      else
+        @parse_tonodes.call(text)
+      end
     end
 
     # Returns human-readable details for the wrapped `mecab` tagger.
