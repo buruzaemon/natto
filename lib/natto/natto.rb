@@ -276,12 +276,13 @@ module Natto
             self.mecab_lattice_set_theta(lattice, @options[:theta])
           end
 
+          tokens = tokenize(text, boundary_constraints)
+          text = tokens.map {|t| t.first}.join
           self.mecab_lattice_set_sentence(lattice, text)
 
-          tokens = tokenize(text, boundary_constraints)
           bpos = 0
           tokens.each do |token|
-            c = token.first
+            c = token.first.bytes.count
 
             self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
             bpos += 1
@@ -327,12 +328,13 @@ module Natto
               self.mecab_lattice_set_theta(lattice, @options[:theta])
             end
 
+            tokens = tokenize(text, boundary_constraints)
+            text = tokens.map {|t| t.first}.join
             self.mecab_lattice_set_sentence(lattice, text)
 
-            tokens = tokenize(text, boundary_constraints)
             bpos = 0
             tokens.each do |token|
-              c = token.first
+              c = token.first.bytes.count
 
               self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
               bpos += 1
@@ -511,13 +513,13 @@ module Natto
       matches.each_with_index do |m,i|
         bef, mat, aft = tmp.partition(m)
         unless bef.empty?
-          acc << [bef.bytes.count, false]
+          acc << [bef.strip, false]
         end
         unless mat.empty?
-          acc << [mat.bytes.count, true]
+          acc << [mat.strip, true]
         end
         if i==matches.size-1 and !aft.empty?
-          acc << [aft.bytes.count, false]
+          acc << [aft.strip, false]
         end
         tmp = aft
       end
