@@ -93,6 +93,8 @@ module Natto
     attach_function :mecab_lattice_set_z, [:pointer, :float], :void
     attach_function :mecab_lattice_set_theta, [:pointer, :float], :void
     attach_function :mecab_lattice_next, [:pointer], :int
+    attach_function :mecab_lattice_get_request_type, [:pointer], :int
+    attach_function :mecab_lattice_add_request_type, [:pointer, :int], :void
     attach_function :mecab_lattice_set_request_type, [:pointer, :int], :void
     attach_function :mecab_lattice_tostr, [:pointer], :string
     attach_function :mecab_lattice_nbest_tostr, [:pointer, :int], :string
@@ -213,6 +215,14 @@ module Natto
         Natto::Binding.mecab_lattice_next(lptr)
       end
  
+      def mecab_lattice_get_request_type(lptr)
+        Natto::Binding.mecab_lattice_get_request_type(lptr)
+      end
+      
+      def mecab_lattice_add_request_type(lptr, rtype)
+        Natto::Binding.mecab_lattice_add_request_type(lptr, rtype)
+      end
+
       def mecab_lattice_set_request_type(lptr, rtype)
         Natto::Binding.mecab_lattice_set_request_type(lptr, rtype)
       end

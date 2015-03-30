@@ -45,6 +45,8 @@ class TestNattoBinding < MiniTest::Unit::TestCase
        :mecab_lattice_set_z,
        :mecab_lattice_set_theta,
        :mecab_lattice_next,
+       :mecab_lattice_get_request_type,
+       :mecab_lattice_add_request_type,
        :mecab_lattice_set_request_type,
        :mecab_lattice_tostr,
        :mecab_lattice_nbest_tostr,
