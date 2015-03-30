@@ -4,11 +4,11 @@ before_install:
 
 install:  
   # mecab
-  - wget --no-check-certificate https://mecab.googlecode.com/files/mecab-0.996.tar.gz && tar zxf mecab-0.996.tar.gz
+  - wget --no-check-certificate https://github.com/buruzaemon/natto/raw/master/etc/mecab-0.996.tar.gz && tar zxf mecab-0.996.tar.gz
   - pushd mecab-0.996 && ./configure --enable-utf8-only && make && sudo make install && popd
   - sudo ldconfig
   # mecab-ipadic
-  - wget --no-check-certificate https://mecab.googlecode.com/files/mecab-ipadic-2.7.0-20070801.tar.gz && tar zxf mecab-ipadic-2.7.0-20070801.tar.gz
+  - wget --no-check-certificate https://github.com/buruzaemon/natto/raw/master/etc/mecab-ipadic-2.7.0-20070801.tar.gz && tar zxf mecab-ipadic-2.7.0-20070801.tar.gz
   - pushd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && sudo make install && popd
   - sudo ldconfig
   # explicitly install ffi and minitest
