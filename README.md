@@ -168,7 +168,7 @@ nodes:
 
 For more complex parsing, such as that for natural language
 processing tasks, it is far more efficient to use `enum_parse` to
-obtain an [`Enumerator`](http://ruby-doc.org/core-2.2.0/Enumerator.html)
+obtain an [`Enumerator`](http://ruby-doc.org/core-2.2.1/Enumerator.html)
 to iterate over the resulting `MeCabNode` instances. An `Enumerator`
 yields each `MeCabNode` instance without first materializing all
 instances at once, thus being more efficient.

@@ -431,7 +431,7 @@ module Natto
     # parsing provides hints to MeCab on where the morpheme boundaries in the
     # given `text` are located. `boundary_constraints` value may be either a
     # `Regexp` or `String`; please see
-    # [String#scan](http://ruby-doc.org/core-2.2.0/String.html#method-i-scan String#scan.
+    # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     # The boundary constraint parsed output will be returned as a single
     # string, unless a block is passed to this method for node parsing.
     #
@@ -474,7 +474,7 @@ module Natto
     # parsing provides hints to MeCab on where the morpheme boundaries in the
     # given `text` are located. `boundary_constraints` value may be either a
     # `Regexp` or `String`; please see 
-    # [String#scan](http://ruby-doc.org/core-2.2.0/String.html#method-i-scan String#scan).
+    # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     #
     # @param text [String] the Japanese text to parse
     # @param options [Hash] only the `boundary_constraints` key is available
