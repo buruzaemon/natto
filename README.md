@@ -47,6 +47,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 ## Automatic Configuration
 No explicit configuration should be necessary, as natto will try to locate the MeCab library based upon its runtime environment.
+
 - On OS X and \*nix, it will query `mecab-config --libs` 
 - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
 
