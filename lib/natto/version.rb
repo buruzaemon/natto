@@ -4,10 +4,9 @@
 # a binding to MeCab and an API for the `Tagger`,
 # `Node` and `Lattice` objects.
 #
-# `Natto::MeCab` is a wrapper class for the MeCab `Tagger`.
+# `Natto::MeCab` is a wrapper class for the MeCab Tagger.
 #
-# `Natto::MeCabStruct` is a base class for a `mecab`
-# struct.
+# `Natto::MeCabStruct` is a base class for a MeCab struct.
 #
 # `Natto::MeCabNode` is a wrapper for the struct representing
 # a MeCab `Node`.
@@ -20,10 +19,10 @@
 # `Natto` module.
 #
 # Module `Natto::Binding` encapsulates methods and behavior 
-# which are made available via `FFI` bindings to `mecab`.
+# which are made available via `FFI` bindings to MeCab.
 #
 # Module `OptionParse` encapsulates methods and behavior 
-# for parsing the various `mecab` options supported by
+# for parsing the various MeCab options supported by
 # `Natto`.
 module Natto
   # Version string for this Rubygem.

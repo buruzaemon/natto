@@ -47,6 +47,7 @@ However, if you are using a CRuby on Windows, then you will first need to instal
 
 ## Automatic Configuration
 No explicit configuration should be necessary, as natto will try to locate the MeCab library based upon its runtime environment.
+
 - On OS X and \*nix, it will query `mecab-config --libs` 
 - On Windows, it will query the Windows Registry to determine where `libmecab.dll` is installed
 
@@ -167,7 +168,7 @@ nodes:
 
 For more complex parsing, such as that for natural language
 processing tasks, it is far more efficient to use `enum_parse` to
-obtain an [`Enumerator`](http://ruby-doc.org/core-2.2.0/Enumerator.html)
+obtain an [`Enumerator`](http://ruby-doc.org/core-2.2.1/Enumerator.html)
 to iterate over the resulting `MeCabNode` instances. An `Enumerator`
 yields each `MeCabNode` instance without first materializing all
 instances at once, thus being more efficient.

@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+- __2015/04/dd__: 1.0.0 release.
+    - Issue 36: Fixed @param documentation
+    - Issue 37: README and bullet points under Automatic Configuration
+    - Issue 38: Updated URLs in documentation to point to Ruby 2.2.1
+    - Issue 39: Make refs to MeCab and Tagger consistent in docs
+
 - __2015/03/31__: 0.9.9 release.
     - Issue 21/34: Implemented boundary constraint parsing.
     - Issue 26: Removing deprecated methods parse_as_nodes, parse_as_strings, readnodes and readlines.
