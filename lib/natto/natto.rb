@@ -490,8 +490,8 @@ module Natto
     # Overrides `Object#to_s`.
     #
     # - encoded object id
-    # - underlying FFI pointer to the `mecab` tagger
-    # - real file path to `mecab` library
+    # - underlying FFI pointer to the MeCab Tagger
+    # - real file path to MeCab library
     # - options hash
     # - list of dictionaries
     # - MeCab version
@@ -521,7 +521,7 @@ module Natto
     # after the Tagger instance  owning `tptr` 
     # has been destroyed.
     # @param tptr [FFI::Pointer] pointer to Tagger
-    # @return [Proc] to release `mecab` resources properly
+    # @return [Proc] to release MeCab resources properly
     def self.create_free_proc(tptr)
       Proc.new do
         self.mecab_destroy(tptr)
