@@ -2,16 +2,12 @@
 module Natto
 
   # Module `Binding` encapsulates methods and behavior 
-  # which are made available via `FFI` bindings to 
-  # `mecab`.
+  # which are made available via `FFI` bindings to MeCab.
   module Binding
     require 'ffi'
     require 'rbconfig'
     extend FFI::Library
 
-    # String name for the environment variable used by 
-    # `Natto` to indicate the absolute pathname
-    # to the `mecab` library.
     MECAB_PATH = 'MECAB_PATH'.freeze
     
     # @private
@@ -19,10 +15,9 @@ module Natto
       base.extend(ClassMethods)
     end
 
-    # Returns the absolute pathname to the `mecab` library based on 
+    # Returns the absolute pathname to the MeCab library based on 
     # the runtime environment.
-    # 
-    # @return [String] absolute pathname to the `mecab` library
+    # @return [String] absolute pathname to the MeCab library
     # @raise [LoadError] if the library cannot be located
     def self.find_library
       return File.absolute_path(ENV[MECAB_PATH]) if ENV[MECAB_PATH]

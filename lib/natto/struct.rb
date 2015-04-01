@@ -9,11 +9,10 @@ module Natto
   # the `Natto` module. Please refer to `mecab.h` in the source code
   # distribution.
   class MeCabStruct < FFI::Struct
-    # Provides accessor methods for the members of the `mecab` struct.
-    #
+    # Provides accessor methods for the members of the MeCab struct.
     # @param attr_name [String] attribute name
-    # @return member values for the `mecab` struct
-    # @raise [NoMethodError] if `attr_name` is not a member of this `mecab` struct 
+    # @return member values for the MeCab struct
+    # @raise [NoMethodError] if `attr_name` is not a member of this MeCab struct 
     def method_missing(attr_name)
       member_sym = attr_name.id2name.to_sym
       return self[member_sym] if self.members.include?(member_sym)
@@ -22,9 +21,9 @@ module Natto
   end
 
   # `DictionaryInfo` is a wrapper for the `struct mecab_dictionary_info_t`
-  # structure holding the `MeCab` instance's related dictionary information.
+  # structure holding the MeCab instance's related dictionary information.
   # 
-  # Values for the `mecab` dictionary attributes may be 
+  # Values for the MeCab dictionary attributes may be 
   # obtained by using the following `Symbol`s as keys 
   # to the layout associative array of `FFI::Struct` members.
   #
@@ -38,7 +37,7 @@ module Natto
   # - :next - pointer to next dictionary in list
   # 
   # ## Usage
-  # `mecab` dictionary attributes can be obtained by
+  # MeCab dictionary attributes can be obtained by
   # using their corresponding accessor.
   #
   #     nm = Natto::MeCab.new
@@ -84,8 +83,7 @@ module Natto
       # `class` are Object methods. This is a hack to avoid the 
       # `Object#type` deprecation warning thrown up in Ruby 1.8.7
       # and in JRuby.
-      #
-      # @return [Fixnum] `mecab` dictionary type
+      # @return [Fixnum] MeCab dictionary type
       def type
         self[:type]
       end
@@ -93,7 +91,6 @@ module Natto
 
     # Initializes this dictionary info instance.
     # Sets the `DictionaryInfo` filepath value.
-    #
     # @param ptr [FFI::Pointer] pointer to MeCab dictionary
     def initialize(ptr)
       super(ptr)
@@ -101,14 +98,13 @@ module Natto
       @filepath = File.absolute_path(self[:filename])
     end
 
-    # Returns human-readable details for this `mecab` dictionary.
+    # Returns human-readable details for this MeCab dictionary.
     # Overrides `Object#to_s`.
     #
     # - encoded object id
     # - real file path to this dictionary
     # - dictionary charset
     # - dictionary type
-    #
     # @return [String] encoded object id, file path to dictionary, charset and
     # type
     def to_s
@@ -119,7 +115,6 @@ module Natto
     end
     
     # Overrides `Object#inspect`.
-    #
     # @return [String] encoded object id, dictionary filename, and charset
     # @see #to_s
     def inspect
@@ -148,7 +143,7 @@ module Natto
   # `MeCabNode` is a wrapper for the `struct mecab_node_t`
   # structure holding the parsed `node`.
   # 
-  # Values for the `mecab` node attributes may be 
+  # Values for the MeCab node attributes may be 
   # obtained by using the following `Symbol`s as keys 
   # to the layout associative array of `FFI::Struct` members.
   #
@@ -196,9 +191,9 @@ module Natto
   #     。       10194
   #
   # While it is also possible to use the `Symbol` for the
-  # `mecab` node member to index into the 
+  # MeCab node member to index into the 
   # `FFI::Struct` layout associative array, please use the attribute
-  # accessors. In the case of `:surface` and `:feature`, `mecab` 
+  # accessors. In the case of `:surface` and `:feature`, MeCab 
   # returns the raw bytes, so `natto` will convert that into
   # a string using the default encoding.
   class MeCabNode < MeCabStruct
@@ -209,15 +204,15 @@ module Natto
     # @return [FFI::Pointer] pointer to MeCab node struct.
     attr_reader   :pointer
 
-    # Normal `mecab` node defined in the dictionary, c.f. `stat`.
+    # Normal MeCab node defined in the dictionary, c.f. `stat`.
     NOR_NODE = 0
-    # Unknown `mecab` node not defined in the dictionary, c.f. `stat`.
+    # Unknown MeCab node not defined in the dictionary, c.f. `stat`.
     UNK_NODE = 1
     # Virtual node representing the beginning of the sentence, c.f. `stat`.
     BOS_NODE = 2
     # Virutual node representing the end of the sentence, c.f. `stat`.
     EOS_NODE = 3
-    # Virtual node representing the end of an N-Best `mecab` node list, c.f. `stat`.
+    # Virtual node representing the end of an N-Best MeCab node list, c.f. `stat`.
     EON_NODE = 4
 
     layout  :prev,            :pointer,
@@ -244,8 +239,7 @@ module Natto
             :cost,            :long
 
     # Initializes this node instance.
-    # Sets the `MeCab` feature value for this node.
-    #
+    # Sets the MeCab feature value for this node.
     # @param nptr [FFI::Pointer] pointer to MeCab node
     def initialize(nptr)
       super(nptr)
@@ -256,7 +250,7 @@ module Natto
       end
     end
      
-    # Returns human-readable details for the `mecab` node.
+    # Returns human-readable details for the MeCab node.
     # Overrides `Object#to_s`.
     #
     # - encoded object id
@@ -264,7 +258,6 @@ module Natto
     # - stat (node type: NOR, UNK, BOS/EOS, EON)
     # - surface 
     # - feature
-    #
     # @return [String] encoded object id, underlying FFI pointer, stat, surface, and feature 
     def to_s
        [ super.chop,
@@ -275,38 +268,37 @@ module Natto
     end
 
     # Overrides `Object#inspect`.
-    #
     # @return [String] encoded object id, stat, surface, and feature 
     # @see #to_s
     def inspect
       self.to_s
     end
 
-    # Returns `true` if this is a normal `mecab` node found in the dictionary.
+    # Returns `true` if this is a normal MeCab node found in the dictionary.
     # @return [Boolean]
     def is_nor?
       self.stat == NOR_NODE
     end
 
-    # Returns `true` if this is an unknown `mecab` node not found in the dictionary.
+    # Returns `true` if this is an unknown MeCab node not found in the dictionary.
     # @return [Boolean]
     def is_unk?
       self.stat == UNK_NODE
     end
    
-    # Returns `true` if this is a virtual `mecab` node representing the beginning of the sentence.
+    # Returns `true` if this is a virtual MeCab node representing the beginning of the sentence.
     # @return [Boolean]
     def is_bos?
       self.stat == BOS_NODE
     end
    
-    # Returns `true` if this is a virtual `mecab` node representing the end of the sentence.
+    # Returns `true` if this is a virtual MeCab node representing the end of the sentence.
     # @return [Boolean]
     def is_eos?
       self.stat == EOS_NODE 
     end
    
-    # Returns `true` if this is a virtual `mecab` node representing the end of the node list.
+    # Returns `true` if this is a virtual MeCab node representing the end of the node list.
     # @return [Boolean]
     def is_eon?
       self.stat == EON_NODE

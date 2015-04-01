@@ -4,8 +4,8 @@ require 'natto/option_parse'
 require 'natto/struct'
 
 module Natto 
-  # `MeCab` is a wrapper class for the MeCab `Tagger`.
-  # Options to the MeCab `Tagger` are passed in as a string
+  # `MeCab` is a wrapper class for the MeCab Tagger.
+  # Options to the MeCab Tagger are passed in as a string
   # (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
@@ -104,7 +104,7 @@ module Natto
   #
   #     # Boundary constraint parsing with output formatting.
   #     # %m   ... morpheme surface
-  #     # %F,  ... comma-delimited ChaSen feature values
+  #     # %f   ... tab-delimited ChaSen feature values
   #     #          part-of-speech (index 0) 
   #     # %2   ... MeCab node status value (1 unknown)
   #     #
@@ -148,7 +148,7 @@ module Natto
     MECAB_TOKEN_BOUNDARY = 1
     MECAB_INSIDE_TOKEN = 2
 
-    # @return [FFI:Pointer] pointer to MeCab tagger.
+    # @return [FFI:Pointer] pointer to MeCab Tagger.
     attr_reader :tagger
     # @return [String] absolute filepath to MeCab library.
     attr_reader :libpath
@@ -156,10 +156,10 @@ module Natto
     attr_reader :options
     # @return [Array] listing of all of dictionaries referenced.
     attr_reader :dicts
-    # @return [String] `MeCab` version.
+    # @return [String] MeCab version.
     attr_reader :version
 
-    # Initializes the wrapped `Tagger` instance with the
+    # Initializes the wrapped Tagger instance with the
     # given `options`.
     # 
     # Options supported are:
@@ -186,7 +186,7 @@ module Natto
     # - :cost_factor --  cost factor (integer, default 700)
     # 
     # <p>MeCab command-line arguments (-F) or long (--node-format) may be used in 
-    # addition to Ruby-style `Hash`es</p>
+    # addition to Ruby-style hashs</p>
     # <i>Use single-quotes to preserve format options that contain escape chars.</i><br/>
     # e.g.<br/>
     #
@@ -216,13 +216,11 @@ module Natto
     #     ない    ナイ
     #     。      。
     #     EOS
-    #
-    # @param options [Hash, String] the MeCab options for tagger
-    # @raise [MeCabError] if `mecab` cannot be initialized with the given `options`
+    # @param options [Hash, String] the MeCab options for Tagger
+    # @raise [MeCabError] if MeCab cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
       @dicts = []
-      # TODO invoke function for enhancing MeCabNode after this point
 
       opt_str  = self.class.build_options_str(@options)
       @tagger  = self.class.mecab_new2(opt_str)
@@ -240,7 +238,6 @@ module Natto
       # options
       @parse_tostr = ->(text) {
         if @options[:nbest] && @options[:nbest] > 1
-          #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
           retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
                 raise(MeCabError.new(self.mecab_strerror(@tagger))) 
         else
@@ -255,7 +252,6 @@ module Natto
         Enumerator.new do |y|
           if @options[:nbest] && @options[:nbest] > 1
             nlen = @options[:nbest]
-            #self.mecab_set_lattice_level(@tagger, (@options[:lattice_level] || 1))
             self.mecab_nbest_init(@tagger, text) 
             nptr = self.mecab_nbest_next_tonode(@tagger)
           else
@@ -434,11 +430,10 @@ module Natto
     # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     # The boundary constraint parsed output will be returned as a single
     # string, unless a block is passed to this method for node parsing.
-    #
     # @param text [String] the Japanese text to parse
     # @param options [Hash] only the `boundary_constraints` key is available
-    # @return [String] parsing result from `mecab`
-    # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
+    # @return [String] parsing result from MeCab
+    # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
     def parse(text, options={})
@@ -459,7 +454,7 @@ module Natto
     end
 
     # Parses the given string `text`, returning an
-    # {http://www.ruby-doc.org/core-2.1.5/Enumerator.html Enumerator} that may be
+    # [Enumerator](http://www.ruby-doc.org/core-2.1.5/Enumerator.html) that may be
     # used to iterate over the resulting {MeCabNode} objects. This is more 
     # efficient than parsing to a simple string, since each node's
     # information will not be materialized all at once as it is with
@@ -475,11 +470,10 @@ module Natto
     # given `text` are located. `boundary_constraints` value may be either a
     # `Regexp` or `String`; please see 
     # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
-    #
     # @param text [String] the Japanese text to parse
     # @param options [Hash] only the `boundary_constraints` key is available
     # @return [Enumerator] of MeCabNode instances
-    # @raise [MeCabError] if the `mecab` tagger cannot parse the given `text`
+    # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
     # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
@@ -492,7 +486,7 @@ module Natto
       end
     end
 
-    # Returns human-readable details for the wrapped `mecab` tagger.
+    # Returns human-readable details for the wrapped MeCab Tagger.
     # Overrides `Object#to_s`.
     #
     # - encoded object id
@@ -501,9 +495,8 @@ module Natto
     # - options hash
     # - list of dictionaries
     # - MeCab version
-    #
     # @return [String] encoded object id, underlying FFI pointer,
-    #   file path to `mecab` library, options hash,
+    #   file path to MeCab library, options hash,
     #   list of dictionaries and MeCab version
     def to_s
       [ super.chop,
@@ -515,7 +508,6 @@ module Natto
     end
 
     # Overrides `Object#inspect`.
-    # 
     # @return [String] encoded object id, FFI pointer, options hash,
     #   list of dictionaries, and MeCab version
     # @see #to_s
@@ -524,12 +516,11 @@ module Natto
     end
 
     # Returns a `Proc` that will properly free resources
-    # when this `Tagger` instance is garbage collected.
+    # when this Tagger instance is garbage collected.
     # The `Proc` returned is registered to be invoked
-    # after the `Tagger` instance  owning `tptr` 
+    # after the Tagger instance  owning `tptr` 
     # has been destroyed.
-    #
-    # @param tptr [FFI::Pointer] pointer to `Tagger`
+    # @param tptr [FFI::Pointer] pointer to Tagger
     # @return [Proc] to release `mecab` resources properly
     def self.create_free_proc(tptr)
       Proc.new do

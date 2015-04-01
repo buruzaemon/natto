@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'natto/natto'
 
 # Copyright (c) 2015, Brooke M. Fujita.
