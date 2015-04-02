@@ -22,56 +22,56 @@ class TestOptionParse < MiniTest::Unit::TestCase
       '-r/some/file',
       '--rcfile=/some/file',
       '--rcfile /some/file',
-      {:rcfile=>"/some/file"} ].each do |opts|
-      assert_equal({:rcfile => '/some/file'}, @klass.parse_mecab_options(opts))
+      {rcfile: "/some/file"} ].each do |opts|
+      assert_equal({rcfile: '/some/file'}, @klass.parse_mecab_options(opts))
     end
 
     [ '-d /some/other/file',
       '-d/some/other/file',
       '--dicdir=/some/other/file',
       '--dicdir /some/other/file',
-      {:dicdir=>"/some/other/file"} ].each do |opts|
-      assert_equal({:dicdir => '/some/other/file'}, @klass.parse_mecab_options(opts))
+      {dicdir: "/some/other/file"} ].each do |opts|
+      assert_equal({dicdir: '/some/other/file'}, @klass.parse_mecab_options(opts))
     end
    
     [ '-u /yet/another/file',
       '-u/yet/another/file',
       '--userdic=/yet/another/file',
       '--userdic /yet/another/file',
-      {:userdic=>"/yet/another/file"} ].each do |opts|
-      assert_equal({:userdic => '/yet/another/file'}, @klass.parse_mecab_options(opts))
+      {userdic: "/yet/another/file"} ].each do |opts|
+      assert_equal({userdic: '/yet/another/file'}, @klass.parse_mecab_options(opts))
     end
    
     [ '-l 42',
       '-l42',
       '--lattice-level=42',
       '--lattice-level 42',
-      {:lattice_level=>42}
+      {lattice_level: 42}
     ].each do |opts|
-      assert_equal({:lattice_level => 42}, @klass.parse_mecab_options(opts))
+      assert_equal({lattice_level: 42}, @klass.parse_mecab_options(opts))
     end
    
     [ '-a',
       '--all-morphs',
-      {:all_morphs=>true} ].each do |opts|
-      assert_equal({:all_morphs => true}, @klass.parse_mecab_options(opts))
+      {all_morphs: true} ].each do |opts|
+      assert_equal({all_morphs: true}, @klass.parse_mecab_options(opts))
     end
    
     [ '-O natto',
       '-Onatto',
       '--output-format-type=natto',
       '--output-format-type natto',
-      {:output_format_type=>"natto"} ].each do |opts|
-      assert_equal({:output_format_type => 'natto'}, @klass.parse_mecab_options(opts))
+      {output_format_type: "natto"} ].each do |opts|
+      assert_equal({output_format_type: 'natto'}, @klass.parse_mecab_options(opts))
     end
    
     [ '-N 42',
       '-N42',
       '--nbest=42',
       '--nbest 42',
-      {:nbest=>42}
+      {nbest: 42}
     ].each do |opts|
-      assert_equal({:nbest => 42}, @klass.parse_mecab_options(opts))
+      assert_equal({nbest: 42}, @klass.parse_mecab_options(opts))
     end
     [ '--nbest=-1', '--nbest=0', '--nbest=513' ].each do |bad|
       assert_raises Natto::MeCabError do
@@ -81,105 +81,105 @@ class TestOptionParse < MiniTest::Unit::TestCase
    
     [ '-p',
       '--partial',
-      {:partial=>true} ].each do |opts|
-      assert_equal({:partial => true}, @klass.parse_mecab_options(opts))
+      {partial: true} ].each do |opts|
+      assert_equal({partial: true}, @klass.parse_mecab_options(opts))
     end
    
     [ '-m',
       '--marginal',
-      {:marginal=>true} ].each do |opts|
-      assert_equal({:marginal => true}, @klass.parse_mecab_options(opts))
+      {marginal: true} ].each do |opts|
+      assert_equal({marginal: true}, @klass.parse_mecab_options(opts))
     end
    
     [ '-M 42',
       '-M42',
       '--max-grouping-size=42',
       '--max-grouping-size 42',
-      {:max_grouping_size=>42}
+      {max_grouping_size: 42}
     ].each do |opts|
-      assert_equal({:max_grouping_size => 42}, @klass.parse_mecab_options(opts))
+      assert_equal({max_grouping_size: 42}, @klass.parse_mecab_options(opts))
     end
     
     [ '-F %m\t%f[7]\n',
       '-F%m\t%f[7]\n',
       '--node-format=%m\t%f[7]\n',
       '--node-format %m\t%f[7]\n',
-      {:node_format=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:node_format => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {node_format: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({node_format: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
 
     [ '-U %m\t%f[7]\n',
       '-U%m\t%f[7]\n',
       '--unk-format=%m\t%f[7]\n',
       '--unk-format %m\t%f[7]\n',
-      {:unk_format=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:unk_format => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {unk_format: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({unk_format: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
     
     [ '-B %m\t%f[7]\n',
       '-B%m\t%f[7]\n',
       '--bos-format=%m\t%f[7]\n',
       '--bos-format %m\t%f[7]\n',
-      {:bos_format=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:bos_format => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {bos_format: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({bos_format: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
     
     [ '-E %m\t%f[7]\n',
       '-E%m\t%f[7]\n',
       '--eos-format=%m\t%f[7]\n',
       '--eos-format %m\t%f[7]\n',
-      {:eos_format=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:eos_format => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {eos_format: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({eos_format: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
     
     [ '-S %m\t%f[7]\n',
       '-S%m\t%f[7]\n',
       '--eon-format=%m\t%f[7]\n',
       '--eon-format %m\t%f[7]\n',
-      {:eon_format=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:eon_format => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {eon_format: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({eon_format: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
     
     [ '-x %m\t%f[7]\n',
       '-x%m\t%f[7]\n',
       '--unk-feature=%m\t%f[7]\n',
       '--unk-feature %m\t%f[7]\n',
-      {:unk_feature=>'%m\t%f[7]\n'} ].each do |opts|
-      assert_equal({:unk_feature => '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
+      {unk_feature: '%m\t%f[7]\n'} ].each do |opts|
+      assert_equal({unk_feature: '%m\t%f[7]\n'}, @klass.parse_mecab_options(opts))
     end
     
     [ '-b 102400',
       '-b102400',
       '--input-buffer-size=102400',
       '--input-buffer-size 102400',
-      {:input_buffer_size=>102400} ].each do |opts|
-      assert_equal({:input_buffer_size => 102400}, @klass.parse_mecab_options(opts))
+      {input_buffer_size: 102400} ].each do |opts|
+      assert_equal({input_buffer_size: 102400}, @klass.parse_mecab_options(opts))
     end
     
     [ '-C',
       '--allocate-sentence',
-      {:allocate_sentence=>true} ].each do |opts|
-      assert_equal({:allocate_sentence => true}, @klass.parse_mecab_options(opts))
+      {allocate_sentence: true} ].each do |opts|
+      assert_equal({allocate_sentence: true}, @klass.parse_mecab_options(opts))
     end
     
     [ '-t 0.42',
       '-t0.42',
       '--theta=0.42',
       '--theta 0.42',
-      {:theta=>0.42} ].each do |opts|
-      assert_equal({:theta => 0.42}, @klass.parse_mecab_options(opts))
+      {theta: 0.42} ].each do |opts|
+      assert_equal({theta: 0.42}, @klass.parse_mecab_options(opts))
     end
     
     [ '-c 42',
       '-c42',
       '--cost-factor=42',
       '--cost-factor 42',
-      {:cost_factor=>42} ].each do |opts|
-      assert_equal({:cost_factor => 42}, @klass.parse_mecab_options(opts))
+      {cost_factor: 42} ].each do |opts|
+      assert_equal({cost_factor: 42}, @klass.parse_mecab_options(opts))
     end
 
     assert_equal({}, @klass.parse_mecab_options)
-    assert_equal({}, @klass.parse_mecab_options(:unknown=>"ignore"))
+    assert_equal({}, @klass.parse_mecab_options(unknown: "ignore"))
   end
 
   def test_build_options_str
@@ -191,6 +191,7 @@ class TestOptionParse < MiniTest::Unit::TestCase
     assert_equal('--all-morphs', @klass.build_options_str(all_morphs: true))
     assert_equal('--nbest=42', @klass.build_options_str(nbest: 42))
     assert_equal('--partial', @klass.build_options_str(partial: true))
+    assert_equal('--marginal', @klass.build_options_str(marginal: true))
     assert_equal('--node-format=%m\t%f[7]\n', @klass.build_options_str(node_format: '%m\t%f[7]\n'))
     assert_equal('--unk-format=%m\t%f[7]\n', @klass.build_options_str(unk_format: '%m\t%f[7]\n'))
     assert_equal('--bos-format=%m\t%f[7]\n', @klass.build_options_str(bos_format: '%m\t%f[7]\n'))
