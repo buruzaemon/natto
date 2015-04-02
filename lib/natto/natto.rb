@@ -354,6 +354,9 @@ module Natto
             if @options[:theta]
               self.mecab_lattice_set_theta(lattice, @options[:theta])
             end
+            if @options[:marginal]
+              self.mecab_lattice_add_request_type(lattice, MECAB_LATTICE_MARGINAL_PROB)
+            end
 
             tokens = tokenize(text, boundary_constraints)
             text = tokens.map {|t| t.first}.join

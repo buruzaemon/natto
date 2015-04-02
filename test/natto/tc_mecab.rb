@@ -9,6 +9,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m_s = Natto::MeCab.new '-F%m\s%s'
     @m_t = Natto::MeCab.new '-t 0.666'
     @m_p = Natto::MeCab.new '-p'
+    @m_m = Natto::MeCab.new '-m -t 0.001'
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
@@ -58,6 +59,7 @@ class TestMeCab < MiniTest::Unit::TestCase
     @m_s        = nil
     @m_t        = nil
     @m_p        = nil
+    @m_m        = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
@@ -467,6 +469,24 @@ class TestMeCab < MiniTest::Unit::TestCase
     end
 
     assert_equal(expected, actual)
+  end
+
+  def test_parse_tonode_marginal
+    @m_t.parse(@test_str) do |n|
+      if !(n.is_eos? or n.is_bos?)
+        assert(n.prob == 0.0)
+        assert(n.alpha == 0.0)
+        assert(n.beta == 0.0)
+      end
+    end
+
+    @m_m.parse(@test_str) do |n|
+      if !(n.is_eos? or n.is_bos?)
+        assert(n.prob != 0.0)
+        assert(n.alpha != 0.0)
+        assert(n.beta != 0.0)
+      end
+    end
   end
 
   def test_enum_parse_default
