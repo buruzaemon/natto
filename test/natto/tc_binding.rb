@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class TestNattoBinding < MiniTest::Unit::TestCase
+class TestNattoBinding < Minitest::Test
   def setup
     @ver = `mecab -v`.strip.split.last
     @klass = Class.new do
@@ -9,11 +9,7 @@ class TestNattoBinding < MiniTest::Unit::TestCase
   end
 
   def teardown
-    @ver, @klass = nil,nil
-  end
-
-  def test_fu
-    refute_nil @klass
+    @ver, @klass = nil, nil
   end
 
   def test_mecab_version
@@ -21,40 +17,46 @@ class TestNattoBinding < MiniTest::Unit::TestCase
   end
 
   def test_functions_included
-    [  :mecab_new2, 
-       :mecab_version, 
+    [  # Model interface
+       :mecab_model_new2,
+       :mecab_model_destroy,
+       :mecab_model_new_tagger,
+       :mecab_model_new_lattice,
+       :mecab_model_dictionary_info,
+     
+       # Tagger interface
+       :mecab_destroy,
+       :mecab_version,
        :mecab_strerror,
-       :mecab_destroy, 
-       :mecab_set_theta,
-       :mecab_set_lattice_level,
-       :mecab_set_all_morphs,
-       :mecab_sparse_tostr, 
-       :mecab_sparse_tonode,
-       :mecab_nbest_init,
-       :mecab_nbest_sparse_tostr, 
-       :mecab_nbest_next_tonode,
        :mecab_format_node,
-       :mecab_dictionary_info,
-       :mecab_lattice_new,
+    
+       # Lattice interface
        :mecab_lattice_destroy,
-       :mecab_lattice_clear,
+       :mecab_lattice_clear, 
        :mecab_lattice_is_available,
-       :mecab_lattice_get_bos_node,
+       :mecab_lattice_strerror,
+
+       :mecab_lattice_get_sentence,
        :mecab_lattice_set_sentence,
        :mecab_lattice_get_size,
-       :mecab_lattice_set_z,
        :mecab_lattice_set_theta,
-       :mecab_lattice_next,
+       :mecab_lattice_set_z,
        :mecab_lattice_get_request_type,
        :mecab_lattice_add_request_type,
        :mecab_lattice_set_request_type,
+       :mecab_lattice_get_boundary_constraint,
+       :mecab_lattice_set_boundary_constraint,
+       :mecab_lattice_get_feature_constraint,
+       :mecab_lattice_set_feature_constraint,
+
+       :mecab_parse_lattice,
+       :mecab_lattice_next,
        :mecab_lattice_tostr,
        :mecab_lattice_nbest_tostr,
-       :mecab_lattice_set_boundary_constraint,
-       :mecab_parse_lattice,
-       :mecab_lattice_strerror
-    ].each do |f|
-      assert(@klass.respond_to? f)
+       :mecab_lattice_get_bos_node
+
+    ].each do |func|
+      assert(@klass.respond_to? func)
     end
   end
 end
