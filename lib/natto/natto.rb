@@ -148,8 +148,12 @@ module Natto
     MECAB_TOKEN_BOUNDARY = 1
     MECAB_INSIDE_TOKEN = 2
 
+    # @return [FFI:Pointer] pointer to MeCab Model.
+    attr_reader :model
     # @return [FFI:Pointer] pointer to MeCab Tagger.
     attr_reader :tagger
+    # @return [FFI:Pointer] pointer to MeCab Lattice.
+    attr_reader :lattice
     # @return [String] absolute filepath to MeCab library.
     attr_reader :libpath
     # @return [Hash] MeCab options as key-value pairs.
@@ -220,205 +224,232 @@ module Natto
     # @raise [MeCabError] if MeCab cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
-      @dicts = []
-
       opt_str  = self.class.build_options_str(@options)
-      @tagger  = self.class.mecab_new2(opt_str)
-      @libpath = self.class.find_library
-      raise MeCabError.new("Could not initialize MeCab with options: '#{opt_str}'") if @tagger.address == 0x0
 
-      self.mecab_set_theta(@tagger, @options[:theta]) if @options[:theta]
-      self.mecab_set_lattice_level(@tagger, @options[:lattice_level]) if @options[:lattice_level]
-      self.mecab_set_all_morphs(@tagger, 1) if @options[:all_morphs]
-      self.mecab_set_partial(@tagger, 1) if @options[:partial]
+      @model   = self.class.mecab_model_new2(opt_str)
+      if @model.address == 0x0
+        raise MeCabError.new("Could not initialize Model with options: '#{opt_str}'")
+      end
+
+      @tagger  = self.class.mecab_model_new_tagger(@model)
+      if @tagger.address == 0x0
+        raise MeCabError.new("Could not initialize Tagger with options: '#{opt_str}'")
+      end
+
+      @lattice = self.class.mecab_model_new_lattice(@model)
+      if @lattice.address == 0x0
+        raise MeCabError.new("Could not initialize Lattice with options: '#{opt_str}'")
+      end
+
+      @libpath = self.class.find_library
+
+      if @options[:nbest] && @options[:nbest] > 1
+        self.mecab_lattice_set_request_type(@lattice, MECAB_LATTICE_NBEST)
+      else
+        self.mecab_lattice_set_request_type(@lattice, MECAB_LATTICE_ONE_BEST)
+      end
+      if @options[:partial]
+        self.mecab_lattice_add_request_type(@lattice,
+                                            MECAB_LATTICE_PARTIAL)
+      end
+      if @options[:marginal]
+        self.mecab_lattice_add_request_type(@lattice,
+                                            MECAB_LATTICE_MARGINAL_PROB)
+      end
+      if @options[:all_morphs]
+        self.mecab_lattice_add_request_type(@lattice,
+                                            MECAB_LATTICE_ALL_MORPHS)
+      end
+      if @options[:allocate_sentence]
+        self.mecab_lattice_add_request_type(@lattice, 
+                                            MECAB_LATTICE_ALLOCATE_SENTENCE)
+      end
+
+      if @options[:theta]
+        self.mecab_lattice_set_theta(@lattice, @options[:theta]) 
+      end
        
       # Define lambda for each major parsing type: _tostr, _tonode,
       # boundary constraint _tostr, boundary constraint _node;
       # and each parsing type will support both normal and N-best
       # options
-      @parse_tostr = ->(text) {
-        if @options[:nbest] && @options[:nbest] > 1
-          retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
-                raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-        else
-          retval = self.mecab_sparse_tostr(@tagger, text) || 
-                raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-        end
+      #@parse_tostr = ->(text) {
+      #  if @options[:nbest] && @options[:nbest] > 1
+      #    retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
+      #          raise(MeCabError.new(self.mecab_strerror(@tagger))) 
+      #  else
+      #    retval = self.mecab_sparse_tostr(@tagger, text) || 
+      #          raise(MeCabError.new(self.mecab_strerror(@tagger))) 
+      #  end
 
-        retval.force_encoding(Encoding.default_external)
-      } 
+      #  retval.force_encoding(Encoding.default_external)
+      #} 
 
-      @parse_tonodes = ->(text) { 
-        Enumerator.new do |y|
-          if @options[:nbest] && @options[:nbest] > 1
-            nlen = @options[:nbest]
-            self.mecab_nbest_init(@tagger, text) 
-            nptr = self.mecab_nbest_next_tonode(@tagger)
-          else
-            nlen = 1
-            nptr = self.mecab_sparse_tonode(@tagger, text) 
-          end
-          raise(MeCabError.new(self.mecab_strerror(@tagger))) if nptr.nil? || nptr.address==0x0
+      #@parse_tonodes = ->(text) { 
+      #  Enumerator.new do |y|
+      #    if @options[:nbest] && @options[:nbest] > 1
+      #      nlen = @options[:nbest]
+      #      self.mecab_nbest_init(@tagger, text) 
+      #      nptr = self.mecab_nbest_next_tonode(@tagger)
+      #    else
+      #      nlen = 1
+      #      nptr = self.mecab_sparse_tonode(@tagger, text) 
+      #    end
+      #    raise(MeCabError.new(self.mecab_strerror(@tagger))) if nptr.nil? || nptr.address==0x0
 
-          nlen.times do
-            s = text.bytes.to_a
-            while nptr && nptr.address != 0x0
-              mn = Natto::MeCabNode.new(nptr)
-              # ignore BOS nodes, since mecab does so
-              if !mn.is_bos?
-                s = s.drop_while {|e| (e==0xa || e==0x20)}
-                if !s.empty?
-                  sarr = []
-                  mn.length.times { sarr << s.shift }
-                  surf = sarr.pack('C*')
-                  mn.surface = surf.force_encoding(Encoding.default_external)
-                end
-                if @options[:output_format_type] || @options[:node_format]
-                  mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
-                end
-                y.yield mn
-              end
-              nptr = mn.next
-            end
-            if nlen > 1
-              nptr = self.mecab_nbest_next_tonode(@tagger)
-            end
-          end
-        end
-      }
+      #    nlen.times do
+      #      s = text.bytes.to_a
+      #      while nptr && nptr.address != 0x0
+      #        mn = Natto::MeCabNode.new(nptr)
+      #        # ignore BOS nodes, since mecab does so
+      #        if !mn.is_bos?
+      #          s = s.drop_while {|e| (e==0xa || e==0x20)}
+      #          if !s.empty?
+      #            sarr = []
+      #            mn.length.times { sarr << s.shift }
+      #            surf = sarr.pack('C*')
+      #            mn.surface = surf.force_encoding(Encoding.default_external)
+      #          end
+      #          if @options[:output_format_type] || @options[:node_format]
+      #            mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
+      #          end
+      #          y.yield mn
+      #        end
+      #        nptr = mn.next
+      #      end
+      #      if nlen > 1
+      #        nptr = self.mecab_nbest_next_tonode(@tagger)
+      #      end
+      #    end
+      #  end
+      #}
       
-      @bcparse_tostr = ->(text, boundary_constraints=/./) {
+      #@bcparse_tostr = ->(text, boundary_constraints=/./) {
+      @parse_tostr = ->(text, boundary_constraints) {
         begin
-          lattice = self.mecab_lattice_new()
-          raise MeCabError.new("Could not create Lattice") if lattice.address == 0x0
-
           if @options[:nbest] && @options[:nbest] > 1
             n = @options[:nbest]
-            self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_NBEST)
           else
             n = 1
-            self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_ONE_BEST)
-          end
-          if @options[:theta]
-            self.mecab_lattice_set_theta(lattice, @options[:theta])
           end
 
-          tokens = tokenize(text, boundary_constraints)
-          text = tokens.map {|t| t.first}.join
-          self.mecab_lattice_set_sentence(lattice, text)
-
-          bpos = 0
-          tokens.each do |token|
-            c = token.first.bytes.count
-
-            self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
-            bpos += 1
-
-            mark = token.last ? MECAB_INSIDE_TOKEN : MECAB_ANY_BOUNDARY
-            (c-1).times do
-              self.mecab_lattice_set_boundary_constraint(lattice, bpos, mark)
-              bpos += 1
-            end
-          end
-
-          self.mecab_parse_lattice(@tagger, lattice)
-          
-          if n > 1
-            retval = self.mecab_lattice_nbest_tostr(lattice, n)
-          else
-            retval = self.mecab_lattice_tostr(lattice)
-          end
-          retval.force_encoding(Encoding.default_external)
-        rescue
-          raise(MeCabError.new(self.mecab_lattice_strerror(lattice))) 
-        ensure
-          if lattice.address != 0x0
-            self.mecab_lattice_destroy(lattice)
-          end
-        end
-      }
-        
-      @bcparse_tonodes = ->(text, boundary_constraints=/./) {
-        Enumerator.new do |y|
-          begin
-            lattice = self.mecab_lattice_new()
-            raise MeCabError.new("Could not create Lattice") if lattice.address == 0x0
-
-            if @options[:nbest] && @options[:nbest] > 1
-              n = @options[:nbest]
-              self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_NBEST)
-            else
-              n = 1
-              self.mecab_lattice_set_request_type(lattice, MECAB_LATTICE_ONE_BEST)
-            end
-            if @options[:theta]
-              self.mecab_lattice_set_theta(lattice, @options[:theta])
-            end
-            if @options[:marginal]
-              self.mecab_lattice_add_request_type(lattice, MECAB_LATTICE_MARGINAL_PROB)
-            end
-
+          if boundary_constraints
             tokens = tokenize(text, boundary_constraints)
             text = tokens.map {|t| t.first}.join
-            self.mecab_lattice_set_sentence(lattice, text)
+            self.mecab_lattice_set_sentence(@lattice, text)
 
             bpos = 0
             tokens.each do |token|
               c = token.first.bytes.count
 
-              self.mecab_lattice_set_boundary_constraint(lattice, bpos, MECAB_TOKEN_BOUNDARY)
+              self.mecab_lattice_set_boundary_constraint(@lattice,
+                                                         bpos,
+                                                         MECAB_TOKEN_BOUNDARY)
               bpos += 1
 
               mark = token.last ? MECAB_INSIDE_TOKEN : MECAB_ANY_BOUNDARY
               (c-1).times do
-                self.mecab_lattice_set_boundary_constraint(lattice, bpos, mark)
+                self.mecab_lattice_set_boundary_constraint(@lattice,
+                                                           bpos,
+                                                           mark)
                 bpos += 1
               end
             end
+          else
+            self.mecab_lattice_set_sentence(@lattice, text)
+          end
 
-            self.mecab_parse_lattice(@tagger, lattice)
+          self.mecab_parse_lattice(@tagger, @lattice)
+          
+          if n > 1
+            retval = self.mecab_lattice_nbest_tostr(@lattice, n)
+          else
+            retval = self.mecab_lattice_tostr(@lattice)
+          end
+          retval.force_encoding(Encoding.default_external)
+        rescue
+          raise(MeCabError.new(self.mecab_lattice_strerror(@lattice))) 
+        end
+      }
+        
+      #@bcparse_tonodes = ->(text, boundary_constraints=/./) {
+      @parse_tonodes = ->(text, boundary_constraints) {
+        Enumerator.new do |y|
+          begin
+            if @options[:nbest] && @options[:nbest] > 1
+              n = @options[:nbest]
+            else
+              n = 1
+            end
+
+            if boundary_constraints
+              tokens = tokenize(text, boundary_constraints)
+              text = tokens.map {|t| t.first}.join
+              self.mecab_lattice_set_sentence(@lattice, text)
+
+              bpos = 0
+              tokens.each do |token|
+                c = token.first.bytes.count
+
+                self.mecab_lattice_set_boundary_constraint(@lattice,
+                                                           bpos,
+                                                           MECAB_TOKEN_BOUNDARY)
+                bpos += 1
+
+                mark = token.last ? MECAB_INSIDE_TOKEN : MECAB_ANY_BOUNDARY
+                (c-1).times do
+                  self.mecab_lattice_set_boundary_constraint(@lattice, bpos, mark)
+                  bpos += 1
+                end
+              end
+            else
+              self.mecab_lattice_set_sentence(@lattice, text)
+            end
+
+            self.mecab_parse_lattice(@tagger, @lattice)
 
             n.times do
-              check = self.mecab_lattice_next(lattice)
+              check = self.mecab_lattice_next(@lattice)
               if check
-                nptr = self.mecab_lattice_get_bos_node(lattice)
+                nptr = self.mecab_lattice_get_bos_node(@lattice)
           
                 s = text.bytes.to_a
                 while nptr && nptr.address!=0x0
                   mn = Natto::MeCabNode.new(nptr)
-                  s = s.drop_while {|e| (e==0xa || e==0x20)}
-                  if !s.empty?
-                    sarr = []
-                    mn.length.times { sarr << s.shift }
-                    surf = sarr.pack('C*')
-                    mn.surface = surf.force_encoding(Encoding.default_external)
+                  if !mn.is_bos?
+                    s = s.drop_while {|e| (e==0xa || e==0x20)}
+                    if !s.empty?
+                      sarr = []
+                      mn.length.times { sarr << s.shift }
+                      surf = sarr.pack('C*')
+                      mn.surface = surf.force_encoding(Encoding.default_external)
+                    end
+                    if @options[:output_format_type] || @options[:node_format]
+                      mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
+                    end
+                    y.yield mn
                   end
-                  if @options[:output_format_type] || @options[:node_format]
-                    mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
-                  end
-                  y.yield mn
                   nptr = mn.next
                 end
               end
             end
           rescue
-            raise(MeCabError.new(self.mecab_lattice_strerror(lattice))) 
-          ensure
-            if lattice.address != 0x0
-              self.mecab_lattice_destroy(lattice)
-            end
+            raise(MeCabError.new(self.mecab_lattice_strerror(@lattice))) 
           end
         end
       }
 
-      @dicts << Natto::DictionaryInfo.new(Natto::Binding.mecab_dictionary_info(@tagger))
+      @dicts = []
+      @dicts << Natto::DictionaryInfo.new(self.mecab_model_dictionary_info(@model))
       while @dicts.last.next.address != 0x0
         @dicts << Natto::DictionaryInfo.new(@dicts.last.next)
       end
 
       @version = self.mecab_version
 
-      ObjectSpace.define_finalizer(self, self.class.create_free_proc(@tagger))
+      ObjectSpace.define_finalizer(self, self.class.create_free_proc(@model,
+                                                                     @tagger,
+                                                                     @lattice))
     end
     
     # Parses the given `text`, returning the MeCab output as a single string. 
@@ -441,23 +472,15 @@ module Natto
     # @see MeCabNode
     def parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
-      if options[:boundary_constraints]
-        if block_given?
-          @bcparse_tonodes.call(text, options[:boundary_constraints]).each {|n| yield n }
-        else
-          @bcparse_tostr.call(text, options[:boundary_constraints])
-        end
+      if block_given?
+        @parse_tonodes.call(text, options[:boundary_constraints]).each {|n| yield n }
       else
-        if block_given?
-          @parse_tonodes.call(text).each {|n| yield n }
-        else
-          @parse_tostr.call(text)
-        end
+        @parse_tostr.call(text, options[:boundary_constraints])
       end
     end
 
     # Parses the given string `text`, returning an
-    # [Enumerator](http://www.ruby-doc.org/core-2.1.5/Enumerator.html) that may be
+    # [Enumerator](http://www.ruby-doc.org/core-2.2.1/Enumerator.html) that may be
     # used to iterate over the resulting {MeCabNode} objects. This is more 
     # efficient than parsing to a simple string, since each node's
     # information will not be materialized all at once as it is with
@@ -482,18 +505,16 @@ module Natto
     # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
     def enum_parse(text, options={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
-      if options[:boundary_constraints]
-        @bcparse_tonodes.call(text, options[:boundary_constraints])
-      else
-        @parse_tonodes.call(text)
-      end
+      @parse_tonodes.call(text, options[:boundary_constraints])
     end
 
-    # Returns human-readable details for the wrapped MeCab Tagger.
+    # Returns human-readable details for the wrapped MeCab library.
     # Overrides `Object#to_s`.
     #
     # - encoded object id
+    # - underlying FFI pointer to the MeCab Model
     # - underlying FFI pointer to the MeCab Tagger
+    # - underlying FFI pointer to the MeCab Lattice
     # - real file path to MeCab library
     # - options hash
     # - list of dictionaries
@@ -503,7 +524,9 @@ module Natto
     #   list of dictionaries and MeCab version
     def to_s
       [ super.chop,
+        "@model=#{@model},", 
         "@tagger=#{@tagger},", 
+        "@lattice=#{@lattice},", 
         "@libpath=\"#{@libpath}\",",
         "@options=#{@options.inspect},", 
         "@dicts=#{@dicts.to_s},", 
@@ -519,21 +542,23 @@ module Natto
     end
 
     # Returns a `Proc` that will properly free resources
-    # when this Tagger instance is garbage collected.
-    # The `Proc` returned is registered to be invoked
-    # after the Tagger instance  owning `tptr` 
-    # has been destroyed.
+    # when this instance is garbage collected.
+    # @param mptr [FFI::Pointer] pointer to Model
     # @param tptr [FFI::Pointer] pointer to Tagger
+    # @param lptr [FFI::Pointer] pointer to Lattice
     # @return [Proc] to release MeCab resources properly
-    def self.create_free_proc(tptr)
+    def self.create_free_proc(mptr, tptr, lptr)
       Proc.new do
+        self.mecab_lattice_destroy(lptr)
         self.mecab_destroy(tptr)
+        self.mecab_model_destory(mptr)
       end
     end
 
     private
 
     # @private
+    # MeCab eats all leading and training whitespace char
     def tokenize(text, pattern)
       matches = text.scan(pattern)
       
