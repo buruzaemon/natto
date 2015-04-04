@@ -2,7 +2,7 @@
 require 'open3'
 require 'rbconfig'
 
-class TestDictionaryInfo < MiniTest::Unit::TestCase
+class TestDictionaryInfo < Minitest::Test
   def setup
     begin
       File.delete(@testdic) if File.exist?(@testdic)
