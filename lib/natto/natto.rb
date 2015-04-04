@@ -272,7 +272,7 @@ module Natto
         self.mecab_lattice_set_theta(@lattice, @options[:theta]) 
       end
       
-      @parse_tostr = ->(text, boundary_constraints) {
+      @parse_tostr = ->(text, constraints) {
         begin
           if @options[:nbest] && @options[:nbest] > 1
             n = @options[:nbest]
@@ -280,8 +280,8 @@ module Natto
             n = 1
           end
 
-          if boundary_constraints
-            tokens = tokenize(text, boundary_constraints)
+          if constraints[:boundary_constraints]
+            tokens = tokenize(text, constraints[:boundary_constraints])
             text = tokens.map {|t| t.first}.join
             self.mecab_lattice_set_sentence(@lattice, text)
 
@@ -319,7 +319,7 @@ module Natto
         end
       }
         
-      @parse_tonodes = ->(text, boundary_constraints) {
+      @parse_tonodes = ->(text, constraints) {
         Enumerator.new do |y|
           begin
             if @options[:nbest] && @options[:nbest] > 1
@@ -328,8 +328,8 @@ module Natto
               n = 1
             end
 
-            if boundary_constraints
-              tokens = tokenize(text, boundary_constraints)
+            if constraints[:boundary_constraints]
+              tokens = tokenize(text, constraints[:boundary_constraints])
               text = tokens.map {|t| t.first}.join
               self.mecab_lattice_set_sentence(@lattice, text)
 
@@ -416,12 +416,12 @@ module Natto
     # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
-    def parse(text, options={})
+    def parse(text, constraints={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
       if block_given?
-        @parse_tonodes.call(text, options[:boundary_constraints]).each {|n| yield n }
+        @parse_tonodes.call(text, constraints).each {|n| yield n }
       else
-        @parse_tostr.call(text, options[:boundary_constraints])
+        @parse_tostr.call(text, constraints)
       end
     end
 
@@ -449,9 +449,9 @@ module Natto
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
     # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
-    def enum_parse(text, options={})
+    def enum_parse(text, constraints={})
       raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
-      @parse_tonodes.call(text, options[:boundary_constraints])
+      @parse_tonodes.call(text, constraints)
     end
 
     # Returns human-readable details for the wrapped MeCab library.
