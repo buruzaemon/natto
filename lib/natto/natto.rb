@@ -4,9 +4,9 @@ require 'natto/option_parse'
 require 'natto/struct'
 
 module Natto 
-  # `MeCab` is a wrapper class for the MeCab Tagger.
-  # Options to the MeCab Tagger are passed in as a string
-  # (MeCab command-line style) or as a Ruby-style hash at
+  # `MeCab` is a class providing an interface to the MeCab library.
+  # Options to the MeCab Model, Tagger and Lattice are passed in
+  # as a string (MeCab command-line style) or as a Ruby-style hash at
   # initialization.
   #
   # ## Usage
@@ -16,14 +16,16 @@ module Natto
   #     text = '凡人にしか見えねえ風景ってのがあるんだよ。'
   #
   #     nm = Natto::MeCab.new
-  #     => #<Natto::MeCab:0x28d3bdc8 \
-  #          @tagger=#<FFI::Pointer address=0x28afb980>, \
-  #          @libpath="/usr/local/lib/libmecab.so"       \
-  #          @options={},                                \
-  #          @dicts=[#<Natto::DictionaryInfo:0x289a1f14  \
+  #     => #<Natto::MeCab:0x0000080318d278                      \
+  #          @model=#<FFI::Pointer address=0x000008039174c0>,   \
+  #          @tagger=#<FFI::Pointer address=0x0000080329ba60>,  \
+  #          @lattice=#<FFI::Pointer address=0x000008045bd140>, \
+  #          @libpath="/usr/local/lib/libmecab.so"              \
+  #          @options={},                                       \
+  #          @dicts=[#<Natto::DictionaryInfo:0x0000080318ce90   \
   #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-  #                    charset=utf8,                     \
-  #                    type=0>],                         \
+  #                    charset=utf8,                            \
+  #                    type=0>],                                \
   #          @version=0.996>
   #
   #     # print entire MeCab result to stdout
@@ -163,8 +165,7 @@ module Natto
     # @return [String] MeCab version.
     attr_reader :version
 
-    # Initializes the wrapped Tagger instance with the
-    # given `options`.
+    # Initializes the wrapped Tagger instance with the given `options`.
     # 
     # Options supported are:
     #
@@ -195,14 +196,16 @@ module Natto
     # e.g.<br/>
     #
     #     nm = Natto::MeCab.new(node_format: '%m¥t%f[7]¥n')
-    #     => #<Natto::MeCab:0x28d2ae10 
-    #          @tagger=#<FFI::Pointer address=0x28a97980>, \
-    #          @libpath="/usr/local/lib/libmecab.so",      \
-    #          @options={:node_format=>"%m¥t%f[7]¥n"},     \
-    #          @dicts=[#<Natto::DictionaryInfo:0x28d2a85c  \
+    #     => #<Natto::MeCab:0x00000803503ee8                     \
+    #          @model=#<FFI::Pointer address=0x00000802b6d9c0>,  \
+    #          @tagger=#<FFI::Pointer address=0x00000802ad3ec0>, \
+    #          @lattice=#<FFI::Pointer address=0x000008035f3980>,\
+    #          @libpath="/usr/local/lib/libmecab.so",            \
+    #          @options={:node_format=>"%m¥t%f[7]¥n"},           \
+    #          @dicts=[#<Natto::DictionaryInfo:0x000008035038f8  \
     #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
-    #                    charset=utf8,                     \
-    #                    type=0>]                          \
+    #                    charset=utf8,                           \
+    #                    type=0>]                                \
     #          @version=0.996>
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
@@ -220,7 +223,7 @@ module Natto
     #     ない    ナイ
     #     。      。
     #     EOS
-    # @param options [Hash, String] the MeCab options for Tagger
+    # @param options [Hash, String] the MeCab options
     # @raise [MeCabError] if MeCab cannot be initialized with the given `options`
     def initialize(options={})
       @options = self.class.parse_mecab_options(options) 
@@ -268,63 +271,7 @@ module Natto
       if @options[:theta]
         self.mecab_lattice_set_theta(@lattice, @options[:theta]) 
       end
-       
-      # Define lambda for each major parsing type: _tostr, _tonode,
-      # boundary constraint _tostr, boundary constraint _node;
-      # and each parsing type will support both normal and N-best
-      # options
-      #@parse_tostr = ->(text) {
-      #  if @options[:nbest] && @options[:nbest] > 1
-      #    retval = self.mecab_nbest_sparse_tostr(@tagger, @options[:nbest], text) || 
-      #          raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-      #  else
-      #    retval = self.mecab_sparse_tostr(@tagger, text) || 
-      #          raise(MeCabError.new(self.mecab_strerror(@tagger))) 
-      #  end
-
-      #  retval.force_encoding(Encoding.default_external)
-      #} 
-
-      #@parse_tonodes = ->(text) { 
-      #  Enumerator.new do |y|
-      #    if @options[:nbest] && @options[:nbest] > 1
-      #      nlen = @options[:nbest]
-      #      self.mecab_nbest_init(@tagger, text) 
-      #      nptr = self.mecab_nbest_next_tonode(@tagger)
-      #    else
-      #      nlen = 1
-      #      nptr = self.mecab_sparse_tonode(@tagger, text) 
-      #    end
-      #    raise(MeCabError.new(self.mecab_strerror(@tagger))) if nptr.nil? || nptr.address==0x0
-
-      #    nlen.times do
-      #      s = text.bytes.to_a
-      #      while nptr && nptr.address != 0x0
-      #        mn = Natto::MeCabNode.new(nptr)
-      #        # ignore BOS nodes, since mecab does so
-      #        if !mn.is_bos?
-      #          s = s.drop_while {|e| (e==0xa || e==0x20)}
-      #          if !s.empty?
-      #            sarr = []
-      #            mn.length.times { sarr << s.shift }
-      #            surf = sarr.pack('C*')
-      #            mn.surface = surf.force_encoding(Encoding.default_external)
-      #          end
-      #          if @options[:output_format_type] || @options[:node_format]
-      #            mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
-      #          end
-      #          y.yield mn
-      #        end
-      #        nptr = mn.next
-      #      end
-      #      if nlen > 1
-      #        nptr = self.mecab_nbest_next_tonode(@tagger)
-      #      end
-      #    end
-      #  end
-      #}
       
-      #@bcparse_tostr = ->(text, boundary_constraints=/./) {
       @parse_tostr = ->(text, boundary_constraints) {
         begin
           if @options[:nbest] && @options[:nbest] > 1
@@ -372,7 +319,6 @@ module Natto
         end
       }
         
-      #@bcparse_tonodes = ->(text, boundary_constraints=/./) {
       @parse_tonodes = ->(text, boundary_constraints) {
         Enumerator.new do |y|
           begin
@@ -572,7 +518,7 @@ module Natto
         unless mat.empty?
           acc << [mat.strip, true]
         end
-        if i==matches.size-1 and !aft.empty?
+        if i==matches.size-1 && !aft.empty?
           acc << [aft.strip, false]
         end
         tmp = aft
@@ -581,8 +527,7 @@ module Natto
     end
   end
 
-  # `MeCabError` is a general error class 
-  # for the `Natto` module.
+  # `MeCabError` is a general error class for the `Natto` module.
   class MeCabError < RuntimeError; end
 end
 

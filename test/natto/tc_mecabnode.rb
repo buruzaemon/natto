@@ -1,7 +1,7 @@
 # coding: utf-8
 require 'rbconfig'
 
-class TestMeCabNode < MiniTest::Unit::TestCase
+class TestMeCabNode < Minitest::Test
   def setup
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']

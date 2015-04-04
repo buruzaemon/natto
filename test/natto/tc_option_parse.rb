@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class TestOptionParse < MiniTest::Unit::TestCase
+class TestOptionParse < Minitest::Test
   def setup
     @klass = Class.new do
       include Natto::OptionParse
