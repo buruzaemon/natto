@@ -252,8 +252,7 @@ module Natto
         self.mecab_lattice_set_request_type(@lattice, MECAB_LATTICE_ONE_BEST)
       end
       if @options[:partial]
-        self.mecab_lattice_add_request_type(@lattice,
-                                            MECAB_LATTICE_PARTIAL)
+        self.mecab_lattice_add_request_type(@lattice, MECAB_LATTICE_PARTIAL)
       end
       if @options[:marginal]
         self.mecab_lattice_add_request_type(@lattice,
@@ -271,7 +270,7 @@ module Natto
       if @options[:theta]
         self.mecab_lattice_set_theta(@lattice, @options[:theta]) 
       end
-      
+
       @parse_tostr = ->(text, constraints) {
         begin
           if @options[:nbest] && @options[:nbest] > 1
@@ -417,7 +416,12 @@ module Natto
     # @raise [ArgumentError] if the given string `text` argument is `nil`
     # @see MeCabNode
     def parse(text, constraints={})
-      raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
+      if text.nil?
+        raise ArgumentError.new 'Text to parse cannot be nil'
+      elsif @options[:partial] && !text.end_with?("\n")
+        raise ArgumentError.new 'partial parsing requires new-line char at end of text'
+      end
+
       if block_given?
         @parse_tonodes.call(text, constraints).each {|n| yield n }
       else
@@ -450,7 +454,12 @@ module Natto
     # @see MeCabNode
     # @see http://ruby-doc.org/core-2.2.1/Enumerator.html
     def enum_parse(text, constraints={})
-      raise ArgumentError.new 'Text to parse cannot be nil' if text.nil?
+      if text.nil?
+        raise ArgumentError.new 'Text to parse cannot be nil'
+      elsif @options[:partial] && !text.end_with?("\n")
+        raise ArgumentError.new 'partial parsing requires new-line char at end of text'
+      end
+
       @parse_tonodes.call(text, constraints)
     end
 

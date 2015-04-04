@@ -313,6 +313,10 @@ class TestMeCab < Minitest::Test
       assert_raises ArgumentError do
         @mn.send(m, nil) 
       end
+      
+      assert_raises ArgumentError do
+        @m_p.send(m, 'foobar') 
+      end
     end
   end
 
@@ -524,7 +528,7 @@ class TestMeCab < Minitest::Test
   def test_parse_tostr_partial
     text  = @yml1[:text]
     expected = @yml1[:expected]
-    actual = @m_p.parse(text).lines.to_a
+    actual = @m_p.parse("#{text}\n").lines.to_a
     actual.each_with_index do |l,i|
       assert_match(expected[i], l)
     end
@@ -536,7 +540,7 @@ class TestMeCab < Minitest::Test
     expected = @yml2[:expected]
     nm = Natto::MeCab.new(options)
     actual = []
-    nm.parse(text) {|n| actual << n.feature if !(n.is_bos? || n.is_eos?)}    
+    nm.parse("#{text}\n") {|n| actual << n.feature if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_match(expected[i], l)
     end
