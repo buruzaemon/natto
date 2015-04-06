@@ -16,16 +16,16 @@ module Natto
   #     text = '凡人にしか見えねえ風景ってのがあるんだよ。'
   #
   #     nm = Natto::MeCab.new
-  #     => #<Natto::MeCab:0x0000080318d278                      \
-  #          @model=#<FFI::Pointer address=0x000008039174c0>,   \
-  #          @tagger=#<FFI::Pointer address=0x0000080329ba60>,  \
-  #          @lattice=#<FFI::Pointer address=0x000008045bd140>, \
-  #          @libpath="/usr/local/lib/libmecab.so"              \
-  #          @options={},                                       \
-  #          @dicts=[#<Natto::DictionaryInfo:0x0000080318ce90   \
+  #     => #<Natto::MeCab:0x0000080318d278                                  \
+  #          @model=#<FFI::Pointer address=0x000008039174c0>,               \
+  #          @tagger=#<FFI::Pointer address=0x0000080329ba60>,              \
+  #          @lattice=#<FFI::Pointer address=0x000008045bd140>,             \
+  #          @libpath="/usr/local/lib/libmecab.so"                          \
+  #          @options={},                                                   \
+  #          @dicts=[#<Natto::DictionaryInfo:0x0000080318ce90               \
   #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-  #                    charset=utf8,                            \
-  #                    type=0>],                                \
+  #                    charset=utf8,                                        \
+  #                    type=0>],                                            \
   #          @version=0.996>
   #
   #     # print entire MeCab result to stdout
@@ -196,16 +196,16 @@ module Natto
     # e.g.<br/>
     #
     #     nm = Natto::MeCab.new(node_format: '%m¥t%f[7]¥n')
-    #     => #<Natto::MeCab:0x00000803503ee8                     \
-    #          @model=#<FFI::Pointer address=0x00000802b6d9c0>,  \
-    #          @tagger=#<FFI::Pointer address=0x00000802ad3ec0>, \
-    #          @lattice=#<FFI::Pointer address=0x000008035f3980>,\
-    #          @libpath="/usr/local/lib/libmecab.so",            \
-    #          @options={:node_format=>"%m¥t%f[7]¥n"},           \
-    #          @dicts=[#<Natto::DictionaryInfo:0x000008035038f8  \
+    #     => #<Natto::MeCab:0x00000803503ee8                                 \
+    #          @model=#<FFI::Pointer address=0x00000802b6d9c0>,              \
+    #          @tagger=#<FFI::Pointer address=0x00000802ad3ec0>,             \
+    #          @lattice=#<FFI::Pointer address=0x000008035f3980>,            \
+    #          @libpath="/usr/local/lib/libmecab.so",                        \
+    #          @options={:node_format=>"%m¥t%f[7]¥n"},                       \
+    #          @dicts=[#<Natto::DictionaryInfo:0x000008035038f8              \
     #                    @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic" \
-    #                    charset=utf8,                           \
-    #                    type=0>]                                \
+    #                    charset=utf8,                                       \
+    #                    type=0>]                                            \
     #          @version=0.996>
     # 
     #     puts nm.parse('才能とは求める人間に与えられるものではない。')
@@ -280,7 +280,8 @@ module Natto
           end
 
           if constraints[:boundary_constraints]
-            tokens = tokenize(text, constraints[:boundary_constraints])
+            tokens = tokenize_by_pattern(text,
+                                         constraints[:boundary_constraints])
             text = tokens.map {|t| t.first}.join
             self.mecab_lattice_set_sentence(@lattice, text)
 
@@ -300,6 +301,25 @@ module Natto
                                                            mark)
                 bpos += 1
               end
+            end
+          elsif constraints[:feature_constraints]
+            features = constraints[:feature_constraints]
+            tokens = tokenize_by_features(text,
+                                          features.keys)
+            text = tokens.map {|t| t.first}.join
+            self.mecab_lattice_set_sentence(@lattice, text)
+
+            bpos = 0
+            tokens.each do |token|
+              chunk = token.first
+              c = chunk.bytes.count
+              if token.last
+                self.mecab_lattice_set_feature_constraint(@lattice,
+                                                          bpos,
+                                                          bpos+c,
+                                                          features[chunk])
+              end
+              bpos += c
             end
           else
             self.mecab_lattice_set_sentence(@lattice, text)
@@ -328,7 +348,8 @@ module Natto
             end
 
             if constraints[:boundary_constraints]
-              tokens = tokenize(text, constraints[:boundary_constraints])
+              tokens = tokenize_by_pattern(text,
+                                           constraints[:boundary_constraints])
               text = tokens.map {|t| t.first}.join
               self.mecab_lattice_set_sentence(@lattice, text)
 
@@ -346,6 +367,25 @@ module Natto
                   self.mecab_lattice_set_boundary_constraint(@lattice, bpos, mark)
                   bpos += 1
                 end
+              end
+            elsif constraints[:feature_constraints]
+              features = constraints[:feature_constraints]
+              tokens = tokenize_by_features(text,
+                                            features.keys)
+              text = tokens.map {|t| t.first}.join
+              self.mecab_lattice_set_sentence(@lattice, text)
+
+              bpos = 0
+              tokens.each do |token|
+                chunk = token.first
+                c = chunk.bytes.count
+                if token.last
+                  self.mecab_lattice_set_feature_constraint(@lattice,
+                                                            bpos,
+                                                            bpos+c,
+                                                            features[chunk])
+                end
+                bpos += c
               end
             else
               self.mecab_lattice_set_sentence(@lattice, text)
@@ -378,6 +418,7 @@ module Natto
                 end
               end
             end
+            nil
           rescue
             raise(MeCabError.new(self.mecab_lattice_strerror(@lattice))) 
           end
@@ -409,8 +450,15 @@ module Natto
     # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     # The boundary constraint parsed output will be returned as a single
     # string, unless a block is passed to this method for node parsing.
+    #
+    # Feature constraint parsins is available by passing in the 
+    # `feature_constraints` key in the `options` hash. Feature constraints
+    # parsing provides instructions to MeCab to use the feature indicated
+    # for any morpheme that is an exact match for the given key. 
+    # `feature_constraints` is a Hash of String keys for the morpheme,
+    # and String values for the corresponding feature value.
     # @param text [String] the Japanese text to parse
-    # @param options [Hash] only the `boundary_constraints` key is available
+    # @param options [Hash] `boundary_constraints` or `feature_constraints`
     # @return [String] parsing result from MeCab
     # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
@@ -418,6 +466,13 @@ module Natto
     def parse(text, constraints={})
       if text.nil?
         raise ArgumentError.new 'Text to parse cannot be nil'
+      elsif constraints[:boundary_constraints]
+        if !(constraints[:boundary_constraints].is_a?(Regexp) ||
+             constraints[:boundary_constraints].is_a?(String))
+          raise ArgumentError.new 'boundary constraints must be a Regexp or String'
+        end
+      elsif constraints[:feature_constraints] && !constraints[:feature_constraints].is_a?(Hash)
+        raise ArgumentError.new 'feature constraints must be a Hash'
       elsif @options[:partial] && !text.end_with?("\n")
         raise ArgumentError.new 'partial parsing requires new-line char at end of text'
       end
@@ -440,14 +495,21 @@ module Natto
     # the morpheme. Node-formatting  may also be used to customize
     # the resulting node's `feature` attribute.
     #
-    # Boundary constraint parsing is available via passing in the
+    # Boundary constraint parsing is available by passing in the
     # `boundary_constraints` key in the `options` hash. Boundary constraints
     # parsing provides hints to MeCab on where the morpheme boundaries in the
     # given `text` are located. `boundary_constraints` value may be either a
     # `Regexp` or `String`; please see 
     # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
+    #
+    # Feature constraint parsins is available by passing in the 
+    # `feature_constraints` key in the `options` hash. Feature constraints
+    # parsing provides instructions to MeCab to use the feature indicated
+    # for any morpheme that is an exact match for the given key. 
+    # `feature_constraints` is a Hash of String keys for the morpheme,
+    # and String values for the corresponding feature value.
     # @param text [String] the Japanese text to parse
-    # @param options [Hash] only the `boundary_constraints` key is available
+    # @param options [Hash] `boundary_constraints` or `feature_constraints`
     # @return [Enumerator] of MeCabNode instances
     # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
@@ -456,6 +518,13 @@ module Natto
     def enum_parse(text, constraints={})
       if text.nil?
         raise ArgumentError.new 'Text to parse cannot be nil'
+      elsif constraints[:boundary_constraints]
+        if !(constraints[:boundary_constraints].is_a?(Regexp) ||
+             constraints[:boundary_constraints].is_a?(String))
+          raise ArgumentError.new 'boundary constraints must be a Regexp or String'
+        end
+      elsif constraints[:feature_constraints] && !constraints[:feature_constraints].is_a?(Hash)
+        raise ArgumentError.new 'feature constraints must be a Hash'
       elsif @options[:partial] && !text.end_with?("\n")
         raise ArgumentError.new 'partial parsing requires new-line char at end of text'
       end
@@ -514,10 +583,10 @@ module Natto
 
     # @private
     # MeCab eats all leading and training whitespace char
-    def tokenize(text, pattern)
+    def tokenize_by_pattern(text, pattern)
       matches = text.scan(pattern)
       
-      acc =[]
+      acc = []
       tmp = text
       matches.each_with_index do |m,i|
         bef, mat, aft = tmp.partition(m)
@@ -531,6 +600,24 @@ module Natto
           acc << [aft.strip, false]
         end
         tmp = aft
+      end
+      acc
+    end
+
+    def tokenize_by_features(text, features)
+      acc = []
+      acc << [text.strip, false]
+
+      features.each do |feature|
+        acc.each_with_index do |e,i|
+          if !e.last
+            tmp = tokenize_by_pattern(e.first, feature)
+            if !tmp.empty?
+              acc.delete_at(i)
+              acc.insert(i, *tmp)
+            end
+          end
+        end
       end
       acc
     end
