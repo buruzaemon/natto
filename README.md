@@ -79,14 +79,16 @@ Instantiate a reference to the MeCab library, and display some details:
     require 'natto'
 
     nm = Natto::MeCab.new
-    => #<Natto::MeCab:0x28d30748 
-         @tagger=#<FFI::Pointer address=0x28a97d50>, \
-         @libpath="/usr/local/lib/libmecab.so", \
-         @options={}, \
-         @dicts=[#<Natto::DictionaryInfo:0x28d3061c \
+    => #<Natto::MeCab:0x00000803633ae8
+         @model=#<FFI::Pointer address=0x000008035d4640>,             \
+         @tagger=#<FFI::Pointer address=0x00000802b07c90>,            \
+         @lattice=#<FFI::Pointer address=0x00000803602f80>,           \
+         @libpath="/usr/local/lib/libmecab.so",                       \
+         @options={},                                                 \
+         @dicts=[#<Natto::DictionaryInfo:0x000008036337c8             \
                  @filepath="/usr/local/lib/mecab/dic/ipadic/sys.dic", \
-                 charset=utf8, \
-                 type=0>] \
+                 charset=utf8,                                        \
+                 type=0>]                                             \
          @version=0.996>
     
     puts nm.version

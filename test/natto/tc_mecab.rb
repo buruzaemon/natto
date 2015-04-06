@@ -313,6 +313,14 @@ class TestMeCab < Minitest::Test
       assert_raises ArgumentError do
         @mn.send(m, nil) 
       end
+
+      assert_raises ArgumentError do
+        @mn.send(m, 'foobar', boundary_constraints: [])
+      end
+      
+      assert_raises ArgumentError do
+        @mn.send(m, 'foobar', feature_constraints: [])
+      end
       
       assert_raises ArgumentError do
         @m_p.send(m, 'foobar') 
