@@ -446,19 +446,18 @@ module Natto
     # `boundary_constraints` key in the `options` hash. Boundary constraints
     # parsing provides hints to MeCab on where the morpheme boundaries in the
     # given `text` are located. `boundary_constraints` value may be either a
-    # `Regexp` or `String`; please see
-    # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
+    # `Regexp` or `String`; please see [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     # The boundary constraint parsed output will be returned as a single
     # string, unless a block is passed to this method for node parsing.
     #
-    # Feature constraint parsins is available by passing in the 
+    # Feature constraint parsing is available by passing in the 
     # `feature_constraints` key in the `options` hash. Feature constraints
     # parsing provides instructions to MeCab to use the feature indicated
     # for any morpheme that is an exact match for the given key. 
-    # `feature_constraints` is a Hash of String keys for the morpheme,
-    # and String values for the corresponding feature value.
+    # `feature_constraints` is a hash mapping a specific morpheme (String)
+    # to a corresponding feature value (String).
     # @param text [String] the Japanese text to parse
-    # @param options [Hash] `boundary_constraints` or `feature_constraints`
+    # @param constraints [Hash] `boundary_constraints` or `feature_constraints`
     # @return [String] parsing result from MeCab
     # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
@@ -502,14 +501,14 @@ module Natto
     # `Regexp` or `String`; please see 
     # [String#scan](http://ruby-doc.org/core-2.2.1/String.html#method-i-scan)
     #
-    # Feature constraint parsins is available by passing in the 
+    # Feature constraint parsing is available by passing in the 
     # `feature_constraints` key in the `options` hash. Feature constraints
     # parsing provides instructions to MeCab to use the feature indicated
     # for any morpheme that is an exact match for the given key. 
-    # `feature_constraints` is a Hash of String keys for the morpheme,
-    # and String values for the corresponding feature value.
+    # `feature_constraints` is a hash mapping a specific morpheme (String)
+    # to a corresponding feature value (String).
     # @param text [String] the Japanese text to parse
-    # @param options [Hash] `boundary_constraints` or `feature_constraints`
+    # @param constraints [Hash] `boundary_constraints` or `feature_constraints`
     # @return [Enumerator] of MeCabNode instances
     # @raise [MeCabError] if the MeCab Tagger cannot parse the given `text`
     # @raise [ArgumentError] if the given string `text` argument is `nil`
