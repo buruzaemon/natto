@@ -5,6 +5,11 @@
     - Issue 37: README and bullet points under Automatic Configuration
     - Issue 38: Updated URLs in documentation to point to Ruby 2.2.1
     - Issue 39: Make refs to MeCab and Tagger consistent in docs
+    - Issue 40: Use new Model- and Lattice-based C APIs internally
+    - Issue 45: Add support for feature constraint parsing
+    - Issue 48: Put in a guard to prevent partial parsing of text that does not end with a new-line char
+    - Issue 50: Update all references to Natto::MeCab in documentation to reflect new internal structure
+    - Issue 52: Downloads and license badges for README.md & API docs
 
 - __2015/03/31__: 0.9.9 release.
     - Issue 21/34: Implemented boundary constraint parsing.

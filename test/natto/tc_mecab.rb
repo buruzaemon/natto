@@ -9,11 +9,13 @@ class TestMeCab < Minitest::Test
     @m_s = Natto::MeCab.new '-F%m\s%s'
     @m_t = Natto::MeCab.new '-t 0.666'
     @m_p = Natto::MeCab.new '-p'
+    @m_fp = Natto::MeCab.new '-F%m,%f[0],%s\n'
     @m_m = Natto::MeCab.new '-m -t 0.001'
     @mn = Natto::MeCab.new '-N2' 
     @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
     @mn_w = Natto::MeCab.new '-N4 -Owakati' 
     @mn_y = Natto::MeCab.new '-N2 -Oyomi' 
+    @mn_fp = Natto::MeCab.new '-F%m,%f[0],%s'
     @e    = Natto::MeCab.new
     @e_f  = Natto::MeCab.new '-F%f[1]'
     @ver  = `mecab -v`.strip.split.last
@@ -51,6 +53,11 @@ class TestMeCab < Minitest::Test
     @yml7 = { text: yml['test7']['text'].encode(Encoding.default_external),
               pattern: yml['test7']['pattern'].encode(Encoding.default_external),
               expected: yml['test7']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    @yml8 = { text: yml['test8']['text'].encode(Encoding.default_external),
+              options: yml['test8']['options'].encode(Encoding.default_external),
+              morph: yml['test8']['constraints']['key'].encode(Encoding.default_external),
+              feature: yml['test8']['constraints']['feature'].encode(Encoding.default_external),
+              expected: yml['test8']['expected'].map {|e| e.encode(Encoding.default_external)} }
   end
 
   def teardown
@@ -60,10 +67,12 @@ class TestMeCab < Minitest::Test
     @m_t        = nil
     @m_p        = nil
     @m_m        = nil
+    @m_fp       = nil
     @mn         = nil
     @mn_f       = nil
     @mn_w       = nil
     @mn_y       = nil
+    @mn_fp      = nil
     @ver        = nil
     @host_os    = nil
     @arch       = nil
@@ -76,6 +85,7 @@ class TestMeCab < Minitest::Test
     @yml5       = nil
     @yml6       = nil
     @yml7       = nil
+    @yml8       = nil
   end
  
   def test_parse_mecab_options
@@ -554,7 +564,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_tostr
+  def test_boundary_constraint_parse_tostr
     # simple string pattern
     text  = @yml3[:text]
     patt  = @yml3[:pattern]
@@ -583,7 +593,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_tonode
+  def test_boundary_constraint_parse_tonode
     # simple string pattern
     text  = @yml3[:text]
     patt  = @yml3[:pattern]
@@ -625,7 +635,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_enum_parse
+  def test_boundary_constraint_parse_enum_parse
     # simple string pattern
     text  = @yml3[:text]
     patt  = @yml3[:pattern]
@@ -637,7 +647,7 @@ class TestMeCab < Minitest::Test
     end
   end
   
-  def test_bcparse_tostr_whitespace_included
+  def test_boundary_constraint_parse_tostr_whitespace_included
     text  = @yml7[:text]
     patt  = @yml7[:pattern]
     expected = @yml7[:expected]
@@ -647,7 +657,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_tonode_whitespace_included
+  def test_boundary_constraint_parse_tonode_whitespace_included
     text  = @yml7[:text]
     patt  = @yml7[:pattern]
     expected = @yml7[:expected]
@@ -658,7 +668,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_tostr_theta
+  def test_boundary_constraint_parse_tostr_theta
     # simple string pattern
     text  = @yml3[:text]
     patt  = @yml3[:pattern]
@@ -669,7 +679,7 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_bcparse_tonode_theta
+  def test_boundary_constraint_parse_tonode_theta
     # simple string pattern
     text  = @yml3[:text]
     patt  = @yml3[:pattern]
@@ -678,6 +688,31 @@ class TestMeCab < Minitest::Test
     @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
     actual.each_with_index do |l,i|
       assert_match(expected[i], l.surface)
+    end
+  end
+
+  def test_feature_constraint_parse_tostr
+    text  = @yml8[:text]
+    opts  = @yml8[:options]
+    feat  = {@yml8[:morph] => @yml8[:feature]}
+    expected = @yml8[:expected]
+
+    actual = @m_fp.parse(text, feature_constraints: feat).lines.to_a
+    actual.each_with_index do |l,i|
+      assert_match(expected[i], l)
+    end
+  end
+
+  def test_feature_constraint_parse_tonodes
+    text  = @yml8[:text]
+    opts  = @yml8[:options]
+    feat  = {@yml8[:morph] => @yml8[:feature]}
+    expected = @yml8[:expected]
+
+    actual = []
+    @mn_fp.enum_parse(text, feature_constraints: feat).each {|n| actual << n}
+    actual.each_with_index do |n,i|
+      assert_match(expected[i], n.feature)
     end
   end
 end 
