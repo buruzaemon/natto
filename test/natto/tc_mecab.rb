@@ -3,19 +3,22 @@ require 'rbconfig'
 require 'yaml'
 
 class TestMeCab < Minitest::Test
+    
   def setup
-    @m = Natto::MeCab.new()
-    @m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
-    @m_s = Natto::MeCab.new '-F%m\s%s'
-    @m_t = Natto::MeCab.new '-t 0.666'
-    @m_p = Natto::MeCab.new '-p'
-    @m_m = Natto::MeCab.new '-m -t 0.001'
-    @mn = Natto::MeCab.new '-N2' 
-    @mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
-    @mn_w = Natto::MeCab.new '-N4 -Owakati' 
-    @mn_y = Natto::MeCab.new '-N2 -Oyomi' 
-    @e    = Natto::MeCab.new
-    @e_f  = Natto::MeCab.new '-F%f[1]'
+    #@m = Natto::MeCab.new()
+    #@m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
+    #@m_s = Natto::MeCab.new '-F%m\s%s'
+    #@m_t = Natto::MeCab.new '-t 0.666'
+    #@m_p = Natto::MeCab.new '-p'
+    #@m_fp = Natto::MeCab.new '-F%m,%f[0],%s\n'
+    #@m_m = Natto::MeCab.new '-m -t 0.001'
+    #@mn = Natto::MeCab.new '-N2' 
+    #@mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
+    #@mn_w = Natto::MeCab.new '-N4 -Owakati' 
+    #@mn_y = Natto::MeCab.new '-N2 -Oyomi' 
+    #@mn_fp = Natto::MeCab.new '-F%m,%f[0],%s'
+    #@e    = Natto::MeCab.new
+    #@e_f  = Natto::MeCab.new '-F%f[1]'
     @ver  = `mecab -v`.strip.split.last
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -30,52 +33,60 @@ class TestMeCab < Minitest::Test
     @test_str   = `#{@test_cmd}`
 
     # boundary constraint parse setup
-    yml = YAML.load(File.read('test/natto/test_utf8.yml'))
-    @yml1 = { text: yml['test1']['text'].encode(Encoding.default_external),
-              expected: yml['test1']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml2 = { text: yml['test2']['text'].encode(Encoding.default_external),
-              options: yml['test2']['options'].encode(Encoding.default_external),
-              expected: yml['test2']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml3 = { text: yml['test3']['text'].encode(Encoding.default_external),
-              pattern: yml['test3']['pattern'].encode(Encoding.default_external),
-              expected: yml['test3']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml4 = { text: yml['test4']['text'].encode(Encoding.default_external),
-              pattern: yml['test4']['pattern'].encode(Encoding.default_external),
-              expected: yml['test4']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml5 = { text: yml['test5']['text'].encode(Encoding.default_external),
-              pattern: yml['test5']['pattern'].encode(Encoding.default_external),
-              expected: yml['test5']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml6 = { text: yml['test6']['text'].encode(Encoding.default_external),
-              pattern: yml['test6']['pattern'].encode(Encoding.default_external),
-              expected: yml['test6']['expected'].map {|e| e.encode(Encoding.default_external)} }
-    @yml7 = { text: yml['test7']['text'].encode(Encoding.default_external),
-              pattern: yml['test7']['pattern'].encode(Encoding.default_external),
-              expected: yml['test7']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #yml = YAML.load(File.read('test/natto/test_utf8.yml'))
+    #@yml1 = { text: yml['test1']['text'].encode(Encoding.default_external),
+    #          expected: yml['test1']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml2 = { text: yml['test2']['text'].encode(Encoding.default_external),
+    #          options: yml['test2']['options'].encode(Encoding.default_external),
+    #          expected: yml['test2']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml3 = { text: yml['test3']['text'].encode(Encoding.default_external),
+    #          pattern: yml['test3']['pattern'].encode(Encoding.default_external),
+    #          expected: yml['test3']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml4 = { text: yml['test4']['text'].encode(Encoding.default_external),
+    #          pattern: yml['test4']['pattern'].encode(Encoding.default_external),
+    #          expected: yml['test4']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml5 = { text: yml['test5']['text'].encode(Encoding.default_external),
+    #          pattern: yml['test5']['pattern'].encode(Encoding.default_external),
+    #          expected: yml['test5']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml6 = { text: yml['test6']['text'].encode(Encoding.default_external),
+    #          pattern: yml['test6']['pattern'].encode(Encoding.default_external),
+    #          expected: yml['test6']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml7 = { text: yml['test7']['text'].encode(Encoding.default_external),
+    #          pattern: yml['test7']['pattern'].encode(Encoding.default_external),
+    #          expected: yml['test7']['expected'].map {|e| e.encode(Encoding.default_external)} }
+    #@yml8 = { text: yml['test8']['text'].encode(Encoding.default_external),
+    #          options: yml['test8']['options'].encode(Encoding.default_external),
+    #          morph: yml['test8']['constraints']['key'].encode(Encoding.default_external),
+    #          feature: yml['test8']['constraints']['feature'].encode(Encoding.default_external),
+    #          expected: yml['test8']['expected'].map {|e| e.encode(Encoding.default_external)} }
   end
 
   def teardown
-    @m          = nil
-    @m_f        = nil
-    @m_s        = nil
-    @m_t        = nil
-    @m_p        = nil
-    @m_m        = nil
-    @mn         = nil
-    @mn_f       = nil
-    @mn_w       = nil
-    @mn_y       = nil
-    @ver        = nil
-    @host_os    = nil
-    @arch       = nil
-    @test_cmd   = nil
-    @test_str   = nil
-    @yml1       = nil
-    @yml2       = nil
-    @yml3       = nil
-    @yml4       = nil
-    @yml5       = nil
-    @yml6       = nil
-    @yml7       = nil
+    #@m          = nil
+    #@m_f        = nil
+    #@m_s        = nil
+    #@m_t        = nil
+    #@m_p        = nil
+    #@m_m        = nil
+    #@m_fp       = nil
+    #@mn         = nil
+    #@mn_f       = nil
+    #@mn_w       = nil
+    #@mn_y       = nil
+    #@mn_fp      = nil
+    #@ver        = nil
+    #@host_os    = nil
+    #@arch       = nil
+    #@test_cmd   = nil
+    #@test_str   = nil
+    #@yml1       = nil
+    #@yml2       = nil
+    #@yml3       = nil
+    #@yml4       = nil
+    #@yml5       = nil
+    #@yml6       = nil
+    #@yml7       = nil
+    #@yml8       = nil
   end
  
   def test_parse_mecab_options
@@ -293,37 +304,28 @@ class TestMeCab < Minitest::Test
   end
 
   def test_version_accessor
-    assert_equal(@ver, @m.version)
-  end
-
-  def test_all_morphs
-    m = Natto::MeCab.new(all_morphs: true)
-    expected = `#{@test_cmd} | mecab --all-morphs`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-  
-    actual   = m.parse(@test_str).lines.to_a
-    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    
-    assert_equal(expected, actual)
+    nm = Natto::MeCab.new
+    assert_equal(@ver, nm.version)
   end
 
   def test_argument_error
+    nm = Natto::MeCab.new
+    nm_p = Natto::MeCab.new('-p')
     [ :parse, :enum_parse ].each do |m|
       assert_raises ArgumentError do
-        @mn.send(m, nil) 
+        nm.send(m, nil) 
       end
 
       assert_raises ArgumentError do
-        @mn.send(m, 'foobar', boundary_constraints: [])
+        nm.send(m, 'foobar', boundary_constraints: [])
       end
       
       assert_raises ArgumentError do
-        @mn.send(m, 'foobar', feature_constraints: [])
+        nm.send(m, 'foobar', feature_constraints: [])
       end
       
       assert_raises ArgumentError do
-        @m_p.send(m, 'foobar') 
+        nm_p.send(m, 'foobar') 
       end
     end
   end
@@ -333,31 +335,87 @@ class TestMeCab < Minitest::Test
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-    actual = @m.parse(@test_str).lines.to_a
+    nm = Natto::MeCab.new
+    actual = nm.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
     assert_equal(expected, actual)
   end
 
-  def test_parse_tonode_default
+  def test_parse_tonodes_default
     expected = `#{@test_cmd} | mecab`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
+    nm = Natto::MeCab.new
     actual = []
-    @m.parse(@test_str) do |n|
+    nm.parse(@test_str) do |n|
       actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
     end
 
     assert_equal(expected, actual)
   end
 
-  def test_parse_tonodes_with_nodeformatting
-    expected = `#{@test_cmd} | mecab -F"%pl\t%f[7]..."`.split("EOS\n").join.split('...')
+  def test_parse_tostr_wakati
+    # -Owakati only really has affect when parsing to string
+    opts = '-Owakati'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
+    nm = Natto::MeCab.new(opts)
+    actual = nm.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_tostr_yomi
+    opts = '-Oyomi'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    nm = Natto::MeCab.new(opts)
+    actual = nm.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_tonodes_yomi
+    opts = '-Oyomi'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    expected = expected.join.strip
+
+    nm = Natto::MeCab.new(opts)
     actual = []
-    @m_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
+    nm.parse(@test_str) {|n| actual << n.feature if n.is_nor? }    
+  
+    assert_equal(expected, actual.join)
+  end
+
+  
+  def test_parse_tostr_output_formatting
+    opts = '%m\t%s' 
+    expected = `#{@test_cmd} | mecab -F"#{opts}"`
+
+    nm = Natto::MeCab.new("-F#{opts}")
+    actual = nm.parse(@test_str)
+
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_tonodes_output_formatting
+    opts = '%pl\t%f[7]...'
+    expected = `#{@test_cmd} | mecab -F"#{opts}"`.split("EOS\n").join.split('...')
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    nm = Natto::MeCab.new("-F#{opts}")
+    actual = []
+    nm.parse(@test_str) {|n| actual << n if n.is_nor?}    
    
     expected.each_with_index do |f,i|
       sl, y = f.split("\t").map{|e| e.strip}
@@ -368,23 +426,27 @@ class TestMeCab < Minitest::Test
   end
 
   def test_parse_nbest_tostr
-    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    opts = '-N2'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-    actual = @mn.parse(@test_str).lines.to_a
+    nm = Natto::MeCab.new(opts)
+    actual = nm.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|\t)/ }
     
     assert_equal(expected, actual)
   end
 
   def test_parse_nbest_tonodes
-    expected = `#{@test_cmd} | mecab -N2`.lines.to_a
+    opts = '-N2'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
     expected.delete_if {|e| e =~ /^(EOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
+    nm = Natto::MeCab.new(opts)
     actual = []
-    @mn.parse(@test_str) {|n| actual << n if n.is_nor? }    
+    nm.parse(@test_str) {|n| actual << n if n.is_nor? }    
   
     expected.each_with_index do |f,i|
       a = actual[i]
@@ -392,12 +454,27 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_parse_nbest_with_nodeformatting
-    expected = `#{@test_cmd} | mecab -N2 -F"%pl\t%f[7]..."`.split("EOS\n").join.split('...')
+  def test_parse_nbest_tostr_outputformatting
+    opts = '%pl\t%f[7]...'
+    expected = `#{@test_cmd} | mecab -N2 -F"#{opts}"`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|\t)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
+    nm = Natto::MeCab.new("-N2 -F#{opts}")
+    actual = nm.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|\t)/ }
+    
+    assert_equal(expected, actual)
+  end
+
+  def test_parse_nbest_tonodes_output_formatting
+    opts = '%pl\t%f[7]...'
+    expected = `#{@test_cmd} | mecab -N2 -F"#{opts}"`.split("EOS\n").join.split('...')
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    nm = Natto::MeCab.new("-N2 -F#{opts}")
     actual = []
-    @mn_f.parse(@test_str) {|n| actual << n if n.is_nor?}    
+    nm.parse(@test_str) {|n| actual << n if n.is_nor?}    
    
     expected.each_with_index do |f,i|
       sl, y = f.split("\t").map{|e| e.strip}
@@ -406,280 +483,281 @@ class TestMeCab < Minitest::Test
       assert_equal(y, ay)
     end
   end
-
-  def test_parse_nbest_with_wakati
-    expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
-    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = @mn_w.parse(@test_str).lines.to_a
-    
-    assert_equal(expected, actual)
-  end
-
-  def test_parse_nbest_nodes_with_wakati
-    expected = `#{@test_cmd} | mecab -N4 -Owakati`.lines.to_a
-    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    tmp = []
-    @mn_w.parse(@test_str) {|n| tmp << n }    
-    n1 = tmp.slice(0,7).map{|e| e.surface}.join(" ")
-    n2 = tmp.slice(8,7).map{|e| e.surface}.join(" ")
-    n3 = tmp.slice(16,7).map{|e| e.surface}.join(" ")
-    n4 = tmp.slice(24,8).map{|e| e.surface}.join(" ")
-
-    assert_equal(expected[0].strip, n1)
-    assert_equal(expected[1].strip, n2)
-    assert_equal(expected[2].strip, n3)
-    assert_equal(expected[3].strip, n4)
-  end
-
-  def test_parse_nbest_with_yomi
-    expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
-    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = @mn_y.parse(@test_str).lines.to_a
-    
-    assert_equal(expected, actual)
-  end
   
-  def test_parse_nbest_nodes_with_yomi
-    expected = `#{@test_cmd} | mecab -N2 -Oyomi`.lines.to_a
-    expected.delete_if {|e| e =~ /^(BOS|EOS|\t)/ }
+  def test_parse_tostr_all_morphs
+    opts = '-a'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    tmp = []
-    @mn_y.parse(@test_str) {|n| tmp << n }    
-    n1 = tmp.slice(0,7).map{|e| e.feature}.join
-    n2 = tmp.slice(8,7).map{|e| e.feature}.join
-
-    assert_equal(expected[0].strip, n1)
-    assert_equal(expected[1].strip, n2)
-  end
-
-  def test_parse_tostr_theta
-    expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = @m_t.parse(@test_str).lines.to_a
+  
+    nm = Natto::MeCab.new(opts)
+    actual   = nm.parse(@test_str).lines.to_a
     actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-
+    
     assert_equal(expected, actual)
   end
 
-  def test_parse_tonode_theta
-    expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+  def test_parse_tonodes_all_morphs
+    opts = '-a'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS)/ }
     expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    actual = []
-    @m_t.parse(@test_str) do |n|
-      actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
-    end
-
-    assert_equal(expected, actual)
-  end
-
-  def test_parse_tonode_marginal
-    @m_t.parse(@test_str) do |n|
-      if !(n.is_eos? or n.is_bos?)
-        assert(n.prob == 0.0)
-        assert(n.alpha == 0.0)
-        assert(n.beta == 0.0)
-      end
-    end
-
-    @m_m.parse(@test_str) do |n|
-      if !(n.is_eos? or n.is_bos?)
-        assert(n.prob != 0.0)
-        assert(n.alpha != 0.0)
-        assert(n.beta != 0.0)
-      end
-    end
-  end
-
-  def test_enum_parse_default
-    expected = `#{@test_cmd} | mecab`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    enum = @e.enum_parse(@test_str)
-
-    assert_equal(expected[0].split.first, enum.next.surface)
-    assert_equal(expected[1].split.first, enum.next.surface)
-    assert_equal(expected[2].split.first, enum.next.surface)
-    assert_equal(expected[3].split.first, enum.next.surface)
-    assert_equal(expected[4].split.first, enum.next.surface)
-    assert_equal(expected[5].split.first, enum.next.surface)
-    assert_equal(expected[6].split.first, enum.next.surface)
-  end
   
-  def test_enum_parse_with_format
-    expected = `#{@test_cmd} | mecab -F"%f[1]#{@br}"`.lines.to_a
-    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
-
-    enum = @e_f.enum_parse(@test_str)
-
-    assert_equal(expected[0].strip, enum.next.feature)
-    assert_equal(expected[1].strip, enum.next.feature)
-    assert_equal(expected[2].strip, enum.next.feature)
-    assert_equal(expected[3].strip, enum.next.feature)
-    assert_equal(expected[4].strip, enum.next.feature)
-    assert_equal(expected[5].strip, enum.next.feature)
-    assert_equal(expected[6].strip, enum.next.feature)
-  end
-
-  def test_parse_tostr_partial
-    text  = @yml1[:text]
-    expected = @yml1[:expected]
-    actual = @m_p.parse("#{text}\n").lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
-  end
-
-  def test_parse_tonode_partial_output_formatting
-    text  = @yml2[:text]
-    options = @yml2[:options]
-    expected = @yml2[:expected]
-    nm = Natto::MeCab.new(options)
+    nm = Natto::MeCab.new(opts)
     actual = []
-    nm.parse("#{text}\n") {|n| actual << n.feature if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
+    #nm.parse(@test_str) {|n| actual << n if n.is_nor?}    
+    nm.parse(@test_str) {|n| actual << n}    
+    puts expected
+    puts actual
   end
 
-  def test_bcparse_tostr
-    # simple string pattern
-    text  = @yml3[:text]
-    patt  = @yml3[:pattern]
-    expected = @yml3[:expected]
-    actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
 
-    # complex Unicode character properties pattern
-    text  = @yml4[:text]
-    patt  = @yml4[:pattern]
-    expected = @yml4[:expected]
-    actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
+  #def test_parse_tostr_theta
+  #  expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
+  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-    # N-best
-    text  = @yml5[:text]
-    patt  = @yml5[:pattern]
-    expected = @yml5[:expected]
-    actual = @mn.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
-  end
+  #  actual = @m_t.parse(@test_str).lines.to_a
+  #  actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
-  def test_bcparse_tonode
-    # simple string pattern
-    text  = @yml3[:text]
-    patt  = @yml3[:pattern]
-    expected = @yml3[:expected]
-    actual = []
-    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.surface)
-    end
+  #  assert_equal(expected, actual)
+  #end
 
-    # complex Unicode character properties pattern
-    text  = @yml4[:text]
-    patt  = @yml4[:pattern]
-    expected = @yml4[:expected]
-    actual = []
-    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.surface)
-    end
-    
-    # N-best
-    text  = @yml5[:text]
-    patt  = @yml5[:pattern]
-    expected = @yml5[:expected]
-    actual = []
-    @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.feature)
-    end
-    
-    # w/ output formatting
-    text  = @yml6[:text]
-    patt  = @yml6[:pattern]
-    expected = @yml6[:expected]
-    actual = []
-    @m_s.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_equal(expected[i], l.feature)
-    end
-  end
+  #def test_parse_tonode_theta
+  #  expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
+  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-  def test_bcparse_enum_parse
-    # simple string pattern
-    text  = @yml3[:text]
-    patt  = @yml3[:pattern]
-    expected = @yml3[:expected]
-    actual = []
-    @m.enum_parse(text, boundary_constraints: Regexp.new(patt)).to_a.keep_if {|n| !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.surface)
-    end
-  end
-  
-  def test_bcparse_tostr_whitespace_included
-    text  = @yml7[:text]
-    patt  = @yml7[:pattern]
-    expected = @yml7[:expected]
-    actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
-  end
+  #  actual = []
+  #  @m_t.parse(@test_str) do |n|
+  #    actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
+  #  end
 
-  def test_bcparse_tonode_whitespace_included
-    text  = @yml7[:text]
-    patt  = @yml7[:pattern]
-    expected = @yml7[:expected]
-    actual = []
-    @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.surface)
-    end
-  end
+  #  assert_equal(expected, actual)
+  #end
 
-  def test_bcparse_tostr_theta
-    # simple string pattern
-    text  = @yml3[:text]
-    patt  = @yml3[:pattern]
-    expected = @yml3[:expected]
-    actual = @m_t.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l)
-    end
-  end
+  #def test_parse_tonode_marginal
+  #  @m_t.parse(@test_str) do |n|
+  #    if !(n.is_eos? or n.is_bos?)
+  #      assert(n.prob == 0.0)
+  #      assert(n.alpha == 0.0)
+  #      assert(n.beta == 0.0)
+  #    end
+  #  end
 
-  def test_bcparse_tonode_theta
-    # simple string pattern
-    text  = @yml3[:text]
-    patt  = @yml3[:pattern]
-    expected = @yml3[:expected]
-    actual = []
-    @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
-    actual.each_with_index do |l,i|
-      assert_match(expected[i], l.surface)
-    end
-  end
+  #  @m_m.parse(@test_str) do |n|
+  #    if !(n.is_eos? or n.is_bos?)
+  #      assert(n.prob != 0.0)
+  #      assert(n.alpha != 0.0)
+  #      assert(n.beta != 0.0)
+  #    end
+  #  end
+  #end
+
+  #def test_enum_parse_default
+  #  expected = `#{@test_cmd} | mecab`.lines.to_a
+  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+  #  enum = @e.enum_parse(@test_str)
+
+  #  assert_equal(expected[0].split.first, enum.next.surface)
+  #  assert_equal(expected[1].split.first, enum.next.surface)
+  #  assert_equal(expected[2].split.first, enum.next.surface)
+  #  assert_equal(expected[3].split.first, enum.next.surface)
+  #  assert_equal(expected[4].split.first, enum.next.surface)
+  #  assert_equal(expected[5].split.first, enum.next.surface)
+  #  assert_equal(expected[6].split.first, enum.next.surface)
+  #end
+  #
+  #def test_enum_parse_with_format
+  #  expected = `#{@test_cmd} | mecab -F"%f[1]#{@br}"`.lines.to_a
+  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+  #  enum = @e_f.enum_parse(@test_str)
+
+  #  assert_equal(expected[0].strip, enum.next.feature)
+  #  assert_equal(expected[1].strip, enum.next.feature)
+  #  assert_equal(expected[2].strip, enum.next.feature)
+  #  assert_equal(expected[3].strip, enum.next.feature)
+  #  assert_equal(expected[4].strip, enum.next.feature)
+  #  assert_equal(expected[5].strip, enum.next.feature)
+  #  assert_equal(expected[6].strip, enum.next.feature)
+  #end
+
+  #def test_parse_tostr_partial
+  #  text  = @yml1[:text]
+  #  expected = @yml1[:expected]
+  #  actual = @m_p.parse("#{text}\n").lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_parse_tonode_partial_output_formatting
+  #  text  = @yml2[:text]
+  #  options = @yml2[:options]
+  #  expected = @yml2[:expected]
+  #  nm = Natto::MeCab.new(options)
+  #  actual = []
+  #  nm.parse("#{text}\n") {|n| actual << n.feature if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_tostr
+  #  # simple string pattern
+  #  text  = @yml3[:text]
+  #  patt  = @yml3[:pattern]
+  #  expected = @yml3[:expected]
+  #  actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+
+  #  # complex Unicode character properties pattern
+  #  text  = @yml4[:text]
+  #  patt  = @yml4[:pattern]
+  #  expected = @yml4[:expected]
+  #  actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+
+  #  # N-best
+  #  text  = @yml5[:text]
+  #  patt  = @yml5[:pattern]
+  #  expected = @yml5[:expected]
+  #  actual = @mn.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_tonode
+  #  # simple string pattern
+  #  text  = @yml3[:text]
+  #  patt  = @yml3[:pattern]
+  #  expected = @yml3[:expected]
+  #  actual = []
+  #  @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.surface)
+  #  end
+
+  #  # complex Unicode character properties pattern
+  #  text  = @yml4[:text]
+  #  patt  = @yml4[:pattern]
+  #  expected = @yml4[:expected]
+  #  actual = []
+  #  @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.surface)
+  #  end
+  #  
+  #  # N-best
+  #  text  = @yml5[:text]
+  #  patt  = @yml5[:pattern]
+  #  expected = @yml5[:expected]
+  #  actual = []
+  #  @m.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.feature)
+  #  end
+  #  
+  #  # w/ output formatting
+  #  text  = @yml6[:text]
+  #  patt  = @yml6[:pattern]
+  #  expected = @yml6[:expected]
+  #  actual = []
+  #  @m_s.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_equal(expected[i], l.feature)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_enum_parse
+  #  # simple string pattern
+  #  text  = @yml3[:text]
+  #  patt  = @yml3[:pattern]
+  #  expected = @yml3[:expected]
+  #  actual = []
+  #  @m.enum_parse(text, boundary_constraints: Regexp.new(patt)).to_a.keep_if {|n| !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.surface)
+  #  end
+  #end
+  #
+  #def test_boundary_constraint_parse_tostr_whitespace_included
+  #  text  = @yml7[:text]
+  #  patt  = @yml7[:pattern]
+  #  expected = @yml7[:expected]
+  #  actual = @m.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_tonode_whitespace_included
+  #  text  = @yml7[:text]
+  #  patt  = @yml7[:pattern]
+  #  expected = @yml7[:expected]
+  #  actual = []
+  #  @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.surface)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_tostr_theta
+  #  # simple string pattern
+  #  text  = @yml3[:text]
+  #  patt  = @yml3[:pattern]
+  #  expected = @yml3[:expected]
+  #  actual = @m_t.parse(text, boundary_constraints: Regexp.new(patt)).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_boundary_constraint_parse_tonode_theta
+  #  # simple string pattern
+  #  text  = @yml3[:text]
+  #  patt  = @yml3[:pattern]
+  #  expected = @yml3[:expected]
+  #  actual = []
+  #  @m_t.parse(text, boundary_constraints: Regexp.new(patt)) {|n| actual << n if !(n.is_bos? || n.is_eos?)}    
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l.surface)
+  #  end
+  #end
+
+  #def test_feature_constraint_parse_tostr
+  #  text  = @yml8[:text]
+  #  opts  = @yml8[:options]
+  #  feat  = {@yml8[:morph] => @yml8[:feature]}
+  #  expected = @yml8[:expected]
+
+  #  actual = @m_fp.parse(text, feature_constraints: feat).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(expected[i], l)
+  #  end
+  #end
+
+  #def test_feature_constraint_parse_tonodes
+  #  text  = @yml8[:text]
+  #  opts  = @yml8[:options]
+  #  feat  = {@yml8[:morph] => @yml8[:feature]}
+  #  expected = @yml8[:expected]
+
+  #  actual = []
+  #  @mn_fp.enum_parse(text, feature_constraints: feat).each {|n| actual << n}
+  #  actual.each_with_index do |n,i|
+  #    assert_match(expected[i], n.feature)
+  #  end
+  #end
 end 
 
 # Copyright (c) 2015, Brooke M. Fujita.
