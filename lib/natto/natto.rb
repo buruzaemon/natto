@@ -259,6 +259,8 @@ module Natto
                                             MECAB_LATTICE_MARGINAL_PROB)
       end
       if @options[:all_morphs]
+        # required when node parsing
+        #self.mecab_lattice_add_request_type(@lattice, MECAB_LATTICE_NBEST)
         self.mecab_lattice_add_request_type(@lattice,
                                             MECAB_LATTICE_ALL_MORPHS)
       end
@@ -339,6 +341,7 @@ module Natto
       }
         
       @parse_tonodes = ->(text, constraints) {
+        self.mecab_lattice_add_request_type(@lattice, MECAB_LATTICE_NBEST)
         Enumerator.new do |y|
           begin
             if @options[:nbest] && @options[:nbest] > 1
@@ -398,23 +401,17 @@ module Natto
               if check
                 nptr = self.mecab_lattice_get_bos_node(@lattice)
           
-                s = text.bytes.to_a
                 while nptr && nptr.address!=0x0
                   mn = Natto::MeCabNode.new(nptr)
                   if !mn.is_bos?
-                    s = s.drop_while {|e| (e==0xa || e==0x20)}
-                    if !s.empty?
-                      sarr = []
-                      mn.length.times { sarr << s.shift }
-                      surf = sarr.pack('C*')
-                      mn.surface = surf.force_encoding(Encoding.default_external)
-                    end
+                    surf = mn[:surface].bytes.to_a.slice(0,mn.length).pack('C*')
+                    mn.surface = surf.force_encoding(Encoding.default_external)
                     if @options[:output_format_type] || @options[:node_format]
                       mn.feature = self.mecab_format_node(@tagger, nptr).force_encoding(Encoding.default_external)
                     end
                     y.yield mn
                   end
-                  nptr = mn.next
+                  nptr = mn[:next]
                 end
               end
             end
