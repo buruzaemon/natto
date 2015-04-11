@@ -5,20 +5,6 @@ require 'yaml'
 class TestMeCab < Minitest::Test
     
   def setup
-    #@m = Natto::MeCab.new()
-    #@m_f = Natto::MeCab.new '-F%pl\t%f[7]...' 
-    #@m_s = Natto::MeCab.new '-F%m\s%s'
-    #@m_t = Natto::MeCab.new '-t 0.666'
-    #@m_p = Natto::MeCab.new '-p'
-    #@m_fp = Natto::MeCab.new '-F%m,%f[0],%s\n'
-    #@m_m = Natto::MeCab.new '-m -t 0.001'
-    #@mn = Natto::MeCab.new '-N2' 
-    #@mn_f = Natto::MeCab.new '-N2 -F%pl\t%f[7]...' 
-    #@mn_w = Natto::MeCab.new '-N4 -Owakati' 
-    #@mn_y = Natto::MeCab.new '-N2 -Oyomi' 
-    #@mn_fp = Natto::MeCab.new '-F%m,%f[0],%s'
-    #@e    = Natto::MeCab.new
-    #@e_f  = Natto::MeCab.new '-F%f[1]'
     @ver  = `mecab -v`.strip.split.last
     @host_os = RbConfig::CONFIG['host_os']
     @arch    = RbConfig::CONFIG['arch']
@@ -30,7 +16,7 @@ class TestMeCab < Minitest::Test
       @test_cmd = 'cat "test/natto/test_utf8"'
       @br       = '\n'
     end
-    @test_str   = `#{@test_cmd}`
+    @test_str   = `#{@test_cmd}`.strip
 
     # boundary constraint parse setup
     #yml = YAML.load(File.read('test/natto/test_utf8.yml'))
@@ -62,23 +48,11 @@ class TestMeCab < Minitest::Test
   end
 
   def teardown
-    #@m          = nil
-    #@m_f        = nil
-    #@m_s        = nil
-    #@m_t        = nil
-    #@m_p        = nil
-    #@m_m        = nil
-    #@m_fp       = nil
-    #@mn         = nil
-    #@mn_f       = nil
-    #@mn_w       = nil
-    #@mn_y       = nil
-    #@mn_fp      = nil
-    #@ver        = nil
-    #@host_os    = nil
-    #@arch       = nil
-    #@test_cmd   = nil
-    #@test_str   = nil
+    @ver        = nil
+    @host_os    = nil
+    @arch       = nil
+    @test_cmd   = nil
+    @test_str   = nil
     #@yml1       = nil
     #@yml2       = nil
     #@yml3       = nil
@@ -505,86 +479,112 @@ class TestMeCab < Minitest::Test
   
     nm = Natto::MeCab.new(opts)
     actual = []
-    #nm.parse(@test_str) {|n| actual << n if n.is_nor?}    
-    nm.parse(@test_str) {|n| actual << n}    
-    puts expected
-    puts actual
+    nm.parse(@test_str) {|n| actual << n if !n.is_eos?}
+    expected.each_with_index do |e,i|
+      a = actual[i]
+      assert_equal(e.strip, "#{a.surface}\t#{a.feature}")
+    end
   end
 
+  def test_parse_tostr_theta
+    opts = '-t 0.666'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-  #def test_parse_tostr_theta
-  #  expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
-  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    nm = Natto::MeCab.new(opts)
+    actual = nm.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
-  #  actual = @m_t.parse(@test_str).lines.to_a
-  #  actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    assert_equal(expected, actual)
+  end
 
-  #  assert_equal(expected, actual)
-  #end
+  def test_parse_tonodes_theta
+    opts = '-t 0.666'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-  #def test_parse_tonode_theta
-  #  expected = `#{@test_cmd} | mecab -t 0.666`.lines.to_a
-  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+    nm = Natto::MeCab.new(opts)
+    actual = []
+    nm.parse(@test_str) do |n|
+      actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
+    end
 
-  #  actual = []
-  #  @m_t.parse(@test_str) do |n|
-  #    actual << "#{n.surface}\t#{n.feature}\n" if n.is_nor?
-  #  end
+    assert_equal(expected, actual)
+  end
 
-  #  assert_equal(expected, actual)
-  #end
+  def test_parse_tostr_marginal
+    opts = '-t 0.666'
+    expected = `#{@test_cmd} | mecab #{opts}`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-  #def test_parse_tonode_marginal
-  #  @m_t.parse(@test_str) do |n|
-  #    if !(n.is_eos? or n.is_bos?)
-  #      assert(n.prob == 0.0)
-  #      assert(n.alpha == 0.0)
-  #      assert(n.beta == 0.0)
-  #    end
-  #  end
+    nm = Natto::MeCab.new(opts)
+    actual = nm.parse(@test_str).lines.to_a
+    actual.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
 
-  #  @m_m.parse(@test_str) do |n|
-  #    if !(n.is_eos? or n.is_bos?)
-  #      assert(n.prob != 0.0)
-  #      assert(n.alpha != 0.0)
-  #      assert(n.beta != 0.0)
-  #    end
-  #  end
-  #end
+    assert_equal(expected, actual)
+  end
 
-  #def test_enum_parse_default
-  #  expected = `#{@test_cmd} | mecab`.lines.to_a
-  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+  def test_parse_tonodes_marginal
+    opts = '-t 0.666'
+    nm = Natto::MeCab.new(opts)
+    nm.parse(@test_str) do |n|
+      if !(n.is_eos? or n.is_bos?)
+        assert(n.prob == 0.0)
+        assert(n.alpha == 0.0)
+        assert(n.beta == 0.0)
+      end
+    end
 
-  #  enum = @e.enum_parse(@test_str)
+    opts2 = '-m -t 0.001'
+    nm2 = Natto::MeCab.new(opts2)
+    nm2.parse(@test_str) do |n|
+      if !(n.is_eos? or n.is_bos?)
+        assert(n.prob != 0.0)
+        assert(n.alpha != 0.0)
+        assert(n.beta != 0.0)
+      end
+    end
+  end
 
-  #  assert_equal(expected[0].split.first, enum.next.surface)
-  #  assert_equal(expected[1].split.first, enum.next.surface)
-  #  assert_equal(expected[2].split.first, enum.next.surface)
-  #  assert_equal(expected[3].split.first, enum.next.surface)
-  #  assert_equal(expected[4].split.first, enum.next.surface)
-  #  assert_equal(expected[5].split.first, enum.next.surface)
-  #  assert_equal(expected[6].split.first, enum.next.surface)
-  #end
-  #
-  #def test_enum_parse_with_format
-  #  expected = `#{@test_cmd} | mecab -F"%f[1]#{@br}"`.lines.to_a
-  #  expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
-  #  expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+  # -------- node parsing with Enumerator -----------
+  
+  def test_enum_parse_default
+    expected = `#{@test_cmd} | mecab`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
 
-  #  enum = @e_f.enum_parse(@test_str)
+    nm = Natto::MeCab.new
+    enum = nm.enum_parse(@test_str)
 
-  #  assert_equal(expected[0].strip, enum.next.feature)
-  #  assert_equal(expected[1].strip, enum.next.feature)
-  #  assert_equal(expected[2].strip, enum.next.feature)
-  #  assert_equal(expected[3].strip, enum.next.feature)
-  #  assert_equal(expected[4].strip, enum.next.feature)
-  #  assert_equal(expected[5].strip, enum.next.feature)
-  #  assert_equal(expected[6].strip, enum.next.feature)
-  #end
+    assert_equal(expected[0].split.first, enum.next.surface)
+    assert_equal(expected[1].split.first, enum.next.surface)
+    assert_equal(expected[2].split.first, enum.next.surface)
+    assert_equal(expected[3].split.first, enum.next.surface)
+    assert_equal(expected[4].split.first, enum.next.surface)
+    assert_equal(expected[5].split.first, enum.next.surface)
+    assert_equal(expected[6].split.first, enum.next.surface)
+  end
+  
+  def test_enum_parse_with_format
+    opts = '%f[1]'
+    expected = `#{@test_cmd} | mecab -F"#{opts}#{@br}"`.lines.to_a
+    expected.delete_if {|e| e =~ /^(EOS|BOS|\t)/ }
+    expected.map!{|e| e.force_encoding(Encoding.default_external)} if @arch =~ /java/i && RUBY_VERSION.to_f >= 1.9
+
+    nm = Natto::MeCab.new("-F#{opts}")
+    enum = nm.enum_parse(@test_str)
+
+    assert_equal(expected[0].strip, enum.next.feature)
+    assert_equal(expected[1].strip, enum.next.feature)
+    assert_equal(expected[2].strip, enum.next.feature)
+    assert_equal(expected[3].strip, enum.next.feature)
+    assert_equal(expected[4].strip, enum.next.feature)
+    assert_equal(expected[5].strip, enum.next.feature)
+    assert_equal(expected[6].strip, enum.next.feature)
+  end
 
   #def test_parse_tostr_partial
   #  text  = @yml1[:text]
