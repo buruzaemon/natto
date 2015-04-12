@@ -12,12 +12,6 @@ test2:
     text: "では\nブルザエモン\tその他\nは何者だ？"
     options: '-p -F%m,%F,[0]'
     expected: 
-        - では,接続詞
-        - ブルザエモン,その他 
-        - は,助詞 
-        - 何者,名詞
-        - だ,助動詞 
-        - ？,記号 
 test3:
     text: にわにはにわにわとりがいる。
     pattern: 'にわとり|にわ|はにわ'
@@ -80,8 +74,7 @@ test8:
     text: 心の中で3回唱え、 ヒーロー見参！ヒーロー見参！ヒーロー見参！ 
     options: '-F%m,%f[0],%s'
     constraints:
-        key: ヒーロー見参
-        feature: その他
+        key: ヒーロー見参 feature: その他
     expected: 
         - 心,名詞,0 
         - の,助詞,0
