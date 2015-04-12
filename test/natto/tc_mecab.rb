@@ -470,14 +470,14 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_parse_tostr_feature_constraints
-    nm = Natto::MeCab.new('-F%m,%f[0],%s')
+  #def test_parse_tostr_feature_constraints
+  #  nm = Natto::MeCab.new('-F%m,%f[0],%s')
 
-    actual = nm.parse(@test_fc, feature_constraints: @test_fc_hash).lines.to_a
-    actual.each_with_index do |l,i|
-      assert_match(@test_fc_res[i], l)
-    end
-  end
+  #  actual = nm.parse(@test_fc, feature_constraints: @test_fc_hash).lines.to_a
+  #  actual.each_with_index do |l,i|
+  #    assert_match(@test_fc_res[i], l)
+  #  end
+  #end
 
   # ----------- tonodes --------------------------
   
@@ -638,15 +638,15 @@ class TestMeCab < Minitest::Test
     end
   end
 
-  def test_parse_tonodes_feature_constraints
-    nm = Natto::MeCab.new('-F%m,%f[0],%s')
+  #def test_parse_tonodes_feature_constraints
+  #  nm = Natto::MeCab.new('-F%m,%f[0],%s')
 
-    actual = []
-    nm.enum_parse(@test_fc, feature_constraints: @test_fc_hash).each {|n| actual << n}
-    actual.each_with_index do |n,i|
-      assert_match(@test_fc_res[i], n.feature)
-    end
-  end
+  #  actual = []
+  #  nm.enum_parse(@test_fc, feature_constraints: @test_fc_hash).each {|n| actual << n}
+  #  actual.each_with_index do |n,i|
+  #    assert_match(@test_fc_res[i], n.feature)
+  #  end
+  #end
 
   # ----------- enum_parse -----------------------
   
