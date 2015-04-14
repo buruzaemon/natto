@@ -17,7 +17,7 @@ END_DESC
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.9'
   s.require_path = 'lib'
-  s.requirements << 'MeCab, 0.996 or greater'
+  s.requirements << 'MeCab 0.996'
   s.requirements << 'FFI, 1.9.0 or greater'
   s.files = [
     'lib/natto.rb', 
