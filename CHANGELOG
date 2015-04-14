@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-- __2015/04/dd__: 1.0.0 release.
+- __2015/04/14__: 1.0.0 release.
     - Issue 36: Fixed @param documentation
     - Issue 37: README and bullet points under Automatic Configuration
     - Issue 38: Updated URLs in documentation to point to Ruby 2.2.1
@@ -10,6 +10,8 @@
     - Issue 48: Put in a guard to prevent partial parsing of text that does not end with a new-line char
     - Issue 50: Update all references to Natto::MeCab in documentation to reflect new internal structure
     - Issue 52: Downloads and license badges for README.md & API docs
+    - Issue 55: Node parsing with --all-morphs option missing surface values
+
 
 - __2015/03/31__: 0.9.9 release.
     - Issue 21/34: Implemented boundary constraint parsing.
