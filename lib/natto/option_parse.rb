@@ -48,7 +48,7 @@ module Natto
       def parse_mecab_options(options={})
         h = {}
         if options.is_a? String
-          opts = OptionParser.new do |opts|
+          parser = OptionParser.new do |opts|
             opts.on('-r', '--rcfile ARG')           { |arg| h[:rcfile] = arg.strip }
             opts.on('-d', '--dicdir ARG')           { |arg| h[:dicdir] = arg.strip }
             opts.on('-u', '--userdic ARG')          { |arg| h[:userdic] = arg.strip }
@@ -70,7 +70,7 @@ module Natto
             opts.on('-t', '--theta ARG')            { |arg| h[:theta] = arg.strip.to_f }
             opts.on('-c', '--cost-factor ARG')      { |arg| h[:cost_factor] = arg.strip.to_i }
           end
-          opts.parse!(options.split)
+          parser.parse!(options.split)
         else
           SUPPORTED_OPTS.values.each do |k|
             if options.has_key?(k)
