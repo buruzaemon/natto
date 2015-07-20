@@ -1,5 +1,8 @@
 ## CHANGELOG
 
+- __2015/07/20: 1.0.1 release.
+    - Issue 62: Ruby warning: shadowing outer local variable - opts
+
 - __2015/04/14__: 1.0.0 release.
     - Issue 36: Fixed @param documentation
     - Issue 37: README and bullet points under Automatic Configuration
@@ -11,7 +14,6 @@
     - Issue 50: Update all references to Natto::MeCab in documentation to reflect new internal structure
     - Issue 52: Downloads and license badges for README.md & API docs
     - Issue 55: Node parsing with --all-morphs option missing surface values
-
 
 - __2015/03/31__: 0.9.9 release.
     - Issue 21/34: Implemented boundary constraint parsing.
