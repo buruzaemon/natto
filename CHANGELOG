@@ -2,6 +2,7 @@
 
 - __2015/12/24__: 1.1.0 release
     - Issue 64: undefined method 'mecab_model_destory' for Natto::MeCab:Class 
+    - Adding jruby-9.0.4.0 to Travis rubies used in testing
 
 - __2015/07/20__: 1.0.1 release.
     - Issue 62: Ruby warning: shadowing outer local variable - opts
