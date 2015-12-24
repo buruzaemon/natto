@@ -571,7 +571,7 @@ module Natto
       Proc.new do
         self.mecab_lattice_destroy(lptr)
         self.mecab_destroy(tptr)
-        self.mecab_model_destory(mptr)
+        self.mecab_model_destroy(mptr)
       end
     end
 
