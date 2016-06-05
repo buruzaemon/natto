@@ -15,7 +15,8 @@ module Natto
     # @raise [NoMethodError] if `attr_name` is not a member of this MeCab struct 
     def method_missing(attr_name)
       member_sym = attr_name.id2name.to_sym
-      return self[member_sym] if self.members.include?(member_sym)
+      self[member_sym]
+    rescue ArgumentError # `member_sym` field doesn't exist.
       raise(NoMethodError.new("undefined method '#{attr_name}' for #{self}"))
     end
   end
