@@ -1,4 +1,7 @@
 ## CHANGELOG
+- __2016/06/18__: 1.1.1 release
+    - Issue 68: Speed up for accessing field of Struct.
+    - Updating LICENSE and copyright for year 2016. 
 
 - __2015/12/24__: 1.1.0 release
     - Issue 64: undefined method 'mecab_model_destory' for Natto::MeCab:Class 

@@ -116,7 +116,7 @@ module Natto
   end
 end
 
-# Copyright (c) 2015, Brooke M. Fujita.
+# Copyright (c) 2016, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
