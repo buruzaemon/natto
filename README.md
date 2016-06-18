@@ -323,4 +323,4 @@ to a corresponding feature (String).
 Please see the {file:CHANGELOG} for this gem's release history.
 
 ## Copyright
-Copyright &copy; 2015, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.
+Copyright &copy; 2016, Brooke M. Fujita. All rights reserved. Please see the {file:LICENSE} file for further details.
