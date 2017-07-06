@@ -2,7 +2,7 @@ before_install:
   - sudo apt-get update -qq
   - uname -a
 
-install:  
+install:
   # mecab
   - wget --no-check-certificate https://github.com/buruzaemon/natto/raw/master/etc/mecab-0.996.tar.gz && tar zxf mecab-0.996.tar.gz
   - pushd mecab-0.996 && ./configure --enable-utf8-only && make && sudo make install && popd
@@ -14,14 +14,15 @@ install:
   # explicitly install ffi and minitest
   - gem install ffi
   - gem install minitest
-  
+
 language: ruby
 cache: bundler
 rvm:
   - 1.9.3
   - 2.0.0
   - 2.1.10
-  - 2.2.5
-  - 2.3.1
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
   - jruby-1.7.20
   #- jruby-9.0.5.0
