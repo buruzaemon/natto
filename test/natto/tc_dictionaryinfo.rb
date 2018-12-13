@@ -7,7 +7,7 @@ class TestDictionaryInfo < Minitest::Test
     @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     begin
       File.delete(@testdic) if File.exist?(@testdic)
-    rescue
+    rescue SystemCallError
       $stderr.puts "[INFO] setup: could not delete test.dic, you might want to remove manually."
     end
 
