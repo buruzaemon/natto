@@ -4,6 +4,7 @@ require 'rbconfig'
 
 class TestDictionaryInfo < Minitest::Test
   def setup
+    @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     begin
       File.delete(@testdic) if File.exist?(@testdic)
     rescue
@@ -13,7 +14,6 @@ class TestDictionaryInfo < Minitest::Test
     @host_os = RbConfig::CONFIG['host_os']
 
     testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
-    @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     
     if @host_os =~ /mswin|mingw/i
       require 'win32/registry'
