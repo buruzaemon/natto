@@ -12,8 +12,6 @@ class TestDictionaryInfo < Minitest::Test
 
     @host_os = RbConfig::CONFIG['host_os']
 
-    usrdic, m = nil,nil
-
     testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
     @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     
@@ -58,8 +56,6 @@ class TestDictionaryInfo < Minitest::Test
 
     @usrdic_filename = out[8].split("\t")[1].strip
     @usrdic_filepath = File.absolute_path(@usrdic_filename)
-    :q
-    :q
     @usrdic_charset  = out[10].split("\t")[1].strip
     @usrdic_type     = out[11].split("\t")[1].strip.to_i
   end
