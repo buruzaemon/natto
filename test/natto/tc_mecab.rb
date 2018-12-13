@@ -278,7 +278,7 @@ class TestMeCab < Minitest::Test
 
   def test_lattice_level_warning
     [{lattice_level: 999}, '-l 999', '--lattice-level=999' ].each do |opt|
-      out, err = capture_io do
+      _out, err = capture_io do
         Natto::MeCab.new opt
       end
       assert_equal ":lattice-level is DEPRECATED, please use :marginal or :nbest\n", err
