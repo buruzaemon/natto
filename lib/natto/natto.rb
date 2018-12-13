@@ -335,8 +335,10 @@ module Natto
             retval = self.mecab_lattice_tostr(@lattice)
           end
           retval.force_encoding(Encoding.default_external)
-        rescue
-          raise(MeCabError.new(self.mecab_lattice_strerror(@lattice))) 
+        rescue => ex
+          message = self.mecab_lattice_strerror(@lattice)
+          raise ex if message == ''
+          raise MeCabError.new(message)
         end
       }
         
@@ -416,8 +418,10 @@ module Natto
               end
             end
             nil
-          rescue
-            raise(MeCabError.new(self.mecab_lattice_strerror(@lattice))) 
+          rescue => ex
+            message = self.mecab_lattice_strerror(@lattice)
+            raise ex if message == ''
+            raise MeCabError.new(message)
           end
         end
       }
