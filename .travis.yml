@@ -1,6 +1,7 @@
 before_install:
   - sudo apt-get update -qq
   - uname -a
+  - gem install bundler -v ‘< 2’
 
 install:
   # mecab
