@@ -4,18 +4,16 @@ require 'rbconfig'
 
 class TestDictionaryInfo < Minitest::Test
   def setup
+    @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     begin
       File.delete(@testdic) if File.exist?(@testdic)
-    rescue
+    rescue SystemCallError
       $stderr.puts "[INFO] setup: could not delete test.dic, you might want to remove manually."
     end
 
     @host_os = RbConfig::CONFIG['host_os']
 
-    usrdic, m = nil,nil
-
     testcsv = File.join(Dir.pwd, 'test', 'natto', 'test_userdic.csv')
-    @testdic = File.join(Dir.pwd, 'test', 'natto', 'test.dic')
     
     if @host_os =~ /mswin|mingw/i
       require 'win32/registry'
@@ -58,8 +56,6 @@ class TestDictionaryInfo < Minitest::Test
 
     @usrdic_filename = out[8].split("\t")[1].strip
     @usrdic_filepath = File.absolute_path(@usrdic_filename)
-    :q
-    :q
     @usrdic_charset  = out[10].split("\t")[1].strip
     @usrdic_type     = out[11].split("\t")[1].strip.to_i
   end
