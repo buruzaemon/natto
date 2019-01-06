@@ -479,6 +479,15 @@ class TestMeCab < Minitest::Test
     end
   end
 
+  # regression test for https://github.com/buruzaemon/natto/pull/73
+  def test_parse_tostr_does_not_conceal_error
+    nm = Natto::MeCab.new
+    error_cause = Object.new
+    assert_raises TypeError do
+      nm.parse(error_cause)
+    end
+  end
+
   # ----------- tonodes --------------------------
   
   def test_parse_tonodes_default
@@ -645,6 +654,17 @@ class TestMeCab < Minitest::Test
     nm.enum_parse(@test_fc, feature_constraints: @test_fc_hash).each {|n| actual << n}
     actual.each_with_index do |n,i|
       assert_match(@test_fc_res[i], n.feature)
+    end
+  end
+
+  # regression test for https://github.com/buruzaemon/natto/pull/73
+  def test_parse_tonodes_does_not_conceal_error
+    nm = Natto::MeCab.new
+    error_cause = Object.new
+    assert_raises TypeError do
+      nm.parse(error_cause) do
+        # nothing
+      end
     end
   end
 
