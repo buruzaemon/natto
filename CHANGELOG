@@ -1,4 +1,8 @@
 ## CHANGELOG
+- __2019/01/12: 1.1.2 release
+    - Issue 73: Do not conceal original error in `parse_tostr` and `parse_tonodes`
+    - Updating LICENSE and copyright for year 2019. 
+
 - __2016/06/18__: 1.1.1 release
     - Issue 68: Speed up for accessing field of Struct.
     - Updating LICENSE and copyright for year 2016. 
