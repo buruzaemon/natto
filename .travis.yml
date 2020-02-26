@@ -1,3 +1,5 @@
+dist: xenial
+
 before_install:
   - sudo apt-get update -qq
   - uname -a
@@ -20,11 +22,11 @@ language: ruby
 cache: bundler
 rvm:
   - 1.9.3
-  - 2.0.0
   - 2.1.10
   - 2.2.10
   - 2.3.8
-  - 2.4.5
-  - 2.5.3
-  - 2.6.0
+  - 2.4.9
+  - 2.5.7
+  - 2.6.5
+  - 2.7.0
   - jruby-1.7.26
