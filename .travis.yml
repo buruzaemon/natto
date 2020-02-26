@@ -21,12 +21,10 @@ install:
 language: ruby
 cache: bundler
 rvm:
-  - 1.9.3
-  - 2.1.10
   - 2.2.10
   - 2.3.8
   - 2.4.9
   - 2.5.7
   - 2.6.5
   - 2.7.0
-  - jruby-1.7.26
+  - jruby-head
