@@ -1,4 +1,8 @@
 ## CHANGELOG
+- __2020/03/11: 1.2.0 release
+    - Issue 75: Inconsistent parsing results between tostr and tonodes
+    - Updating Travis rubies. 
+
 - __2019/01/12: 1.1.2 release
     - Issue 73: Do not conceal original error in `parse_tostr` and `parse_tonodes`
     - Updating LICENSE and copyright for year 2019. 
