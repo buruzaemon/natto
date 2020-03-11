@@ -343,7 +343,6 @@ module Natto
       }
         
       @parse_tonodes = ->(text, constraints) {
-        self.mecab_lattice_add_request_type(@lattice, MECAB_LATTICE_NBEST)
         Enumerator.new do |y|
           begin
             if @options[:nbest] && @options[:nbest] > 1
@@ -627,7 +626,7 @@ module Natto
   class MeCabError < RuntimeError; end
 end
 
-# Copyright (c) 2019, Brooke M. Fujita.
+# Copyright (c) 2020, Brooke M. Fujita.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
